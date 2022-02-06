@@ -1,0 +1,17 @@
+package de.timesnake.basic.loungebridge.core.main;
+
+import org.bukkit.plugin.java.JavaPlugin;
+
+public class BasicLoungeBridge extends JavaPlugin {
+
+    private static BasicLoungeBridge plugin;
+
+    @Override
+    public void onEnable() {
+        plugin = this;
+    }
+
+    public static BasicLoungeBridge getPlugin() {
+        return plugin;
+    }
+}
