@@ -343,7 +343,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     }
 
     public void broadcastLoungeBridgeMessage(String msg) {
-        Server.broadcastMessage(Server.getChat().getSenderPlugin(this.getGamePlugin()) + msg);
+        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()) + msg);
     }
 
     public TeamTablist getGameTablist() {
@@ -372,27 +372,27 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         }
     }
 
-    public GameUser getMostKills(Collection<GameUser> users) {
+    public <U extends GameUser> U getMostKills(Collection<U> users) {
         if (users == null || users.isEmpty()) return null;
         return Collections.max(users, Comparator.comparing(GameUser::getKills));
     }
 
-    public GameUser getHighestKillStreak(Collection<GameUser> users) {
+    public <U extends GameUser> U getHighestKillStreak(Collection<U> users) {
         if (users == null || users.isEmpty()) return null;
         return Collections.max(users, Comparator.comparing(GameUser::getHighestKillStreak));
     }
 
-    public GameUser getMostDeaths(Collection<GameUser> users) {
+    public <U extends GameUser> U getMostDeaths(Collection<U> users) {
         if (users == null || users.isEmpty()) return null;
         return Collections.max(users, Comparator.comparing(GameUser::getDeaths));
     }
 
-    public GameUser getHighestKD(Collection<GameUser> users) {
+    public <U extends GameUser> U getHighestKD(Collection<U> users) {
         if (users == null || users.isEmpty()) return null;
         return Collections.max(users, Comparator.comparing(GameUser::getKillDeathRatio));
     }
 
-    public GameUser getLongestShot(Collection<GameUser> users) {
+    public <U extends GameUser> U getLongestShot(Collection<U> users) {
         if (users == null || users.isEmpty()) return null;
         return Collections.max(users, Comparator.comparing(GameUser::getLongestShot));
     }
