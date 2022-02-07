@@ -119,23 +119,23 @@ public class LoungeBridgeServer extends GameServer {
         return (M) server.getMap();
     }
 
-    public static GameUser getMostKills(Collection<GameUser> users) {
+    public static <U extends GameUser> U getMostKills(Collection<U> users) {
         return server.getMostKills(users);
     }
 
-    public static GameUser getHighestKillstreak(Collection<GameUser> users) {
+    public static <U extends GameUser> U getHighestKillstreak(Collection<U> users) {
         return server.getHighestKillStreak(users);
     }
 
-    public static GameUser getMostDeaths(Collection<GameUser> users) {
+    public static <U extends GameUser> U getMostDeaths(Collection<U> users) {
         return server.getMostDeaths(users);
     }
 
-    public static GameUser getHighestKD(Collection<GameUser> users) {
+    public static <U extends GameUser> U getHighestKD(Collection<U> users) {
         return server.getHighestKD(users);
     }
 
-    public static GameUser getLongestShot(Collection<GameUser> users) {
+    public static <U extends GameUser> U getLongestShot(Collection<U> users) {
         return server.getLongestShot(users);
     }
 
