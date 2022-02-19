@@ -14,7 +14,7 @@ import de.timesnake.basic.packets.util.listener.PacketPlayOutModifyListener;
 import de.timesnake.basic.packets.util.packet.ExPacket;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
-import de.timesnake.database.util.object.Status;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;

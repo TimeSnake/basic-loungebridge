@@ -7,28 +7,31 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
-import de.timesnake.channel.api.message.ChannelServerMessage;
-import de.timesnake.channel.listener.ChannelServerListener;
+import de.timesnake.channel.util.listener.ChannelHandler;
+import de.timesnake.channel.util.listener.ListenerType;
+import de.timesnake.channel.util.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.server.DbTempGameServer;
 
-public class ChannelListener implements ChannelServerListener {
+import java.util.List;
+
+public class ChannelListener implements de.timesnake.channel.util.listener.ChannelListener {
 
     public ChannelListener() {
-        Server.getChannel().addServerListener(this, Server.getPort());
-        Server.getChannel().addServerListener(this, LoungeBridgeServer.getTwinServer().getPort());
+        Server.getChannel().addListener(this, () -> List.of(Server.getPort(), LoungeBridgeServer.getTwinServer().getPort()));
     }
 
-    @Override
-    public void onServerMessage(ChannelServerMessage msg) {
-        if (msg.getType().equals(ChannelServerMessage.MessageType.MAP)) {
+    @ChannelHandler(type = {ListenerType.SERVER_MAP, ListenerType.SERVER_CUSTOM}, filtered = true)
+    public void onServerMessage(ChannelServerMessage<?> msg) {
+        if (msg.getMessageType().equals(MessageType.Server.MAP)) {
             Map map = GameServer.getGame().getMap(((DbTempGameServer) Server.getDatabase()).getMapName());
             LoungeBridgeServerManager.getInstance().setMap(map);
             Server.printText(Plugin.LOUNGE, "Loading map " + map.getName() + " ...");
             Server.runTaskSynchrony(LoungeBridgeServer::loadMap, BasicLoungeBridge.getPlugin());
             Server.printText(Plugin.LOUNGE, "Loaded map " + map.getName());
-        } else if (msg.getType().equals(ChannelServerMessage.MessageType.CUSTOM)) {
-            if (msg.getValue().contains("estimatedPlayers:")) {
-                String[] value = msg.getValue().split(":");
+        } else if (msg.getMessageType().equals(MessageType.Server.CUSTOM)) {
+            if (((String) msg.getValue()).contains("estimatedPlayers:")) {
+                String[] value = ((String) msg.getValue()).split(":");
                 if (value.length == 2) {
                     try {
                         Integer estimatedPlayers = Integer.valueOf(value[1]);

@@ -3,7 +3,7 @@ package de.timesnake.basic.loungebridge.util.user;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.Team;
-import de.timesnake.database.util.object.Status;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.inventory.ItemStack;
 
 import java.util.UUID;

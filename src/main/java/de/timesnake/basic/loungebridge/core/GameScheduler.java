@@ -8,7 +8,7 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.database.util.object.Status;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.Instrument;
 import org.bukkit.Note;
 import org.bukkit.scheduler.BukkitTask;
