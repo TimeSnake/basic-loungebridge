@@ -8,7 +8,7 @@ import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityEffect;
-import de.timesnake.database.util.object.Status;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.entity.Player;
 
 public abstract class SpectatorUser extends StatUser {

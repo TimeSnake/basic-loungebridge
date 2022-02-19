@@ -21,12 +21,13 @@ import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.user.*;
-import de.timesnake.channel.api.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.ChannelServerMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
-import de.timesnake.database.util.object.Status;
 import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTempGameServer;
+import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.statistics.Stat;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -366,7 +367,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                 break;
             case WAITING:
                 Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(ChannelServerMessage.getStateMessage(Server.getPort(), ChannelServerMessage.State.READY));
+                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE, ChannelServerMessage.State.READY));
                 Server.printText(Plugin.GAME, "Send lounge ready state");
                 break;
         }
