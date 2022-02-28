@@ -7,13 +7,20 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.channel.util.message.ChannelDiscordMessage;
+import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.Instrument;
 import org.bukkit.Note;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class GameScheduler {
 
@@ -108,6 +115,12 @@ public class GameScheduler {
                 Server.getGlobalChat().addWriter(user);
                 Server.getGlobalChat().addListener(user);
                 user.clearInventory();
+            }
+
+            if (LoungeBridgeServer.isDiscord()) {
+                LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
+                uuidsByTeam.put(LoungeBridgeServerManager.SPECTATOR_NAME, Server.getUsers().stream().map(User::getUniqueId).collect(Collectors.toList()));
+                Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_TEAMS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
             }
 
             LoungeBridgeServer.getSpectatorManager().clearTools();
