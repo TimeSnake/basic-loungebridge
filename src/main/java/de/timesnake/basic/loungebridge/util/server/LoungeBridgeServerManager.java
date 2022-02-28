@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 public abstract class LoungeBridgeServerManager extends GameServerManager {
 
-    public static final String SPECTATOR_NAME = "spectator";
+    public static final String SPECTATOR_NAME = "Spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
     public static final String SPECTATOR_TABLIST_PREFIX = "";
     public static final org.bukkit.ChatColor SPECTATOR_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
@@ -83,6 +83,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     protected boolean teamMateDamage = true;
 
     protected Integer estimatedPlayers;
+
+    protected boolean discord;
 
     public final void onLoungeBridgeEnable() {
         super.onGameEnable();
@@ -448,6 +450,14 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
     public UserManager getLoungeBridgeUserManager() {
         return this.userManager;
+    }
+
+    public boolean isDiscord() {
+        return discord;
+    }
+
+    public void setDiscord(boolean discord) {
+        this.discord = discord;
     }
 
     /**

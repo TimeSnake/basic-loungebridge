@@ -190,4 +190,12 @@ public class LoungeBridgeServer extends GameServer {
     public static void saveGameStats() {
         server.saveGameStats();
     }
+
+    public static boolean isDiscord() {
+        return server.isDiscord();
+    }
+
+    public static void setDiscord(boolean enable) {
+        server.setDiscord(enable);
+    }
 }

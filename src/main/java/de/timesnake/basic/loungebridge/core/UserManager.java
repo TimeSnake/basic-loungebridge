@@ -72,6 +72,8 @@ public class UserManager implements Listener {
             user.setFireTicks(0);
             user.removePotionEffects();
 
+            user.updateTeam();
+
             if (user.getTeam() != null && LoungeBridgeServer.getServerTeamAmount() > 0) {
                 Chat teamChat = Server.getChat(user.getTeam().getName());
                 if (teamChat != null) {

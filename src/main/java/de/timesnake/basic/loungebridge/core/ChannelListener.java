@@ -21,7 +21,7 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
         Server.getChannel().addListener(this, () -> List.of(Server.getPort(), LoungeBridgeServer.getTwinServer().getPort()));
     }
 
-    @ChannelHandler(type = {ListenerType.SERVER_MAP, ListenerType.SERVER_CUSTOM}, filtered = true)
+    @ChannelHandler(type = {ListenerType.SERVER_MAP, ListenerType.SERVER_CUSTOM, ListenerType.SERVER_DISCORD}, filtered = true)
     public void onServerMessage(ChannelServerMessage<?> msg) {
         if (msg.getMessageType().equals(MessageType.Server.MAP)) {
             Map map = GameServer.getGame().getMap(((DbTempGameServer) Server.getDatabase()).getMapName());
@@ -42,6 +42,8 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
                     }
                 }
             }
+        } else if (msg.getMessageType().equals(MessageType.Server.DISCORD)) {
+            LoungeBridgeServer.setDiscord((boolean) msg.getValue());
         }
     }
 
