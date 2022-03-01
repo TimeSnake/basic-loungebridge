@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 
 public abstract class LoungeBridgeServerManager extends GameServerManager {
 
-    public static final String SPECTATOR_NAME = "Spectator";
+    public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
     public static final String SPECTATOR_TABLIST_PREFIX = "";
     public static final org.bukkit.ChatColor SPECTATOR_CHAT_COLOR = org.bukkit.ChatColor.GRAY;

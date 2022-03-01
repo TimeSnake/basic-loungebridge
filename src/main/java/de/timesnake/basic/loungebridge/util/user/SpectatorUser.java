@@ -7,7 +7,6 @@ import de.timesnake.basic.game.util.StatUser;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityEffect;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.MessageType;
@@ -91,7 +90,7 @@ public abstract class SpectatorUser extends StatUser {
 
         if (LoungeBridgeServer.isDiscord()) {
             LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
-            uuidsByTeam.put(LoungeBridgeServerManager.SPECTATOR_NAME, List.of(this.getUniqueId()));
+            uuidsByTeam.put(LoungeBridgeServer.DISCORD_SPECTATOR, List.of(this.getUniqueId()));
             Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_TEAMS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
         }
     }
