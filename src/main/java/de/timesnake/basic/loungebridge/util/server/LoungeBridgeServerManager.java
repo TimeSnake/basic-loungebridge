@@ -34,6 +34,8 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public abstract class LoungeBridgeServerManager extends GameServerManager {
@@ -356,48 +358,80 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     public void setState(LoungeBridgeServer.State state) {
         this.state = state;
         switch (state) {
-            case RUNNING:
-            case STOPPED:
-                Server.setStatus(Status.Server.IN_GAME);
-                break;
-            case STARTING:
-                Server.setStatus(Status.Server.PRE_GAME);
-                break;
-            case CLOSING:
-            case RESETTING:
-                Server.setStatus(Status.Server.POST_GAME);
-                break;
-            case WAITING:
+            case RUNNING, STOPPED -> Server.setStatus(Status.Server.IN_GAME);
+            case STARTING -> Server.setStatus(Status.Server.PRE_GAME);
+            case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
+            case WAITING -> {
                 Server.setStatus(Status.Server.ONLINE);
                 Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE, ChannelServerMessage.State.READY));
                 Server.printText(Plugin.GAME, "Send lounge ready state");
-                break;
+            }
         }
     }
 
-    public <U extends GameUser> U getMostKills(Collection<U> users) {
-        if (users == null || users.isEmpty()) return null;
-        return Collections.max(users, Comparator.comparing(GameUser::getKills));
+    public <U extends GameUser> Set<U> getMostKills(Collection<U> users, int number) {
+        return this.getHighScore(users, number, Comparator.comparing(GameUser::getKills));
     }
 
-    public <U extends GameUser> U getHighestKillStreak(Collection<U> users) {
-        if (users == null || users.isEmpty()) return null;
-        return Collections.max(users, Comparator.comparing(GameUser::getHighestKillStreak));
+    public <U extends GameUser> Set<U> getHighestKillStreak(Collection<U> users, int number) {
+        return this.getHighScore(users, number, Comparator.comparing(GameUser::getHighestKillStreak));
     }
 
-    public <U extends GameUser> U getMostDeaths(Collection<U> users) {
-        if (users == null || users.isEmpty()) return null;
-        return Collections.max(users, Comparator.comparing(GameUser::getDeaths));
+    public <U extends GameUser> Set<U> getMostDeaths(Collection<U> users, int number) {
+        return this.getHighScore(users, number, Comparator.comparing(GameUser::getDeaths));
     }
 
-    public <U extends GameUser> U getHighestKD(Collection<U> users) {
-        if (users == null || users.isEmpty()) return null;
-        return Collections.max(users, Comparator.comparing(GameUser::getKillDeathRatio));
+    public <U extends GameUser> Set<U> getHighestKD(Collection<U> users, int number) {
+        return this.getHighScore(users, number, Comparator.comparing(GameUser::getKillDeathRatio));
     }
 
-    public <U extends GameUser> U getLongestShot(Collection<U> users) {
-        if (users == null || users.isEmpty()) return null;
-        return Collections.max(users, Comparator.comparing(GameUser::getLongestShot));
+    public <U extends GameUser> Set<U> getLongestShot(Collection<U> users, int number) {
+        return this.getHighScore(users, number, Comparator.comparing(new Function<U, Comparable>() {
+            @Override
+            public Comparable<?> apply(U u) {
+                return u.getLongestShot();
+            }
+        }));
+    }
+
+    public <U extends GameUser> Set<U> getHighScore(Collection<U> users, int number, Comparator<U> comparator) {
+        if (users == null || users.isEmpty()) return new HashSet<>();
+
+        Set<U> highestUsers = new HashSet<>();
+        U userWithHighscore = users.stream().findFirst().orElse(null);
+
+        for (U user : users) {
+            if (highestUsers.isEmpty()) {
+                highestUsers.add(user);
+            } else if (comparator.compare(user, userWithHighscore) > 0) {
+                highestUsers.clear();
+                highestUsers.add(user);
+                userWithHighscore = user;
+            } else if (comparator.compare(user, userWithHighscore) == 0 && highestUsers.size() < number) {
+                highestUsers.add(user);
+            }
+        }
+        return highestUsers;
+    }
+
+    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Predicate<GameUser> predicateToBroadcast, Function<GameUser, ? extends Comparable> keyExtractor) {
+        Set<GameUser> highestUsers = this.getHighScore(users, number, Comparator.comparing(keyExtractor));
+        if (highestUsers.size() == 0 || !predicateToBroadcast.test(highestUsers.stream().findFirst().get())) {
+            return;
+        }
+        StringBuilder sb = new StringBuilder(ChatColor.WHITE + name + ": " + ChatColor.GOLD + keyExtractor.apply(highestUsers.stream().findFirst().get()) + ChatColor.WHITE + " by ");
+        for (GameUser user : highestUsers) {
+            sb.append(user.getChatName());
+            sb.append(", ");
+        }
+
+        sb.deleteCharAt(sb.length() - 1).deleteCharAt(sb.length() - 1);
+
+        this.broadcastGameMessage(sb.toString());
+    }
+
+    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Function<GameUser, ? extends Comparable> keyExtractor) {
+        this.broadcastHighscore(name, users, number, (u) -> true, keyExtractor);
     }
 
     public Collection<Team> getNotEmptyInGameTeams() {
