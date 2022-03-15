@@ -10,7 +10,8 @@ import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ItemHoldClick;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
-import de.timesnake.basic.packets.util.listener.PacketPlayOutModifyListener;
+import de.timesnake.basic.packets.util.listener.PacketHandler;
+import de.timesnake.basic.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.basic.packets.util.packet.ExPacket;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityMetadata;
@@ -23,7 +24,7 @@ import org.bukkit.event.block.Action;
 
 import java.util.*;
 
-public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener, PacketPlayOutModifyListener {
+public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener, PacketPlayOutListener {
 
     // teleports the spectator to spawn if he goes lower than min y
     public static final Integer MIN_Y = -84;
@@ -51,7 +52,7 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         this.gameUserInv = Server.createExInventory(9, "Players");
 
         Server.getInventoryEventManager().addInteractListener(this, USER_INV, GLOWING, SPEED, FLYING, LEAVE_ITEM);
-        Server.getPacketManager().addPacketPlayOutListener(ExPacket.Type.PLAY_OUT_ENTITY_METADATA, this);
+        Server.getPacketManager().addListener(this);
     }
 
     public void updateSpectatorTools() {
@@ -130,7 +131,7 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         }
     }
 
-    @Override
+    @PacketHandler(type = ExPacket.Type.PLAY_OUT_ENTITY_METADATA, modify = true)
     public ExPacketPlayOut onPacketPlayOut(ExPacketPlayOut packet, Player receiver) {
         if (!(packet instanceof ExPacketPlayOutEntityMetadata)) {
             return packet;
