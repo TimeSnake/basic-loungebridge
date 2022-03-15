@@ -33,32 +33,26 @@ public class GameScheduler {
             LoungeBridgeServer.setState(LoungeBridgeServer.State.STARTING);
             this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
                 switch (gameCountdown) {
-                    case 7:
+                    case 7 -> {
                         if (LoungeBridgeServer.areKitsEnabled()) {
                             for (User user : Server.getPreGameUsers()) {
                                 ((GameUser) user).setKitItems();
                             }
                         }
-
                         Server.printText(Plugin.LOUNGE, "Preparing game ...");
                         Server.runTaskSynchrony(LoungeBridgeServer::prepareGame, BasicLoungeBridge.getPlugin());
-                        break;
-                    case 5:
-                    case 4:
-                    case 3:
-                    case 2:
+                    }
+                    case 5, 4, 3, 2 -> {
                         Server.broadcastTitle(ChatColor.RED + "" + gameCountdown, "", Duration.ofSeconds(1));
                         LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.PUBLIC + "The Game starts in " + ChatColor.VALUE + gameCountdown + ChatColor.PUBLIC + " seconds");
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                        break;
-
-                    case 1:
+                    }
+                    case 1 -> {
                         Server.broadcastTitle(ChatColor.RED + "" + gameCountdown, "", Duration.ofSeconds(1));
                         LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.PUBLIC + "The Game starts in " + ChatColor.VALUE + "1 " + ChatColor.PUBLIC + "second");
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                        break;
-
-                    case 0:
+                    }
+                    case 0 -> {
                         if (LoungeBridgeServer.areKitsEnabled()) {
                             for (User user : Server.getPreGameUsers()) {
                                 ((GameUser) user).setKitItems();
@@ -66,17 +60,14 @@ public class GameScheduler {
                         }
                         LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.PUBLIC + "The Game starts " + ChatColor.VALUE + "now");
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-
                         LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
-
                         for (User user : Server.getPreGameUsers()) {
                             user.setStatus(Status.User.IN_GAME);
                             ((GameUser) user).playedGame();
                         }
-
                         Server.runTaskSynchrony(LoungeBridgeServer::startGame, BasicLoungeBridge.getPlugin());
                         this.gameCountdownTask.cancel();
-                        break;
+                    }
                 }
                 gameCountdown--;
             }, 0, 20, BasicLoungeBridge.getPlugin());
