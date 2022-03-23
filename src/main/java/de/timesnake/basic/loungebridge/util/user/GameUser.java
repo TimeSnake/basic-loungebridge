@@ -276,8 +276,23 @@ public abstract class GameUser extends SpectatorUser {
         } else {
             health = Math.round(health);
         }
+
+        if (health == 0) {
+            health = 0.5;
+        }
+
         return ChatColor.RED + "" + health + "❤";
     }
 
     public abstract void joinGame();
+
+    public void rejoinGame() {
+        this.setDefault();
+        this.setCollitionWithEntites(true);
+        this.setAllowFlight(false);
+        this.setFlying(false);
+        this.setInvulnerable(false);
+        this.unlockInventory();
+        this.unlockInventoryItemMove();
+    }
 }
