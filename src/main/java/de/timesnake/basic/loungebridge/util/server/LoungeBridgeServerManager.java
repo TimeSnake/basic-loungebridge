@@ -386,12 +386,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     }
 
     public <U extends GameUser> Set<U> getLongestShot(Collection<U> users, int number) {
-        return this.getHighScore(users, number, Comparator.comparing(new Function<U, Comparable>() {
-            @Override
-            public Comparable<?> apply(U u) {
-                return u.getLongestShot();
-            }
-        }));
+        return this.getHighScore(users, number,
+                Comparator.comparing((Function<U, Comparable>) GameUser::getLongestShot));
     }
 
     public <U extends GameUser> Set<U> getHighScore(Collection<U> users, int number, Comparator<U> comparator) {
