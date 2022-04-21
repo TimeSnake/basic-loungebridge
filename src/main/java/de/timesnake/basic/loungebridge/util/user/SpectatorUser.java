@@ -74,7 +74,8 @@ public abstract class SpectatorUser extends StatUser {
         this.setSideboard(LoungeBridgeServer.getSpectatorSideboard());
 
         // if game has ended, nothing to do
-        if (LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.CLOSING) || LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STOPPED)) {
+        if (LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.CLOSING)
+                || LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STOPPED)) {
             return;
         }
 
@@ -91,7 +92,9 @@ public abstract class SpectatorUser extends StatUser {
         if (LoungeBridgeServer.isDiscord()) {
             LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
             uuidsByTeam.put(LoungeBridgeServer.DISCORD_SPECTATOR, List.of(this.getUniqueId()));
-            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_TEAMS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                    MessageType.Discord.MOVE_TEAMS,
+                    new ChannelDiscordMessage.Allocation(uuidsByTeam)));
         }
     }
 
