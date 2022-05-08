@@ -49,7 +49,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
     public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
-    public static final Stat<Integer> GAMES_PLAYED = Stat.Type.INTEGER.asStat("games_played", "Games Played", 0, 0, 1);
+    public static final Stat<Integer> GAMES_PLAYED = Stat.Type.INTEGER.asStat("games_played",
+            "Games Played", 0, 10, 1, true, 0, 1);
 
     public static final Set<Stat<?>> BASE_STATS = Set.of(GAMES_PLAYED);
 
@@ -140,11 +141,13 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         for (Team team : this.getGame().getTeams()) {
 
             // chat
-            Server.getChatManager().createChat(team.getName(), team.getDisplayName(), team.getChatColor(), new HashSet<>());
+            Server.getChatManager().createChat(team.getName(), team.getDisplayName(), team.getChatColor(),
+                    new HashSet<>());
         }
 
         // create spectator chat
-        Server.getChatManager().createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR, new HashSet<>());
+        Server.getChatManager().createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR,
+                new HashSet<>());
 
         // set tablist footer and activate tablist
         this.gameTablist.setHeader("§6" + this.getGame().getDisplayName());
@@ -162,48 +165,55 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         types.add(Group.getTablistType());
 
         // create spectatorTeam
-        this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX, SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR);
+        this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX,
+                SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR);
 
         if (this.getServerTeamAmount() > 0) {
             if (this.maxPlayersPerTeam == null) {
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY, TeamTablist.ColorType.TEAM, this.getGame().getTeams(), de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM, types, this.spectatorTeam, types, (e, tablist) -> {
-                    User user = e.getUser();
-                    String task = user.getTask();
+                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+                        TeamTablist.ColorType.TEAM, this.getGame().getTeams(),
+                        de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM,
+                        types, this.spectatorTeam, types, (e, tablist) -> {
+                            User user = e.getUser();
+                            String task = user.getTask();
 
-                    if (task == null) {
-                        ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                        return;
-                    }
+                            if (task == null) {
+                                ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                                return;
+                            }
 
-                    if (task.equalsIgnoreCase(this.getGame().getName())) {
-                        if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                            tablist.addEntry(e.getUser());
-                        } else {
-                            ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                        }
-                    }
-                }, (e, tablist) -> tablist.removeEntry(e.getUser()));
+                            if (task.equalsIgnoreCase(this.getGame().getName())) {
+                                if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
+                                    tablist.addEntry(e.getUser());
+                                } else {
+                                    ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                                }
+                            }
+                        }, (e, tablist) -> tablist.removeEntry(e.getUser()));
 
                 for (Team team : this.getGame().getTeamsSortedByRank(this.serverTeamAmount).values()) {
 
-                    this.gameTablist.addTeamHeader(team.getTablistRank(), "0", team.getTablistChatColor() + "§l" + team.getTablistName());
+                    this.gameTablist.addTeamHeader(team.getTablistRank(), "0",
+                            team.getTablistChatColor() + "§l" + team.getTablistName());
                 }
             } else {
                 LinkedList<TablistGroupType> gameTeamTypes = new LinkedList<>(types);
                 gameTeamTypes.addFirst(de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM);
                 this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
 
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY, TeamTablist.ColorType.FIRST_GROUP, List.of(this.tablistGameTeam), this.tablistGameTeam.getTeamType(), gameTeamTypes, this.spectatorTeam, types, (e, tablist) -> {
-                    User user = e.getUser();
-                    String task = user.getTask();
+                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+                        TeamTablist.ColorType.FIRST_GROUP, List.of(this.tablistGameTeam),
+                        this.tablistGameTeam.getTeamType(), gameTeamTypes, this.spectatorTeam, types, (e, tablist) -> {
+                            User user = e.getUser();
+                            String task = user.getTask();
 
-                    if (task == null) {
-                        ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                    }
+                            if (task == null) {
+                                ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                            }
 
-                    if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
-                        if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                            tablist.addEntry(e.getUser());
+                            if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
+                                if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
+                                    tablist.addEntry(e.getUser());
                         } else {
                             ((TeamTablist) tablist).addRemainEntry(e.getUser());
                         }
@@ -213,17 +223,19 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         } else {
             this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
 
-            this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY, TeamTablist.ColorType.WHITE, List.of(this.tablistGameTeam), this.tablistGameTeam.getTeamType(), types, this.spectatorTeam, types, (e, tablist) -> {
-                User user = e.getUser();
-                String task = user.getTask();
+            this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+                    TeamTablist.ColorType.WHITE, List.of(this.tablistGameTeam), this.tablistGameTeam.getTeamType(),
+                    types, this.spectatorTeam, types, (e, tablist) -> {
+                        User user = e.getUser();
+                        String task = user.getTask();
 
-                if (task == null) {
-                    ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                }
+                        if (task == null) {
+                            ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                        }
 
-                if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
-                    if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                        tablist.addEntry(e.getUser());
+                        if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
+                            if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
+                                tablist.addEntry(e.getUser());
                     } else {
                         ((TeamTablist) tablist).addRemainEntry(e.getUser());
                     }
@@ -285,7 +297,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                 game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(), kit.getDescription());
                 Server.printText(Plugin.LOUNGE, "Loaded kit " + kit.getName() + " into the database", "Kit");
             } catch (UnsupportedStringException e) {
-                Server.printError(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database " + "(UnsupportedStringException)", "Kit");
+                Server.printError(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database " +
+                        "(UnsupportedStringException)", "Kit");
             } catch (Exception e) {
                 Server.printError(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database ", "Kit");
             }
@@ -327,7 +340,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                     authors.append(author);
 
                 }
-                this.gameTablist.setHeader(ChatColor.GOLD + this.getGame().getDisplayName() + ChatColor.GRAY + ": " + ChatColor.DARK_GREEN + this.getMap().getDisplayName() + "\n" + ChatColor.GRAY + " by " + ChatColor.BLUE + authors);
+                this.gameTablist.setHeader(ChatColor.GOLD + this.getGame().getDisplayName() + ChatColor.GRAY + ": " +
+                        ChatColor.DARK_GREEN + this.getMap().getDisplayName() + "\n" + ChatColor.GRAY + " by " + ChatColor.BLUE + authors);
             } else {
                 this.gameTablist.setHeader(ChatColor.GOLD + this.getGame().getDisplayName());
             }
@@ -363,7 +377,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
             case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
             case WAITING -> {
                 Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE, ChannelServerMessage.State.READY));
+                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE
+                        , ChannelServerMessage.State.READY));
                 Server.printText(Plugin.GAME, "Send lounge ready state");
             }
         }
@@ -410,12 +425,15 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         return highestUsers;
     }
 
-    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Predicate<GameUser> predicateToBroadcast, Function<GameUser, ? extends Comparable> keyExtractor) {
+    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
+                                   Predicate<GameUser> predicateToBroadcast,
+                                   Function<GameUser, ? extends Comparable> keyExtractor) {
         Set<GameUser> highestUsers = this.getHighScore(users, number, Comparator.comparing(keyExtractor));
         if (highestUsers.size() == 0 || !predicateToBroadcast.test(highestUsers.stream().findFirst().get())) {
             return;
         }
-        StringBuilder sb = new StringBuilder(ChatColor.WHITE + name + ": " + ChatColor.GOLD + keyExtractor.apply(highestUsers.stream().findFirst().get()) + ChatColor.WHITE + " by ");
+        StringBuilder sb =
+                new StringBuilder(ChatColor.WHITE + name + ": " + ChatColor.GOLD + keyExtractor.apply(highestUsers.stream().findFirst().get()) + ChatColor.WHITE + " by ");
         for (GameUser user : highestUsers) {
             sb.append(user.getChatName());
             sb.append(", ");
@@ -426,7 +444,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         this.broadcastGameMessage(sb.toString());
     }
 
-    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Function<GameUser, ? extends Comparable> keyExtractor) {
+    public void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Function<GameUser,
+            ? extends Comparable> keyExtractor) {
         this.broadcastHighscore(name, users, number, (u) -> true, keyExtractor);
     }
 
