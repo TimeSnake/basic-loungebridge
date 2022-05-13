@@ -50,7 +50,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
     public static final Stat<Integer> GAMES_PLAYED = Stat.Type.INTEGER.asStat("games_played",
-            "Games Played", 0, 10, 1, true, 0, 1);
+            "Games Played", 0, 10, 1, false,
+            0, 1);
 
     public static final Set<Stat<?>> BASE_STATS = Set.of(GAMES_PLAYED);
 
@@ -275,6 +276,9 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                 this.saveGameUserStats(((GameUser) user));
             }
         }
+
+        Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.USER_STATS,
+                this.getGame().getName()));
     }
 
     public void resetKillsAndDeaths() {
