@@ -38,10 +38,18 @@ version = '1.0-SNAPSHOT'
 description = 'basic-lounge-bridge'
 java.sourceCompatibility = 1.17
 
+task sourceJar(type: Jar) {
+    from sourceSets.main.allJava
+}
+
 publishing {
     publications {
-        maven(MavenPublication) {
-            from(components.java)
+        mavenJava(MavenPublication) {
+            from components.java
+
+            artifact sourceJar {
+                classifier "sources"
+            }
         }
     }
 }
@@ -55,4 +63,5 @@ task copyJarToPlugins(type: Copy) {
     into "../../plugins"
 }
 
+testClasses.dependsOn(copyJarToPlugins)
 jar.finalizedBy(copyJarToPlugins)
