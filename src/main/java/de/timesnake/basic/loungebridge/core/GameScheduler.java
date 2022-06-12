@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class GameScheduler {
 
     private static final Integer COUNTDOWN_TIME = 7;
+    private static final Integer TEXTURE_PACK_OFFSET = 2;
 
     protected int gameCountdown = COUNTDOWN_TIME;
     protected BukkitTask gameCountdownTask;
@@ -31,6 +32,11 @@ public class GameScheduler {
     public void startGameCountdown() {
         if (!LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STARTING)) {
             LoungeBridgeServer.setState(LoungeBridgeServer.State.STARTING);
+
+            if (LoungeBridgeServer.getGame().hasTexturePack()) {
+                this.gameCountdown += TEXTURE_PACK_OFFSET;
+            }
+
             this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
                 switch (gameCountdown) {
                     case 7 -> {
@@ -65,6 +71,7 @@ public class GameScheduler {
                             user.setStatus(Status.User.IN_GAME);
                             ((GameUser) user).playedGame();
                         }
+
                         Server.runTaskSynchrony(LoungeBridgeServer::startGame, BasicLoungeBridge.getPlugin());
                         this.gameCountdownTask.cancel();
                     }
@@ -110,8 +117,10 @@ public class GameScheduler {
             if (LoungeBridgeServer.isDiscord()) {
                 Server.runTaskLaterSynchrony(() -> {
                     LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
-                    uuidsByTeam.put(LoungeBridgeServer.DISCORD_LOUNGE, Server.getUsers().stream().map(User::getUniqueId).collect(Collectors.toList()));
-                    Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_TEAMS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+                    uuidsByTeam.put(LoungeBridgeServer.DISCORD_LOUNGE,
+                            Server.getUsers().stream().map(User::getUniqueId).collect(Collectors.toList()));
+                    Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                            MessageType.Discord.MOVE_TEAMS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
                 }, 20 * 2, BasicLoungeBridge.getPlugin());
             }
 
@@ -126,6 +135,10 @@ public class GameScheduler {
                     if (!user.isAirMode() && !user.isService()) {
                         user.getDatabase().setKit(null);
                         ((GameUser) user).setTeam(null);
+                    }
+
+                    if (LoungeBridgeServer.getGame().hasTexturePack()) {
+                        user.setTexturePack("https://timesnake.de/data/minecraft/resource_packs/texture_pack_base.zip");
                     }
 
                     user.switchToServer(LoungeBridgeServer.getTwinServer());

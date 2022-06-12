@@ -47,7 +47,8 @@ public abstract class SpectatorUser extends StatUser {
 
                 user.hideUser(this);
 
-                this.sendPacket(ExPacketPlayOutEntityEffect.wrap(user.getPlayer(), ExPacketPlayOutEntityEffect.Effect.GLOWING, ((byte) 0), Integer.MAX_VALUE, false, true, true));
+                this.sendPacket(ExPacketPlayOutEntityEffect.wrap(user.getPlayer(),
+                        ExPacketPlayOutEntityEffect.Effect.GLOWING, ((byte) 0), Integer.MAX_VALUE, false, true, true));
 
             } else if (Status.User.OUT_GAME.equals(user.getStatus()) || Status.User.SPECTATOR.equals(user.getStatus())) {
                 user.showUser(this);

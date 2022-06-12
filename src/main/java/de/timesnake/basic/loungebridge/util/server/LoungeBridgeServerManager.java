@@ -6,10 +6,7 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.permission.Group;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
-import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.GameServerManager;
 import de.timesnake.basic.game.util.Map;
@@ -20,7 +17,10 @@ import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
-import de.timesnake.basic.loungebridge.util.user.*;
+import de.timesnake.basic.loungebridge.util.game.GameElementManager;
+import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.basic.loungebridge.util.user.Kit;
+import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
@@ -28,9 +28,8 @@ import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTempGameServer;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.statistics.Stat;
+import de.timesnake.library.basic.util.statistics.StatType;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.*;
@@ -38,7 +37,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class LoungeBridgeServerManager extends GameServerManager {
+public abstract class LoungeBridgeServerManager extends GameServerManager implements TempGameServerManager {
 
     public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
@@ -49,46 +48,31 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
     public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
-    public static final Stat<Integer> GAMES_PLAYED = Stat.Type.INTEGER.asStat("games_played",
-            "Games Played", 0, 10, 1, false,
-            0, 1);
 
-    public static final Set<Stat<?>> BASE_STATS = Set.of(GAMES_PLAYED);
+    public static final Set<StatType<?>> BASE_STATS = Set.of(GAMES_PLAYED);
 
     public static LoungeBridgeServerManager getInstance() {
         return (LoungeBridgeServerManager) ServerManager.getInstance();
     }
 
-
     protected DbLoungeServer twinServer;
-
     protected TeamTablist gameTablist;
-    private TablistTeam tablistGameTeam;
-    private TablistTeam spectatorTeam;
-
-    private Map map;
-
-    private UserManager userManager;
-
-    private GameScheduler gameScheduler;
-
+    protected GameElementManager gameElementManager;
     protected LoungeBridgeServer.State state;
-
     protected SpectatorManager spectatorManager;
-
     protected ChannelListener channelListener;
-
     protected boolean kitsEnabled;
     protected boolean mapsEnabled;
-
     protected Integer serverTeamAmount;
     protected Integer maxPlayersPerTeam;
-
     protected boolean teamMateDamage = true;
-
     protected Integer estimatedPlayers;
-
     protected boolean discord;
+    private TablistTeam tablistGameTeam;
+    private TablistTeam spectatorTeam;
+    private Map map;
+    private UserManager userManager;
+    private GameScheduler gameScheduler;
 
     public final void onLoungeBridgeEnable() {
         super.onGameEnable();
@@ -114,6 +98,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
         this.userManager = new UserManager();
         this.gameScheduler = new GameScheduler();
+        this.gameElementManager = this.loadGameElementManager();
 
         this.mapsEnabled = ((DbTempGameServer) this.getDatabase()).areMapsEnabled();
         Integer serverTeamAmount = ((DbTempGameServer) this.getDatabase()).getTeamAmount();
@@ -135,7 +120,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         // silent join quit
         Server.getChat().broadcastJoinQuit(false);
 
-        this.loadTablist();
+        this.loadTablist(Tablist.Type.DUMMY);
 
 
         // add team header, create team chat
@@ -160,7 +145,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         this.setState(LoungeBridgeServer.State.WAITING);
     }
 
-    protected void loadTablist() {
+    protected void loadTablist(Tablist.Type type) {
         // create team tablist
         LinkedList<TablistGroupType> types = new LinkedList<>();
         types.add(Group.getTablistType());
@@ -169,28 +154,33 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX,
                 SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR);
 
+        TablistUserJoin tablistJoin = (e, tablist) -> {
+            User user = e.getUser();
+            String task = user.getTask();
+
+            if (task == null) {
+                ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                return;
+            }
+
+            if (task.equalsIgnoreCase(this.getGame().getName())) {
+                if (e.getUser().getStatus().equals(Status.User.PRE_GAME)
+                        || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
+                    tablist.addEntry(e.getUser());
+                } else {
+                    ((TeamTablist) tablist).addRemainEntry(e.getUser());
+                }
+            }
+        };
+
+        TablistUserQuit tablistQuit = (e, tablist) -> tablist.removeEntry(e.getUser());
+
         if (this.getServerTeamAmount() > 0) {
             if (this.maxPlayersPerTeam == null) {
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
                         TeamTablist.ColorType.TEAM, this.getGame().getTeams(),
                         de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM,
-                        types, this.spectatorTeam, types, (e, tablist) -> {
-                            User user = e.getUser();
-                            String task = user.getTask();
-
-                            if (task == null) {
-                                ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                                return;
-                            }
-
-                            if (task.equalsIgnoreCase(this.getGame().getName())) {
-                                if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                                    tablist.addEntry(e.getUser());
-                                } else {
-                                    ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                                }
-                            }
-                        }, (e, tablist) -> tablist.removeEntry(e.getUser()));
+                        types, this.spectatorTeam, types, tablistJoin, tablistQuit);
 
                 for (Team team : this.getGame().getTeamsSortedByRank(this.serverTeamAmount).values()) {
 
@@ -202,46 +192,17 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                 gameTeamTypes.addFirst(de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM);
                 this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
 
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
                         TeamTablist.ColorType.FIRST_GROUP, List.of(this.tablistGameTeam),
-                        this.tablistGameTeam.getTeamType(), gameTeamTypes, this.spectatorTeam, types, (e, tablist) -> {
-                            User user = e.getUser();
-                            String task = user.getTask();
-
-                            if (task == null) {
-                                ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                            }
-
-                            if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
-                                if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                                    tablist.addEntry(e.getUser());
-                        } else {
-                            ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                        }
-                    }
-                }, (e, tablist) -> tablist.removeEntry(e.getUser()));
+                        this.tablistGameTeam.getTeamType(), gameTeamTypes, this.spectatorTeam, types,
+                        tablistJoin, tablistQuit);
             }
         } else {
             this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
 
-            this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", Tablist.Type.DUMMY,
+            this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
                     TeamTablist.ColorType.WHITE, List.of(this.tablistGameTeam), this.tablistGameTeam.getTeamType(),
-                    types, this.spectatorTeam, types, (e, tablist) -> {
-                        User user = e.getUser();
-                        String task = user.getTask();
-
-                        if (task == null) {
-                            ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                        }
-
-                        if (task.equalsIgnoreCase(GameServer.getGame().getName())) {
-                            if (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME)) {
-                                tablist.addEntry(e.getUser());
-                    } else {
-                        ((TeamTablist) tablist).addRemainEntry(e.getUser());
-                    }
-                }
-            }, (e, tablist) -> tablist.removeEntry(e.getUser()));
+                    types, this.spectatorTeam, types, tablistJoin, tablistQuit);
         }
     }
 
@@ -250,7 +211,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
     public void checkGameStart() {
         int gameUsers = Server.getPreGameUsers().size();
-        if (gameUsers == LoungeBridgeServer.getEstimatedPlayers()) {
+        if (gameUsers >= LoungeBridgeServer.getEstimatedPlayers()) {
             this.startGameCountdown();
         } else if (gameUsers == 1) {
             Server.runTaskLaterSynchrony(() -> {
@@ -266,12 +227,14 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
     }
 
     public void closeGame() {
+        this.gameElementManager.stop();
         this.gameScheduler.closeGame();
     }
 
     public void saveGameStats() {
         Server.printText(Plugin.GAME, "Saved game stats", "Stats");
         for (User user : this.getGameUsers()) {
+            System.out.println(user.getName());
             if (((GameUser) user).hasPlayedGame()) {
                 this.saveGameUserStats(((GameUser) user));
             }
@@ -316,12 +279,12 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
         DbGame game = this.getGame().getDatabase();
 
-        for (Stat<?> stat : BASE_STATS) {
+        for (StatType<?> stat : BASE_STATS) {
             game.removeStat(stat);
             game.addStat(stat);
         }
 
-        for (Stat<?> stat : this.getStats()) {
+        for (StatType<?> stat : this.getStats()) {
             game.removeStat(stat);
             game.addStat(stat);
         }
@@ -344,8 +307,10 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
                     authors.append(author);
 
                 }
+
                 this.gameTablist.setHeader(ChatColor.GOLD + this.getGame().getDisplayName() + ChatColor.GRAY + ": " +
-                        ChatColor.DARK_GREEN + this.getMap().getDisplayName() + "\n" + ChatColor.GRAY + " by " + ChatColor.BLUE + authors);
+                        ChatColor.DARK_GREEN + this.getMap().getDisplayName() +
+                        (!authors.isEmpty() ? "\n" + ChatColor.GRAY + " by " + ChatColor.BLUE + authors : ""));
             } else {
                 this.gameTablist.setHeader(ChatColor.GOLD + this.getGame().getDisplayName());
             }
@@ -371,21 +336,6 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
 
     public TeamTablist getGameTablist() {
         return gameTablist;
-    }
-
-    public void setState(LoungeBridgeServer.State state) {
-        this.state = state;
-        switch (state) {
-            case RUNNING, STOPPED -> Server.setStatus(Status.Server.IN_GAME);
-            case STARTING -> Server.setStatus(Status.Server.PRE_GAME);
-            case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
-            case WAITING -> {
-                Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE
-                        , ChannelServerMessage.State.READY));
-                Server.printText(Plugin.GAME, "Send lounge ready state");
-            }
-        }
     }
 
     public <U extends GameUser> Set<U> getMostKills(Collection<U> users, int number) {
@@ -469,6 +419,33 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         return state;
     }
 
+    public void setState(LoungeBridgeServer.State state) {
+        this.state = state;
+        switch (state) {
+            case RUNNING, STOPPED -> Server.setStatus(Status.Server.IN_GAME);
+            case STARTING -> Server.setStatus(Status.Server.PRE_GAME);
+            case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
+            case WAITING -> {
+                Server.setStatus(Status.Server.ONLINE);
+                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE
+                        , ChannelServerMessage.State.READY));
+                Server.printText(Plugin.GAME, "Send lounge ready state");
+            }
+        }
+    }
+
+    public final void loadMap() {
+        Map map = GameServer.getGame().getMap(((DbTempGameServer) Server.getDatabase()).getMapName());
+        this.setMap(map);
+        this.onMapLoad();
+        Server.printText(Plugin.LOUNGE, "Loaded map " + map.getName());
+    }
+
+    public final void startGame() {
+        this.gameElementManager.start();
+        this.onGameStart();
+    }
+
     public SpectatorManager getSpectatorManager() {
         return spectatorManager;
     }
@@ -513,118 +490,9 @@ public abstract class LoungeBridgeServerManager extends GameServerManager {
         this.discord = discord;
     }
 
-    /**
-     * Get the game {@link de.timesnake.basic.bukkit.util.chat.Plugin}
-     *
-     * @return Return the plugin
-     */
-    @GamePlugin
-    public abstract de.timesnake.library.basic.util.chat.Plugin getGamePlugin();
-
-    /**
-     * @return Return true if the game is running
-     */
-    @GamePlugin
-    public abstract boolean isGameRunning();
-
-    /**
-     * Broadcast game info chat messages
-     *
-     * @param message The message to broadcast
-     */
-    @GamePlugin
-    public abstract void broadcastGameMessage(String message);
-
-    /**
-     * Countdown 7s, during user join
-     */
-    @GamePlugin
-    public abstract void prepareGame();
-
-    /**
-     * Called by channel map load message from lounge (map-voting).
-     */
-    @GamePlugin
-    public void loadMap() {
-
+    public GameElementManager getGameElementManager() {
+        return gameElementManager;
     }
 
-    /**
-     * Countdown 0s
-     */
-    @GamePlugin
-    public abstract void startGame();
 
-    /**
-     * Ingame user quits the server
-     *
-     * @param user The {@link User} who left
-     */
-    @GamePlugin
-    public abstract void onGameUserQuit(GameUser user);
-
-    /**
-     * Ingame user quits before the game started.
-     *
-     * @param user The {@link User} who left
-     */
-    @GamePlugin
-    public abstract void onGameUserQuitBeforeStart(GameUser user);
-
-    /**
-     * Allows users to rejoin the game
-     *
-     * @return true if it is allowed
-     */
-    @GamePlugin
-    public abstract boolean isRejoiningAllowed();
-
-    /**
-     * Game user rejoins game
-     *
-     * @param user The user who is rejoining
-     */
-    @GamePlugin
-    public void onGameUserRejoin(GameUser user) {
-
-    }
-
-    /**
-     * Called after all users quit
-     */
-    @GamePlugin
-    public abstract void resetGame();
-
-    @GamePlugin
-    public Sideboard getSpectatorSideboard() {
-        return null;
-    }
-
-    @GamePlugin
-    public Kit getKit(int index) throws KitNotDefinedException {
-        return null;
-    }
-
-    @GamePlugin
-    public Kit[] getKits() {
-        return new Kit[]{};
-    }
-
-    @GamePlugin
-    public abstract Location getSpectatorSpawn();
-
-    @GamePlugin
-    public OfflineUser loadOfflineUser(GameUser user) {
-        return new OfflineUser(user);
-    }
-
-    @GamePlugin
-    public Set<Stat<?>> getStats() {
-        return new HashSet<>();
-    }
-
-    @GamePlugin
-    public void saveGameUserStats(GameUser user) {
-        user.increaseStat(GAMES_PLAYED, 1);
-    }
 }
