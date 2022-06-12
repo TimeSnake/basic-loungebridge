@@ -24,29 +24,23 @@ import org.bukkit.event.block.Action;
 
 import java.util.*;
 
-public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener, PacketPlayOutListener {
+public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener,
+        PacketPlayOutListener {
 
     // teleports the spectator to spawn if he goes lower than min y
     public static final Integer MIN_Y = -84;
-
-    private static final Integer LEAVE_TIME = 2000;
-
     public static final ExItemStack USER_INV = new ExItemStack(1, Material.PLAYER_HEAD, "§9Teleporter");
     public static final ExItemStack GLOWING = new ExItemStack(2, Material.SPECTRAL_ARROW, "§6Glowing");
     public static final ExItemStack SPEED = new ExItemStack(3, Material.FEATHER, "§bSpeed");
     public static final ExItemStack FLYING = new ExItemStack(4, Material.RABBIT_FOOT, "§9Flying");
     public static final ExItemStack LEAVE_ITEM = new ExItemStack(8, Material.ANVIL, "§6Leave (hold right)");
-
+    private static final Integer LEAVE_TIME = 2000;
     private final HashMap<User, ItemHoldClick> clickedLeaveUsers = new HashMap<>();
-
-    private ExInventory gameUserInv;
-
     private final HashMap<Integer, User> userHeadsById = new HashMap<>();
-
+    private final Set<User> speedUsers = new HashSet<>();
+    private ExInventory gameUserInv;
     private Set<User> glowingUsers = new HashSet<>();
     private Set<User> glowReceivers = new HashSet<>();
-
-    private final Set<User> speedUsers = new HashSet<>();
 
     public SpectatorManager() {
         this.gameUserInv = Server.createExInventory(9, "Players");
@@ -74,7 +68,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         this.userHeadsById.clear();
         int slot = 0;
         for (User user : Server.getInGameUsers()) {
-            ExItemStack head = new ExItemStack(user.getPlayer(), user.getChatName(), List.of("", "§7Click to teleport"));
+            ExItemStack head = new ExItemStack(user.getPlayer(), user.getChatName(), List.of("", "§7Click to " +
+                    "teleport"));
             this.userHeadsById.put(head.getId(), user);
             this.gameUserInv.setItemStack(slot, head);
             Server.getInventoryEventManager().addClickListener(this, head);
@@ -101,7 +96,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     public void addGlowReceiver(User user) {
         this.glowReceivers.add(user);
         for (User glowingUser : this.glowingUsers) {
-            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(), ExPacketPlayOutEntityMetadata.DataType.UPDATE);
+            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
+                    ExPacketPlayOutEntityMetadata.DataType.UPDATE);
             user.sendPacket(packet);
         }
     }
@@ -109,14 +105,16 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     public void removeGlowReceiver(User user) {
         this.glowReceivers.remove(user);
         for (User glowingUser : this.glowingUsers) {
-            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(), ExPacketPlayOutEntityMetadata.DataType.UPDATE);
+            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
+                    ExPacketPlayOutEntityMetadata.DataType.UPDATE);
             user.sendPacket(packet);
         }
     }
 
     public void addGlowingPlayer(User user) {
         this.glowingUsers.add(user);
-        ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(user.getPlayer(), ExPacketPlayOutEntityMetadata.DataType.UPDATE);
+        ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(user.getPlayer(),
+                ExPacketPlayOutEntityMetadata.DataType.UPDATE);
         for (User receiver : this.glowReceivers) {
             receiver.sendPacket(packet);
         }
@@ -124,7 +122,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
 
     private void sendUpdatePackets() {
         for (User glowingUser : this.glowingUsers) {
-            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(), ExPacketPlayOutEntityMetadata.DataType.UPDATE);
+            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
+                    ExPacketPlayOutEntityMetadata.DataType.UPDATE);
             for (User receiver : this.glowReceivers) {
                 receiver.sendPacket(packet);
             }
@@ -217,7 +216,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         } else if (clickedItem.equals(FLYING)) {
             user.setAllowFlight(!user.getAllowFlight());
             user.setFlying(user.getAllowFlight());
-            user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + (user.getAllowFlight() ? "Enabled" : "Disabled") + " flying");
+            user.sendPluginMessage(Plugin.GAME,
+                    ChatColor.PERSONAL + (user.getAllowFlight() ? "Enabled" : "Disabled") + " flying");
             if (user.getAllowFlight()) clickedItem.enchant();
             else clickedItem.disenchant();
         }

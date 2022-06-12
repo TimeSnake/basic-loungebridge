@@ -106,7 +106,9 @@ public class UserManager implements Listener {
             OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
             this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
             Server.printText(Plugin.LOUNGE, "Saved user " + user.getChatName(), "User");
-            this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(), Server.runTaskLaterSynchrony(() -> this.offlineUsersByUniqueId.remove(user.getUniqueId()), 20 * REJOIN_TIME, BasicLoungeBridge.getPlugin()));
+            this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(),
+                    Server.runTaskLaterSynchrony(() -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),
+                            20 * REJOIN_TIME, BasicLoungeBridge.getPlugin()));
         }
 
         if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus().equals(Status.User.PRE_GAME)) {
@@ -254,7 +256,8 @@ public class UserManager implements Listener {
 
         if (!LoungeBridgeServer.isTeamMateDamage()) {
             if (user.isTeamMate(damager)) {
-                damager.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), ChatColor.PERSONAL + "You can't damage " + "your teammate");
+                damager.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), ChatColor.PERSONAL + "You can't damage "
+                        + "your teammate");
                 e.setCancelled(true);
                 e.setCancelDamage(true);
                 return;

@@ -70,6 +70,10 @@ public abstract class GameUser extends SpectatorUser {
                 }
             }
         }
+
+        if (LoungeBridgeServer.getGame().hasTexturePack()) {
+            this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
+        }
     }
 
     @Override
@@ -137,6 +141,10 @@ public abstract class GameUser extends SpectatorUser {
         return kills;
     }
 
+    public void setKills(Integer kills) {
+        this.kills = kills;
+    }
+
     public Integer getKillStreak() {
         return this.killStreak;
     }
@@ -145,15 +153,12 @@ public abstract class GameUser extends SpectatorUser {
         return this.highestKillStreak;
     }
 
-    public void setKills(Integer kills) {
-        this.kills = kills;
-    }
-
     public void addKill() {
         this.kills++;
         this.killStreak++;
         if ((this.killStreak % 5 == 0 && this.killStreak != 0) || this.killStreak == 3) {
-            LoungeBridgeServer.broadcastGameMessage(ChatColor.VALUE + this.getChatName() + ChatColor.PUBLIC + " has a kill-streak of " + ChatColor.VALUE + this.killStreak);
+            LoungeBridgeServer.broadcastGameMessage(ChatColor.VALUE + this.getChatName() + ChatColor.PUBLIC + " has a" +
+                    " kill-streak of " + ChatColor.VALUE + this.killStreak);
         }
     }
 
@@ -182,7 +187,8 @@ public abstract class GameUser extends SpectatorUser {
             damager.addKill();
 
             if (this.getLastDamager().getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
-                int distance = (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
+                int distance =
+                        (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
                 damager.checkLongestShot(distance);
             }
 
@@ -204,7 +210,8 @@ public abstract class GameUser extends SpectatorUser {
                     }
 
                     if (this.getLastDamager().getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
-                        int distance = (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
+                        int distance =
+                                (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
                         damager.checkLongestShot(distance);
                     }
                 }
@@ -245,12 +252,12 @@ public abstract class GameUser extends SpectatorUser {
         this.bowHitTarget++;
     }
 
-    public void setBowHits(Integer bowHits) {
-        this.bowHits = bowHits;
-    }
-
     public Integer getBowHits() {
         return this.bowHits;
+    }
+
+    public void setBowHits(Integer bowHits) {
+        this.bowHits = bowHits;
     }
 
     public void addBowHit() {

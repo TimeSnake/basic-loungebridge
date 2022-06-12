@@ -23,10 +23,6 @@ public class LoungeBridgeServer extends GameServer {
 
     private static final LoungeBridgeServerManager server = LoungeBridgeServerManager.getInstance();
 
-    public enum State {
-        STARTING, RUNNING, STOPPED, CLOSING, RESETTING, WAITING
-    }
-
     public static void closeGame() {
         server.closeGame();
     }
@@ -43,12 +39,12 @@ public class LoungeBridgeServer extends GameServer {
         server.broadcastLoungeBridgeMessage(msg);
     }
 
-    public static void setState(State state) {
-        server.setState(state);
-    }
-
     public static State getState() {
         return server.getState();
+    }
+
+    public static void setState(State state) {
+        server.setState(state);
     }
 
     public static TeamTablist getGameTablist() {
@@ -147,11 +143,14 @@ public class LoungeBridgeServer extends GameServer {
         return server.getHighScore(user, number, comparator);
     }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Predicate<GameUser> predicateToBroadcast, Function<GameUser, ? extends Comparable> keyExtractor) {
+    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
+                                          Predicate<GameUser> predicateToBroadcast, Function<GameUser, ?
+            extends Comparable> keyExtractor) {
         server.broadcastHighscore(name, users, number, predicateToBroadcast, keyExtractor);
     }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Function<GameUser, ? extends Comparable> keyExtractor) {
+    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
+                                          Function<GameUser, ? extends Comparable> keyExtractor) {
         server.broadcastHighscore(name, users, number, keyExtractor);
     }
 
@@ -159,12 +158,12 @@ public class LoungeBridgeServer extends GameServer {
         return server.getNotEmptyInGameTeams();
     }
 
-    public static void setEstimatedPlayers(Integer amount) {
-        server.setEstimatedPlayers(amount);
-    }
-
     public static Integer getEstimatedPlayers() {
         return server.getEstimatedPlayers();
+    }
+
+    public static void setEstimatedPlayers(Integer amount) {
+        server.setEstimatedPlayers(amount);
     }
 
     public static void checkGameStart() {
@@ -213,5 +212,14 @@ public class LoungeBridgeServer extends GameServer {
 
     public static void setDiscord(boolean enable) {
         server.setDiscord(enable);
+    }
+
+    public enum State {
+        STARTING,
+        RUNNING,
+        STOPPED,
+        CLOSING,
+        RESETTING,
+        WAITING
     }
 }
