@@ -21,8 +21,6 @@ import java.util.function.Predicate;
 
 public class LoungeBridgeServer extends GameServer {
 
-    private static final LoungeBridgeServerManager server = LoungeBridgeServerManager.getInstance();
-
     public static void closeGame() {
         server.closeGame();
     }
@@ -213,6 +211,7 @@ public class LoungeBridgeServer extends GameServer {
     public static void setDiscord(boolean enable) {
         server.setDiscord(enable);
     }
+    private static final LoungeBridgeServerManager server = LoungeBridgeServerManager.getInstance();
 
     public enum State {
         STARTING,
