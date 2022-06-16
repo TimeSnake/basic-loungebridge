@@ -7,10 +7,10 @@ import de.timesnake.basic.game.util.StatUser;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.basic.packets.util.packet.ExPacketPlayOutEntityEffect;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityEffect;
 import org.bukkit.entity.Player;
 
 import java.util.LinkedHashMap;
