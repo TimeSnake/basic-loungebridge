@@ -234,7 +234,6 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
     public void saveGameStats() {
         Server.printText(Plugin.GAME, "Saved game stats", "Stats");
         for (User user : this.getGameUsers()) {
-            System.out.println(user.getName());
             if (((GameUser) user).hasPlayedGame()) {
                 this.saveGameUserStats(((GameUser) user));
             }
