@@ -3,7 +3,6 @@ package de.timesnake.basic.loungebridge.util.user;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
-import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
@@ -50,26 +49,6 @@ public abstract class GameUser extends SpectatorUser {
 
         this.setFlying(false);
         this.setAllowFlight(false);
-
-        for (User user : Server.getUsers()) {
-            if (user.getStatus().equals(Status.User.SPECTATOR) || user.getStatus().equals(Status.User.OUT_GAME)) {
-                user.showUser(this);
-
-                if (this.getStatus().equals(Status.User.SPECTATOR) || this.getStatus().equals(Status.User.OUT_GAME)) {
-                    this.showUser(user);
-                } else {
-                    this.hideUser(user);
-                }
-            } else {
-                this.showUser(user);
-
-                if (this.getStatus().equals(Status.User.SPECTATOR) || this.getStatus().equals(Status.User.OUT_GAME)) {
-                    user.hideUser(this);
-                } else {
-                    user.showUser(this);
-                }
-            }
-        }
 
         if (LoungeBridgeServer.getGame().hasTexturePack()) {
             this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
@@ -294,6 +273,8 @@ public abstract class GameUser extends SpectatorUser {
     public abstract void joinGame();
 
     public void rejoinGame() {
+        super.rejoinGame();
+
         this.setDefault();
         this.setCollitionWithEntites(true);
         this.setAllowFlight(false);

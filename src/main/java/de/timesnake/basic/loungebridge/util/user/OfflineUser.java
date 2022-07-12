@@ -1,7 +1,5 @@
 package de.timesnake.basic.loungebridge.util.user;
 
-import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.Team;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.inventory.ItemStack;
@@ -62,25 +60,5 @@ public class OfflineUser {
         user.setTeam(this.team);
         user.setStatus(this.status);
         user.setKit(this.kit);
-
-        for (User otherUser : Server.getUsers()) {
-            if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus().equals(Status.User.OUT_GAME)) {
-                otherUser.showUser(user);
-
-                if (user.getStatus().equals(Status.User.SPECTATOR) || user.getStatus().equals(Status.User.OUT_GAME)) {
-                    user.showUser(otherUser);
-                } else {
-                    user.hideUser(otherUser);
-                }
-            } else {
-                user.showUser(otherUser);
-
-                if (user.getStatus().equals(Status.User.SPECTATOR) || user.getStatus().equals(Status.User.OUT_GAME)) {
-                    otherUser.hideUser(user);
-                } else {
-                    otherUser.showUser(user);
-                }
-            }
-        }
     }
 }

@@ -124,10 +124,16 @@ public class GameScheduler {
                 }, 20 * 2, BasicLoungeBridge.getPlugin());
             }
 
+
             LoungeBridgeServer.getSpectatorManager().clearTools();
-            LoungeBridgeServer.saveGameStats();
+            LoungeBridgeServer.getStatsManager().sendStatSaveRequest();
 
             LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "The game closes in 10 seconds");
+
+            Server.runTaskLaterSynchrony(() -> {
+                LoungeBridgeServer.getStatsManager().saveGameStats();
+            }, 5 * 20, BasicLoungeBridge.getPlugin());
+
             Server.runTaskLaterSynchrony(() -> {
                 LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "Game closed");
                 Server.getChat().broadcastJoinQuit(false);

@@ -19,6 +19,9 @@ import java.util.UUID;
 
 public abstract class SpectatorUser extends StatUser {
 
+    protected boolean glowingEnabled = false;
+    protected boolean speedEnabled = false;
+
     public SpectatorUser(Player player) {
         super(player);
     }
@@ -36,19 +39,22 @@ public abstract class SpectatorUser extends StatUser {
         this.lockInventory();
         this.lockInventoryItemMove();
 
+        this.glowingEnabled = true;
+        this.speedEnabled = false;
+
         Server.runTaskLaterSynchrony(() -> {
             this.setAllowFlight(true);
             this.setFlying(true);
         }, 10, BasicLoungeBridge.getPlugin());
 
-        // show other spectators ans hide for ingame users
+        // show other spectators and hide for ingame users
         for (User user : Server.getUsers()) {
             if (Status.User.IN_GAME.equals(user.getStatus()) || Status.User.PRE_GAME.equals(user.getStatus()) || Status.User.ONLINE.equals(user.getStatus())) {
 
                 user.hideUser(this);
 
                 this.sendPacket(ExPacketPlayOutEntityEffect.wrap(user.getPlayer(),
-                        ExPacketPlayOutEntityEffect.Effect.GLOWING, ((byte) 0), Integer.MAX_VALUE, false, true, true));
+                        ExPacketPlayOutEntityEffect.Effect.GLOWING, ((byte) 0), Integer.MAX_VALUE, true, true, true));
 
             } else if (Status.User.OUT_GAME.equals(user.getStatus()) || Status.User.SPECTATOR.equals(user.getStatus())) {
                 user.showUser(this);
@@ -115,4 +121,24 @@ public abstract class SpectatorUser extends StatUser {
         this.teleport(LoungeBridgeServer.getSpectatorSpawn());
     }
 
+    public boolean hasGlowingEnabled() {
+        return glowingEnabled;
+    }
+
+    public boolean hasSpeedEnabled() {
+        return speedEnabled;
+    }
+
+    public void setGlowingEnabled(boolean glowingEnabled) {
+        this.glowingEnabled = glowingEnabled;
+    }
+
+    public void setSpeedEnabled(boolean speedEnabled) {
+        this.speedEnabled = speedEnabled;
+    }
+
+    public void rejoinGame() {
+        this.glowingEnabled = false;
+        this.speedEnabled = false;
+    }
 }
