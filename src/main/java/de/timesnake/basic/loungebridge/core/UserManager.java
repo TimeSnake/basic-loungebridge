@@ -1,5 +1,6 @@
 package de.timesnake.basic.loungebridge.core;
 
+import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
@@ -13,6 +14,7 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
+import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
@@ -39,7 +41,7 @@ import java.util.UUID;
 
 public class UserManager implements Listener {
 
-    private static final int REJOIN_TIME = 60; // in seconds
+    private static final int REJOIN_TIME = 120; // in seconds
 
     private final HashMap<UUID, OfflineUser> offlineUsersByUniqueId = new HashMap<>();
     private final HashMap<UUID, BukkitTask> offlineUserRemoveTaskByUniqueId = new HashMap<>();
@@ -84,6 +86,16 @@ public class UserManager implements Listener {
             }
 
             user.joinGame();
+
+            for (User otherUser : Server.getUsers()) {
+                if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus().equals(Status.User.OUT_GAME)) {
+                    otherUser.showUser(user);
+                    user.hideUser(otherUser);
+                } else {
+                    user.showUser(otherUser);
+                    otherUser.showUser(user);
+                }
+            }
 
             LoungeBridgeServer.checkGameStart();
 
@@ -251,29 +263,57 @@ public class UserManager implements Listener {
     public void onUserDamageByUser(UserDamageByUserEvent e) {
         Status.User status = e.getUserDamager().getStatus();
 
-        TeamUser user = ((TeamUser) e.getUser());
-        TeamUser damager = (TeamUser) e.getUserDamager();
+        GameUser clickedUser = (GameUser) e.getUser();
+        GameUser user = (GameUser) e.getUserDamager();
 
         if (!LoungeBridgeServer.isTeamMateDamage()) {
-            if (user.isTeamMate(damager)) {
-                damager.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), ChatColor.PERSONAL + "You can't damage "
+            if (clickedUser.isTeamMate(user)) {
+                user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), ChatColor.PERSONAL + "You can't damage "
                         + "your teammate");
                 e.setCancelled(true);
-                e.setCancelDamage(true);
                 return;
             }
         }
 
         if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
-            if (!e.getUserDamager().isService()) {
+            if (!user.isService()) {
                 e.setCancelled(true);
+                e.setCancelDamage(true);
             }
 
-            if (e.getUser().isInGame()) {
-                e.getUserDamager().openInventory(e.getUser().getInventory());
+            if (clickedUser.isInGame()) {
+                user.setGameMode(GameMode.SPECTATOR);
+                user.setSpectatorTarget(clickedUser.getPlayer());
             }
         }
+    }
 
+    @EventHandler
+    public void onEntityInteract(PlayerInteractEntityEvent e) {
+        SpectatorUser user = (SpectatorUser) Server.getUser(e.getPlayer());
+        Status.User status = user.getStatus();
+
+        if (!(e.getRightClicked() instanceof Player)) {
+            return;
+        }
+
+        GameUser clickedUser = (GameUser) Server.getUser(((Player) e.getRightClicked()));
+
+        if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+            if (!user.isService()) {
+                e.setCancelled(true);
+            }
+            if (clickedUser.isInGame()) {
+                user.openInventory(clickedUser.getInventory());
+            }
+        }
+    }
+
+    @EventHandler
+    public void onPlayerStopSpectatingEntity(PlayerStopSpectatingEntityEvent e) {
+        User user = Server.getUser(e.getPlayer());
+
+        user.setGameMode(GameMode.ADVENTURE);
     }
 
     @EventHandler

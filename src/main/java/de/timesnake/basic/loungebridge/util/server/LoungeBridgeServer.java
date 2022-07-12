@@ -7,10 +7,12 @@ import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.Map;
 import de.timesnake.basic.game.util.Team;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
+import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.util.user.*;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.chat.Plugin;
+import de.timesnake.library.basic.util.statistics.StatType;
 import org.bukkit.Location;
 
 import java.util.Collection;
@@ -19,7 +21,7 @@ import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-public class LoungeBridgeServer extends GameServer {
+public abstract class LoungeBridgeServer extends GameServer {
 
     public static void closeGame() {
         server.closeGame();
@@ -200,8 +202,16 @@ public class LoungeBridgeServer extends GameServer {
         server.resetGame();
     }
 
-    public static void saveGameStats() {
-        server.saveGameStats();
+    public static StatsManager getStatsManager() {
+        return server.getStatsManager();
+    }
+
+    public static Set<StatType<?>> getStats() {
+        return server.getStats();
+    }
+
+    public static void saveGameUserStats(GameUser user) {
+        server.saveGameUserStats(user);
     }
 
     public static boolean isDiscord() {
@@ -211,6 +221,7 @@ public class LoungeBridgeServer extends GameServer {
     public static void setDiscord(boolean enable) {
         server.setDiscord(enable);
     }
+
     private static final LoungeBridgeServerManager server = LoungeBridgeServerManager.getInstance();
 
     public enum State {

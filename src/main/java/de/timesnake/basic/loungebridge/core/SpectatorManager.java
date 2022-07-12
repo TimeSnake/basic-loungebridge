@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.bukkit.util.user.scoreboard.ItemHoldClick;
+import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.library.basic.util.Status;
@@ -20,12 +21,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 
 import java.util.*;
 
 public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener,
-        PacketPlayOutListener {
+        PacketPlayOutListener, Listener {
 
     // teleports the spectator to spawn if he goes lower than min y
     public static final Integer MIN_Y = -84;
@@ -37,16 +39,16 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     private static final Integer LEAVE_TIME = 2000;
     private final HashMap<User, ItemHoldClick> clickedLeaveUsers = new HashMap<>();
     private final HashMap<Integer, User> userHeadsById = new HashMap<>();
-    private final Set<User> speedUsers = new HashSet<>();
+    private final Set<User> clickCooldownUsers = new HashSet<>();
     private ExInventory gameUserInv;
     private Set<User> glowingUsers = new HashSet<>();
-    private Set<User> glowReceivers = new HashSet<>();
 
     public SpectatorManager() {
         this.gameUserInv = Server.createExInventory(9, "Players");
 
         Server.getInventoryEventManager().addInteractListener(this, USER_INV, GLOWING, SPEED, FLYING, LEAVE_ITEM);
         Server.getPacketManager().addListener(this);
+        Server.registerListener(this, BasicLoungeBridge.getPlugin());
     }
 
     public void updateSpectatorTools() {
@@ -56,15 +58,13 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     }
 
     public void clearTools() {
-        this.glowReceivers.clear();
         this.glowingUsers.clear();
-        this.speedUsers.clear();
     }
 
     private void updateTeleportInventory() {
         Server.getInventoryEventManager().removeClickListener(this);
-        int ingame = Server.getInGameUsers().size();
-        this.gameUserInv = Server.createExInventory(ingame == 0 ? 9 : (ingame + 8) / 9 * 9, "Players");
+        int inGame = Server.getInGameUsers().size();
+        this.gameUserInv = Server.createExInventory(inGame == 0 ? 9 : (inGame + 8) / 9 * 9, "Players");
         this.userHeadsById.clear();
         int slot = 0;
         for (User user : Server.getInGameUsers()) {
@@ -82,9 +82,6 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     }
 
     public void updateGlowReceivers() {
-        Collection<User> users = Server.getSpectatorUsers();
-        users.addAll(Server.getOutGameUsers());
-        this.glowReceivers = new HashSet<>(users);
         this.sendUpdatePackets();
     }
 
@@ -93,39 +90,17 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         this.sendUpdatePackets();
     }
 
-    public void addGlowReceiver(User user) {
-        this.glowReceivers.add(user);
-        for (User glowingUser : this.glowingUsers) {
-            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
-                    ExPacketPlayOutEntityMetadata.DataType.UPDATE);
-            user.sendPacket(packet);
-        }
-    }
-
-    public void removeGlowReceiver(User user) {
-        this.glowReceivers.remove(user);
-        for (User glowingUser : this.glowingUsers) {
-            ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
-                    ExPacketPlayOutEntityMetadata.DataType.UPDATE);
-            user.sendPacket(packet);
-        }
-    }
-
-    public void addGlowingPlayer(User user) {
-        this.glowingUsers.add(user);
-        ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(user.getPlayer(),
-                ExPacketPlayOutEntityMetadata.DataType.UPDATE);
-        for (User receiver : this.glowReceivers) {
-            receiver.sendPacket(packet);
-        }
-    }
-
     private void sendUpdatePackets() {
+        Collection<User> receivers = Server.getSpectatorUsers();
+        receivers.addAll(Server.getOutGameUsers());
+
         for (User glowingUser : this.glowingUsers) {
             ExPacketPlayOut packet = ExPacketPlayOutEntityMetadata.wrap(glowingUser.getPlayer(),
                     ExPacketPlayOutEntityMetadata.DataType.UPDATE);
-            for (User receiver : this.glowReceivers) {
-                receiver.sendPacket(packet);
+            for (User receiver : receivers) {
+                if (((SpectatorUser) receiver).hasGlowingEnabled()) {
+                    receiver.sendPacket(packet);
+                }
             }
         }
     }
@@ -159,7 +134,10 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
             return packet;
         }
 
-        if (!this.glowReceivers.contains(Server.getUser(receiver))) {
+        SpectatorUser user = (SpectatorUser) Server.getUser(receiver);
+
+        if (!(user.hasGlowingEnabled())
+                || !(user.getStatus().equals(Status.User.OUT_GAME) || user.getStatus().equals(Status.User.SPECTATOR))) {
             return packet;
         }
 
@@ -172,9 +150,17 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     @Override
     public void onUserInventoryInteract(UserInventoryInteractEvent e) {
         ExItemStack clickedItem = e.getClickedItem();
-        User user = e.getUser();
+        SpectatorUser user = (SpectatorUser) e.getUser();
+
+        if (this.clickCooldownUsers.contains(user)) {
+            return;
+        }
+
+        this.clickCooldownUsers.add(user);
+        Server.runTaskLaterSynchrony(() -> this.clickCooldownUsers.remove(user), 10, BasicLoungeBridge.getPlugin());
+
         if (clickedItem.equals(USER_INV)) {
-            ((SpectatorUser) user).openGameUserInventory();
+            user.openGameUserInventory();
         } else if (clickedItem.equals(LEAVE_ITEM)) {
 
             if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.RIGHT_CLICK_AIR) {
@@ -190,28 +176,26 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
                 }
             }
         } else if (clickedItem.equals(GLOWING)) {
-            if (this.glowReceivers.contains(user)) {
-                this.removeGlowReceiver(user);
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled glowing");
-                clickedItem.disenchant();
-            } else {
-                this.addGlowReceiver(user);
+            user.setGlowingEnabled(!user.hasGlowingEnabled());
+            if (user.hasGlowingEnabled()) {
                 user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Enabled glowing");
                 clickedItem.enchant();
+            } else {
+                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled glowing");
+                clickedItem.disenchant();
             }
         } else if (clickedItem.equals(SPEED)) {
-            if (this.speedUsers.contains(user)) {
-                this.speedUsers.remove(user);
-                user.getPlayer().setFlySpeed(0.2F);
-                user.getPlayer().setWalkSpeed(0.2F);
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled speed");
-                clickedItem.disenchant();
-            } else {
-                this.speedUsers.add(user);
+            user.setSpeedEnabled(!user.hasSpeedEnabled());
+            if (user.hasSpeedEnabled()) {
                 user.getPlayer().setFlySpeed(0.4F);
                 user.getPlayer().setWalkSpeed(0.4F);
                 user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Enabled speed");
                 clickedItem.enchant();
+            } else {
+                user.getPlayer().setFlySpeed(0.2F);
+                user.getPlayer().setWalkSpeed(0.2F);
+                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled speed");
+                clickedItem.disenchant();
             }
         } else if (clickedItem.equals(FLYING)) {
             user.setAllowFlight(!user.getAllowFlight());
@@ -252,7 +236,7 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         User user = e.getUser();
         if (user.getStatus().equals(Status.User.SPECTATOR) || user.getStatus().equals(Status.User.OUT_GAME)) {
             e.setCancelled(true);
-            if (user.getLocation().getY() < 0) {
+            if (user.getLocation().getY() < MIN_Y) {
                 ((SpectatorUser) user).teleportToSpectatorSpawn();
             }
         }

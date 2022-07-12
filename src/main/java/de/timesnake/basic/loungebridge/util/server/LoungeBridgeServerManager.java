@@ -11,10 +11,7 @@ import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.GameServerManager;
 import de.timesnake.basic.game.util.Map;
 import de.timesnake.basic.game.util.Team;
-import de.timesnake.basic.loungebridge.core.ChannelListener;
-import de.timesnake.basic.loungebridge.core.GameScheduler;
-import de.timesnake.basic.loungebridge.core.SpectatorManager;
-import de.timesnake.basic.loungebridge.core.UserManager;
+import de.timesnake.basic.loungebridge.core.*;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.game.GameElementManager;
@@ -28,7 +25,6 @@ import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTempGameServer;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.basic.util.statistics.StatType;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -47,9 +43,6 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
     public static final org.bukkit.ChatColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
 
     public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
-
-
-    public static final Set<StatType<?>> BASE_STATS = Set.of(GAMES_PLAYED);
 
     public static LoungeBridgeServerManager getInstance() {
         return (LoungeBridgeServerManager) ServerManager.getInstance();
@@ -73,6 +66,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
     private Map map;
     private UserManager userManager;
     private GameScheduler gameScheduler;
+    private StatsManager statsManager;
 
     public final void onLoungeBridgeEnable() {
         super.onGameEnable();
@@ -85,7 +79,9 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
             this.loadKitsIntoDatabase();
         }
 
-        this.loadStatTypesIntoDatabase();
+        this.statsManager = new StatsManager();
+
+        this.statsManager.loadStatTypesIntoDatabase();
 
         // search twin server
         DbTempGameServer database = ((DbTempGameServer) Server.getDatabase());
@@ -231,18 +227,6 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
         this.gameScheduler.closeGame();
     }
 
-    public void saveGameStats() {
-        Server.printText(Plugin.GAME, "Saved game stats", "Stats");
-        for (User user : this.getGameUsers()) {
-            if (((GameUser) user).hasPlayedGame()) {
-                this.saveGameUserStats(((GameUser) user));
-            }
-        }
-
-        Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.USER_STATS,
-                this.getGame().getName()));
-    }
-
     public void resetKillsAndDeaths() {
         for (Team team : this.getGame().getTeams()) {
             team.setDeaths(0);
@@ -271,24 +255,6 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
         }
     }
 
-    public void loadStatTypesIntoDatabase() {
-        if (this.getStats() == null) {
-            return;
-        }
-
-        DbGame game = this.getGame().getDatabase();
-
-        for (StatType<?> stat : BASE_STATS) {
-            game.removeStat(stat);
-            game.addStat(stat);
-        }
-
-        for (StatType<?> stat : this.getStats()) {
-            game.removeStat(stat);
-            game.addStat(stat);
-        }
-
-    }
 
     public Map getMap() {
         return map;
@@ -493,5 +459,7 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
         return gameElementManager;
     }
 
-
+    public StatsManager getStatsManager() {
+        return statsManager;
+    }
 }
