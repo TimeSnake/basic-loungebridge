@@ -71,6 +71,7 @@ public class StatsManager {
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (((GameUser) user).hasPlayedGame()) {
                     LoungeBridgeServer.saveGameUserStats(((GameUser) user));
+                    System.out.println(user.getName());
                 }
 
                 if (user.hasPermission("game.stats.info")) {

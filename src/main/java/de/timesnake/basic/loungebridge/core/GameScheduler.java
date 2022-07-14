@@ -130,9 +130,8 @@ public class GameScheduler {
 
             LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "The game closes in 10 seconds");
 
-            Server.runTaskLaterSynchrony(() -> {
-                LoungeBridgeServer.getStatsManager().saveGameStats();
-            }, 5 * 20, BasicLoungeBridge.getPlugin());
+            Server.runTaskLaterSynchrony(() -> LoungeBridgeServer.getStatsManager().saveGameStats(),
+                    6 * 20, BasicLoungeBridge.getPlugin());
 
             Server.runTaskLaterSynchrony(() -> {
                 LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "Game closed");
