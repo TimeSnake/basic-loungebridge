@@ -7,4 +7,5 @@ depend: [ basic-bukkit ]
 api-version: 1.13
 
 commands:
+  stats_discard:
 
