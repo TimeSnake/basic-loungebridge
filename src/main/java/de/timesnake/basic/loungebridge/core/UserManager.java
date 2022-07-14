@@ -6,7 +6,6 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.*;
-import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.TeamUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
@@ -60,7 +59,7 @@ public class UserManager implements Listener {
             this.offlineUserRemoveTaskByUniqueId.remove(user.getUniqueId()).cancel();
             offlineUser.loadInto(user);
             LoungeBridgeServer.onGameUserRejoin(user);
-        } else if (task != null && task.equalsIgnoreCase(GameServer.getGame().getName()) && user.getStatus().equals(Status.User.PRE_GAME)) {
+        } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName()) && user.getStatus().equals(Status.User.PRE_GAME)) {
 
             user.getInventory().clear();
             user.heal();
