@@ -6,6 +6,7 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.Map;
 import de.timesnake.basic.game.util.Team;
+import de.timesnake.basic.game.util.TmpGame;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
@@ -22,6 +23,10 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class LoungeBridgeServer extends GameServer {
+
+    public static TmpGame getGame() {
+        return (TmpGame) server.getGame();
+    }
 
     public static void closeGame() {
         server.closeGame();

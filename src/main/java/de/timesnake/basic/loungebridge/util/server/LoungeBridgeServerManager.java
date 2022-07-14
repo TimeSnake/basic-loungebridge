@@ -6,11 +6,10 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.permission.Group;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
-import de.timesnake.basic.game.util.GameServer;
-import de.timesnake.basic.game.util.GameServerManager;
 import de.timesnake.basic.game.util.Map;
-import de.timesnake.basic.game.util.Team;
+import de.timesnake.basic.game.util.*;
 import de.timesnake.basic.loungebridge.core.*;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
@@ -33,7 +32,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-public abstract class LoungeBridgeServerManager extends GameServerManager implements TempGameServerManager {
+public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends GameServerManager<Game> implements TempGameServerManager {
 
     public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
@@ -44,8 +43,8 @@ public abstract class LoungeBridgeServerManager extends GameServerManager implem
 
     public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
-    public static LoungeBridgeServerManager getInstance() {
-        return (LoungeBridgeServerManager) ServerManager.getInstance();
+    public static LoungeBridgeServerManager<?> getInstance() {
+        return (LoungeBridgeServerManager<?>) ServerManager.getInstance();
     }
 
     protected DbLoungeServer twinServer;
