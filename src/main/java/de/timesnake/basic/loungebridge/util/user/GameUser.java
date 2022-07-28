@@ -33,6 +33,8 @@ public abstract class GameUser extends SpectatorUser {
 
     private boolean playedGame = false;
 
+    private float gameCoins = 0;
+
     public GameUser(Player player) {
         super(player);
         if (LoungeBridgeServer.areKitsEnabled()) {
@@ -104,13 +106,11 @@ public abstract class GameUser extends SpectatorUser {
 
         this.kitLoaded = true;
 
-        int i = 0;
         for (ItemStack item : this.kit.getItems()) {
             if (item instanceof ExItemStack && ((ExItemStack) item).getSlot() != null) {
-                this.getInventory().setItem(((ExItemStack) item).getSlot(), item);
+                this.getInventory().setItem(((ExItemStack) item).getSlot(), ((ExItemStack) item).cloneWithId());
             } else {
-                this.getInventory().setItem(i, item);
-                i++;
+                this.getInventory().addItem(item);
             }
         }
         return true;
@@ -268,6 +268,16 @@ public abstract class GameUser extends SpectatorUser {
         }
 
         return ChatColor.RED + "" + health + "❤";
+    }
+
+    @Override
+    public void addCoins(float coins, boolean sendMessage) {
+        super.addCoins(coins, sendMessage);
+        this.gameCoins += coins;
+    }
+
+    public float getGameCoins() {
+        return gameCoins;
     }
 
     public abstract void joinGame();
