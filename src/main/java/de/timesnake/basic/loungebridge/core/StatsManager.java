@@ -1,7 +1,11 @@
 package de.timesnake.basic.loungebridge.core;
 
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.chat.Argument;
+import de.timesnake.basic.bukkit.util.chat.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.TempGameServerManager;
@@ -11,8 +15,11 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.library.basic.util.chat.ChatColor;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.extension.util.cmd.Arguments;
+import de.timesnake.library.extension.util.cmd.ExCommand;
 import net.md_5.bungee.api.chat.ClickEvent;
 
+import java.util.List;
 import java.util.Set;
 
 public class StatsManager {
@@ -23,6 +30,9 @@ public class StatsManager {
 
     public StatsManager() {
         this.reset();
+
+        Server.getCommandManager().addCommand(BasicLoungeBridge.getPlugin(), "stats_discard",
+                new StatsDiscardCmd(), Plugin.GAME);
     }
 
     public void reset() {
@@ -71,7 +81,6 @@ public class StatsManager {
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (((GameUser) user).hasPlayedGame()) {
                     LoungeBridgeServer.saveGameUserStats(((GameUser) user));
-                    System.out.println(user.getName());
                 }
 
                 if (user.hasPermission("game.stats.info")) {
@@ -91,5 +100,28 @@ public class StatsManager {
             Server.printText(Plugin.GAME, "Discarded game stats", "Stats");
         }
 
+    }
+
+    public static class StatsDiscardCmd implements CommandListener {
+
+        @Override
+        public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+            if (!sender.hasPermission("game.stats.discard", 1504)) {
+                return;
+            }
+
+            LoungeBridgeServer.getStatsManager().setSaveStats(!LoungeBridgeServer.getStatsManager().isSaveStats());
+
+            if (LoungeBridgeServer.getStatsManager().isSaveStats()) {
+                sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be saved");
+            } else {
+                sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be discarded");
+            }
+        }
+
+        @Override
+        public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+            return List.of();
+        }
     }
 }

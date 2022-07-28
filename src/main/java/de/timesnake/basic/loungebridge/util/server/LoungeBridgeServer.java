@@ -7,6 +7,7 @@ import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.Map;
 import de.timesnake.basic.game.util.Team;
 import de.timesnake.basic.game.util.TmpGame;
+import de.timesnake.basic.loungebridge.core.CoinsManager;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
@@ -219,6 +220,10 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.saveGameUserStats(user);
     }
 
+    public static CoinsManager getCoinsManager() {
+        return server.getCoinsManager();
+    }
+
     public static boolean isDiscord() {
         return server.isDiscord();
     }
@@ -227,7 +232,7 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.setDiscord(enable);
     }
 
-    private static final LoungeBridgeServerManager server = LoungeBridgeServerManager.getInstance();
+    private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();
 
     public enum State {
         STARTING,

@@ -22,7 +22,7 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
-import de.timesnake.database.util.server.DbTempGameServer;
+import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -66,6 +66,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     private UserManager userManager;
     private GameScheduler gameScheduler;
     private StatsManager statsManager;
+    private CoinsManager coinsManager;
 
     public final void onLoungeBridgeEnable() {
         super.onGameEnable();
@@ -73,17 +74,18 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         this.spectatorManager = new SpectatorManager();
 
         // update kits into database, if enabled
-        this.kitsEnabled = ((DbTempGameServer) this.getDatabase()).areKitsEnabled();
+        this.kitsEnabled = ((DbTmpGameServer) this.getDatabase()).areKitsEnabled();
         if (this.kitsEnabled) {
             this.loadKitsIntoDatabase();
         }
 
         this.statsManager = new StatsManager();
-
         this.statsManager.loadStatTypesIntoDatabase();
 
+        this.coinsManager = new CoinsManager();
+
         // search twin server
-        DbTempGameServer database = ((DbTempGameServer) Server.getDatabase());
+        DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
         this.twinServer = database.getTwinServer();
         if (twinServer == null) {
             Server.printError(Plugin.LOUNGE, "No twin server found in database");
@@ -95,10 +97,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         this.gameScheduler = new GameScheduler();
         this.gameElementManager = this.loadGameElementManager();
 
-        this.mapsEnabled = ((DbTempGameServer) this.getDatabase()).areMapsEnabled();
-        Integer serverTeamAmount = ((DbTempGameServer) this.getDatabase()).getTeamAmount();
+        this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
+        Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
         this.serverTeamAmount = serverTeamAmount != null ? serverTeamAmount : this.getGame().getTeams().size();
-        this.maxPlayersPerTeam = ((DbTempGameServer) this.getDatabase()).getMaxPlayersPerTeam();
+        this.maxPlayersPerTeam = ((DbTmpGameServer) this.getDatabase()).getMaxPlayersPerTeam();
 
         this.channelListener = new ChannelListener();
 
@@ -170,7 +172,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
         TablistUserQuit tablistQuit = (e, tablist) -> tablist.removeEntry(e.getUser());
 
-        if (this.getServerTeamAmount() > 0) {
+        if (this.getServerTeamAmount() > 0 && !this.getGame().hideTeams()) {
             if (this.maxPlayersPerTeam == null) {
                 this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
                         TeamTablist.ColorType.TEAM, this.getGame().getTeams(),
@@ -399,7 +401,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     }
 
     public final void loadMap() {
-        Map map = GameServer.getGame().getMap(((DbTempGameServer) Server.getDatabase()).getMapName());
+        Map map = GameServer.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
         this.setMap(map);
         this.onMapLoad();
         Server.printText(Plugin.LOUNGE, "Loaded map " + map.getName());
@@ -460,5 +462,9 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
     public StatsManager getStatsManager() {
         return statsManager;
+    }
+
+    public CoinsManager getCoinsManager() {
+        return coinsManager;
     }
 }

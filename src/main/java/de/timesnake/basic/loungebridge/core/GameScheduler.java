@@ -127,11 +127,14 @@ public class GameScheduler {
 
             LoungeBridgeServer.getSpectatorManager().clearTools();
             LoungeBridgeServer.getStatsManager().sendStatSaveRequest();
+            LoungeBridgeServer.getCoinsManager().sendCoinsSaveRequest();
 
             LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "The game closes in 10 seconds");
 
-            Server.runTaskLaterSynchrony(() -> LoungeBridgeServer.getStatsManager().saveGameStats(),
-                    6 * 20, BasicLoungeBridge.getPlugin());
+            Server.runTaskLaterSynchrony(() -> {
+                LoungeBridgeServer.getStatsManager().saveGameStats();
+                LoungeBridgeServer.getCoinsManager().saveGameCoins();
+            }, 6 * 20, BasicLoungeBridge.getPlugin());
 
             Server.runTaskLaterSynchrony(() -> {
                 LoungeBridgeServer.broadcastLoungeBridgeMessage(ChatColor.WARNING + "Game closed");
@@ -154,6 +157,8 @@ public class GameScheduler {
                     LoungeBridgeServer.resetKillsAndDeaths();
                     LoungeBridgeServer.setState(LoungeBridgeServer.State.RESETTING);
                     LoungeBridgeServer.resetGame();
+                    LoungeBridgeServer.getStatsManager().reset();
+                    LoungeBridgeServer.getCoinsManager().reset();
                     LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
                     Server.getChat().broadcastJoinQuit(true);
                 }, 5 * 20, BasicLoungeBridge.getPlugin());
