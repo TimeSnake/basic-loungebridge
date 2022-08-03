@@ -8,6 +8,9 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
+import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.basic.util.chat.ChatColor;
 import de.timesnake.library.extension.util.cmd.Arguments;
@@ -16,7 +19,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 
 import java.util.List;
 
-public class CoinsManager {
+public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTool {
 
     private boolean saveCoins;
 
@@ -27,8 +30,19 @@ public class CoinsManager {
                 new CoinsDiscardCmd(), Plugin.GAME);
     }
 
+    @Override
     public void reset() {
         this.saveCoins = true;
+    }
+
+    @Override
+    public void stop() {
+        this.sendCoinsSaveRequest();
+    }
+
+    @Override
+    public void preClose() {
+        this.saveGameCoins();
     }
 
     public boolean isSaveCoins() {
@@ -42,7 +56,7 @@ public class CoinsManager {
     public void sendCoinsSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.coins.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING + ChatColor.UNDERLINE +
+                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING +
                                 "Discard game" + ChatColor.GOLD + " coins?", "/coins_discard",
                         "Click to discard all coins", ClickEvent.Action.RUN_COMMAND);
             }
@@ -69,7 +83,7 @@ public class CoinsManager {
 
     }
 
-    public static class CoinsDiscardCmd implements CommandListener {
+    public class CoinsDiscardCmd implements CommandListener {
 
         @Override
         public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
@@ -77,13 +91,8 @@ public class CoinsManager {
                 return;
             }
 
-            LoungeBridgeServer.getStatsManager().setSaveStats(!LoungeBridgeServer.getStatsManager().isSaveStats());
-
-            if (LoungeBridgeServer.getStatsManager().isSaveStats()) {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "All coins will be saved");
-            } else {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "All coins will be discarded");
-            }
+            CoinsManager.this.saveCoins = false;
+            sender.sendPluginMessage(ChatColor.PERSONAL + "All coins will be discarded");
         }
 
         @Override

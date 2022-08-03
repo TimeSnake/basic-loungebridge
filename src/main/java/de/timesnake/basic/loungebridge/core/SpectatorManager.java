@@ -24,7 +24,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 
 public class SpectatorManager implements UserInventoryClickListener, UserInventoryInteractListener,
         PacketPlayOutListener, Listener {
@@ -68,8 +71,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         this.userHeadsById.clear();
         int slot = 0;
         for (User user : Server.getInGameUsers()) {
-            ExItemStack head = new ExItemStack(user.getPlayer(), user.getChatName(), List.of("", "§7Click to " +
-                    "teleport"));
+            ExItemStack head = ExItemStack.getHead(user.getPlayer(), user.getChatName()).setLore("", "§7Click to " +
+                    "teleport");
             this.userHeadsById.put(head.getId(), user);
             this.gameUserInv.setItemStack(slot, head);
             Server.getInventoryEventManager().addClickListener(this, head);
@@ -187,21 +190,15 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         } else if (clickedItem.equals(SPEED)) {
             user.setSpeedEnabled(!user.hasSpeedEnabled());
             if (user.hasSpeedEnabled()) {
-                user.getPlayer().setFlySpeed(0.4F);
-                user.getPlayer().setWalkSpeed(0.4F);
                 user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Enabled speed");
                 clickedItem.enchant();
             } else {
-                user.getPlayer().setFlySpeed(0.2F);
-                user.getPlayer().setWalkSpeed(0.2F);
                 user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled speed");
                 clickedItem.disenchant();
             }
         } else if (clickedItem.equals(FLYING)) {
-            user.setAllowFlight(!user.getAllowFlight());
-            user.setFlying(user.getAllowFlight());
-            user.sendPluginMessage(Plugin.GAME,
-                    ChatColor.PERSONAL + (user.getAllowFlight() ? "Enabled" : "Disabled") + " flying");
+            user.setFlyEnabled(user.hasFlyEnabled());
+            user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + (user.getAllowFlight() ? "Enabled" : "Disabled") + " flying");
             if (user.getAllowFlight()) clickedItem.enchant();
             else clickedItem.disenchant();
         }

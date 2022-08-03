@@ -7,20 +7,15 @@ import de.timesnake.basic.game.util.StatUser;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.channel.util.message.ChannelDiscordMessage;
-import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityEffect;
 import org.bukkit.entity.Player;
-
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.UUID;
 
 public abstract class SpectatorUser extends StatUser {
 
     protected boolean glowingEnabled = false;
     protected boolean speedEnabled = false;
+    protected boolean flyEnabled = true;
 
     public SpectatorUser(Player player) {
         super(player);
@@ -62,7 +57,7 @@ public abstract class SpectatorUser extends StatUser {
         }
 
         // remove from team chat
-        if (this.getTeam() != null) {
+        if (this.getTeam() != null && this.getTeam().hasPrivateChat()) {
             Chat teamChat = Server.getChat(this.getTeam().getName());
             if (teamChat != null) {
                 teamChat.removeWriter(this);
@@ -71,8 +66,10 @@ public abstract class SpectatorUser extends StatUser {
         }
 
         // set tablist team
-        LoungeBridgeServer.getGameTablist().removeEntry(this);
-        LoungeBridgeServer.getGameTablist().addRemainEntry(this);
+        if (!LoungeBridgeServer.getGame().hideTeams() || this.getStatus().equals(Status.User.SPECTATOR)) {
+            LoungeBridgeServer.getGameTablist().removeEntry(this);
+            LoungeBridgeServer.getGameTablist().addRemainEntry(this);
+        }
 
         if (this.getTeam() == null) {
             this.teleportToSpectatorSpawn();
@@ -96,13 +93,7 @@ public abstract class SpectatorUser extends StatUser {
         // set spec tools
         this.setSpectatorInventory();
 
-        if (LoungeBridgeServer.isDiscord()) {
-            LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
-            uuidsByTeam.put(LoungeBridgeServer.DISCORD_SPECTATOR, List.of(this.getUniqueId()));
-            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
-                    MessageType.Discord.MOVE_TEAMS,
-                    new ChannelDiscordMessage.Allocation(uuidsByTeam)));
-        }
+        LoungeBridgeServer.getDiscordManager().onUserJoinSpectator(this);
     }
 
     public void setSpectatorInventory() {
@@ -135,6 +126,18 @@ public abstract class SpectatorUser extends StatUser {
 
     public void setSpeedEnabled(boolean speedEnabled) {
         this.speedEnabled = speedEnabled;
+        this.setFlySpeed(this.speedEnabled ? 0.2F : 0.4F);
+        this.setWalkSpeed(this.speedEnabled ? 0.2F : 0.4F);
+    }
+
+    public boolean hasFlyEnabled() {
+        return flyEnabled;
+    }
+
+    public void setFlyEnabled(boolean flyEnabled) {
+        this.flyEnabled = flyEnabled;
+        this.setAllowFlight(flyEnabled);
+        this.setFlying(flyEnabled);
     }
 
     public void rejoinGame() {

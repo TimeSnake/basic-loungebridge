@@ -37,6 +37,7 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
             }
         } else if (msg.getMessageType().equals(MessageType.Server.DISCORD)) {
             LoungeBridgeServer.setDiscord((boolean) msg.getValue());
+            LoungeBridgeServer.getDiscordManager().update();
         }
     }
 

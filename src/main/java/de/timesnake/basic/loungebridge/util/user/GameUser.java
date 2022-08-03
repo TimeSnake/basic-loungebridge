@@ -46,6 +46,8 @@ public abstract class GameUser extends SpectatorUser {
                 } catch (KitNotDefinedException ignored) {
                 }
             }
+
+            this.setKitItems();
         }
         this.isLeaving = false;
 

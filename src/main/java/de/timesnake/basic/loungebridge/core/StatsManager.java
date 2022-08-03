@@ -9,6 +9,10 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.TempGameServerManager;
+import de.timesnake.basic.loungebridge.util.tool.GameTool;
+import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
+import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
@@ -22,7 +26,7 @@ import net.md_5.bungee.api.chat.ClickEvent;
 import java.util.List;
 import java.util.Set;
 
-public class StatsManager {
+public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, StopableTool {
 
     public static final Set<StatType<?>> BASE_STATS = Set.of(TempGameServerManager.GAMES_PLAYED);
 
@@ -35,8 +39,19 @@ public class StatsManager {
                 new StatsDiscardCmd(), Plugin.GAME);
     }
 
+    @Override
     public void reset() {
         this.saveStats = true;
+    }
+
+    @Override
+    public void preClose() {
+        this.saveGameStats();
+    }
+
+    @Override
+    public void stop() {
+        this.sendStatSaveRequest();
     }
 
     public boolean isSaveStats() {
@@ -68,9 +83,9 @@ public class StatsManager {
     public void sendStatSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.stats.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING + ChatColor.UNDERLINE +
-                                "Discard game stats?", "/stats_discard", "Click to discard all stats",
-                        ClickEvent.Action.RUN_COMMAND);
+                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING +
+                                "Discard game " + ChatColor.BLUE + "stats?", "/stats_discard",
+                        "Click to discard all stats", ClickEvent.Action.RUN_COMMAND);
             }
         }
     }
@@ -102,7 +117,7 @@ public class StatsManager {
 
     }
 
-    public static class StatsDiscardCmd implements CommandListener {
+    public class StatsDiscardCmd implements CommandListener {
 
         @Override
         public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
@@ -110,13 +125,8 @@ public class StatsManager {
                 return;
             }
 
-            LoungeBridgeServer.getStatsManager().setSaveStats(!LoungeBridgeServer.getStatsManager().isSaveStats());
-
-            if (LoungeBridgeServer.getStatsManager().isSaveStats()) {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be saved");
-            } else {
-                sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be discarded");
-            }
+            StatsManager.this.saveStats = false;
+            sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be discarded");
         }
 
         @Override
