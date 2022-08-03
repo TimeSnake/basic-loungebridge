@@ -7,10 +7,10 @@ import de.timesnake.basic.game.util.GameServer;
 import de.timesnake.basic.game.util.Map;
 import de.timesnake.basic.game.util.Team;
 import de.timesnake.basic.game.util.TmpGame;
-import de.timesnake.basic.loungebridge.core.CoinsManager;
+import de.timesnake.basic.loungebridge.core.DiscordManager;
 import de.timesnake.basic.loungebridge.core.SpectatorManager;
-import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
+import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.*;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.chat.Plugin;
@@ -31,6 +31,14 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static void closeGame() {
         server.closeGame();
+    }
+
+    public static void closeGame6() {
+        server.closeGame6();
+    }
+
+    public static void closeGame10() {
+        server.closeGame10();
     }
 
     public static DbLoungeServer getTwinServer() {
@@ -208,10 +216,6 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.resetGame();
     }
 
-    public static StatsManager getStatsManager() {
-        return server.getStatsManager();
-    }
-
     public static Set<StatType<?>> getStats() {
         return server.getStats();
     }
@@ -220,16 +224,24 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.saveGameUserStats(user);
     }
 
-    public static CoinsManager getCoinsManager() {
-        return server.getCoinsManager();
-    }
-
     public static boolean isDiscord() {
         return server.isDiscord();
     }
 
     public static void setDiscord(boolean enable) {
         server.setDiscord(enable);
+    }
+
+    public static Integer getMaxPlayersPerTeam() {
+        return server.getMaxPlayersPerTeam();
+    }
+
+    public static ToolManager getToolManager() {
+        return server.getToolManager();
+    }
+
+    public static DiscordManager getDiscordManager() {
+        return server.getDiscordManager();
     }
 
     private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();

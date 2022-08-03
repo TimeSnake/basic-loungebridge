@@ -59,7 +59,8 @@ public class UserManager implements Listener {
             this.offlineUserRemoveTaskByUniqueId.remove(user.getUniqueId()).cancel();
             offlineUser.loadInto(user);
             LoungeBridgeServer.onGameUserRejoin(user);
-        } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName()) && user.getStatus().equals(Status.User.PRE_GAME)) {
+        } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
+                && user.getStatus().equals(Status.User.PRE_GAME)) {
 
             user.getInventory().clear();
             user.heal();
@@ -75,7 +76,7 @@ public class UserManager implements Listener {
 
             user.updateTeam();
 
-            if (user.getTeam() != null && LoungeBridgeServer.getServerTeamAmount() > 0) {
+            if (user.getTeam() != null && user.getTeam().hasPrivateChat() && LoungeBridgeServer.getServerTeamAmount() > 0) {
                 Chat teamChat = Server.getChat(user.getTeam().getName());
                 if (teamChat != null) {
                     teamChat.addWriter(user);
@@ -310,9 +311,13 @@ public class UserManager implements Listener {
 
     @EventHandler
     public void onPlayerStopSpectatingEntity(PlayerStopSpectatingEntityEvent e) {
-        User user = Server.getUser(e.getPlayer());
+        SpectatorUser user = (SpectatorUser) Server.getUser(e.getPlayer());
 
         user.setGameMode(GameMode.ADVENTURE);
+        if (user.hasFlyEnabled()) {
+            user.setAllowFlight(true);
+            user.setFlying(true);
+        }
     }
 
     @EventHandler

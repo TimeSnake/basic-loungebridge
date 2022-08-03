@@ -4,13 +4,16 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.tool.GameTool;
+import de.timesnake.basic.loungebridge.util.tool.StartableTool;
+import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
 import java.util.Random;
 
-public class ItemSpawner implements GameElement {
+public class ItemSpawner implements GameTool, StartableTool, StopableTool {
 
     private final int delayBase;
     private final int delayRange;
@@ -37,7 +40,7 @@ public class ItemSpawner implements GameElement {
         this.inTicks = true;
     }
 
-
+    @Override
     public void start() {
         ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
 
@@ -57,6 +60,7 @@ public class ItemSpawner implements GameElement {
         }, this.inTicks ? 1 : 20, this.inTicks ? 1 : 20, BasicLoungeBridge.getPlugin());
     }
 
+    @Override
     public void stop() {
         if (this.task != null) {
             this.task.cancel();

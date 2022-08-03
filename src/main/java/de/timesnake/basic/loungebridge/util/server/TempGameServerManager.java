@@ -2,7 +2,6 @@ package de.timesnake.basic.loungebridge.util.server;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
-import de.timesnake.basic.loungebridge.util.game.GameElementManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
@@ -10,6 +9,7 @@ import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -18,6 +18,8 @@ public interface TempGameServerManager {
 
     StatType<Integer> GAMES_PLAYED = new IntegerStat("games_played", "Games Played", 0, 10,
             1, false, 0, 1);
+
+    GameUser loadUser(Player player);
 
     /**
      * Get the game {@link de.timesnake.basic.bukkit.util.chat.Plugin}
@@ -39,11 +41,6 @@ public interface TempGameServerManager {
     void broadcastGameMessage(String message);
 
     /**
-     * Countdown 7s, during user join
-     */
-    void prepareGame();
-
-    /**
      * Called by channel map load message from lounge (map-voting).
      */
     default void onMapLoad() {
@@ -51,9 +48,23 @@ public interface TempGameServerManager {
     }
 
     /**
+     * Countdown 7s, during user join
+     */
+    default void onGamePrepare() {
+
+    }
+
+    /**
      * Countdown 0s
      */
     void onGameStart();
+
+    void onGameStop();
+
+    /**
+     * Called after all users quit
+     */
+    void onGameReset();
 
     /**
      * Ingame user quits the server
@@ -85,11 +96,6 @@ public interface TempGameServerManager {
 
     }
 
-    /**
-     * Called after all users quit
-     */
-    void resetGame();
-
     default Sideboard getSpectatorSideboard() {
         return null;
     }
@@ -116,8 +122,5 @@ public interface TempGameServerManager {
         user.getStat(GAMES_PLAYED).increaseAll(1);
     }
 
-    default GameElementManager loadGameElementManager() {
-        return new GameElementManager();
-    }
 
 }
