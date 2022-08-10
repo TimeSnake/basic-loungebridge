@@ -9,8 +9,8 @@ import de.timesnake.basic.bukkit.util.user.event.UserTeleportEvent;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.tool.PreStopableTool;
 import de.timesnake.basic.loungebridge.util.tool.StartableTool;
-import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.MessageType;
@@ -25,21 +25,19 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class DiscordManager implements Listener, StopableTool, StartableTool {
+public class DiscordManager implements Listener, PreStopableTool, StartableTool {
 
     public static final String DISCORD_SPECTATOR = "Spectator";
     public static final String DISCORD_LOUNGE = "Lounge";
-    public static final String DISCORD_DISTANCE_DEFAULT = UUID.randomUUID().toString();
 
-    public static final double HORIZONTAL_DISTANCE = 15;
+    public static final double HORIZONTAL_DISTANCE = 20;
     public static final double VERTICAL_DISTANCE = 10;
 
-    public static final int DELAY = 20 * 3;
+    public static final int DELAY = 10;
     private final Map<String, DistanceChannel> channelByName = new ConcurrentHashMap<>();
     private final Map<UUID, DistanceChannel> channelByUuid = new ConcurrentHashMap<>();
     private final Map<UUID, Action> actionsByUuid = new ConcurrentHashMap<>();
     private boolean lock = false;
-    private DistanceChannel defaultChannel;
     private BukkitTask updateTask;
 
     private boolean isLoaded = false;
@@ -57,18 +55,6 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
             if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
                 if (!this.isLoaded) {
                     Server.registerListener(this, BasicLoungeBridge.getPlugin());
-                    this.defaultChannel = new DistanceChannel(DISCORD_DISTANCE_DEFAULT) {
-                        @Override
-                        public UUID canJoin(UUID uuid) {
-                            return null;
-                        }
-
-                        @Override
-                        public boolean isClosed() {
-                            return false;
-                        }
-                    };
-                    this.channelByName.put(DISCORD_DISTANCE_DEFAULT, this.defaultChannel);
                 }
 
                 Server.printText(Plugin.GAME, "Loaded discord manager with distance channels", "Discord");
@@ -82,28 +68,41 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
     @Override
     public void start() {
         if (LoungeBridgeServer.isDiscord() && LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
-            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MUTE_CHANNEL, this.defaultChannel.getName()));
             Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.HIDE_CHANNELS, true));
+
+            for (User user : Server.getInGameUsers()) {
+                // create channel for each user
+                DistanceChannel channel = new DistanceChannel(UUID.randomUUID().toString());
+                this.channelByName.put(channel.getName(), channel);
+
+                // add user to channel
+                this.actionsByUuid.put(user.getUniqueId(), Action.ADD);
+            }
             this.updateTask = Server.runTaskTimerAsynchrony(this::updateDistanceChannels, 0, DELAY, BasicLoungeBridge.getPlugin());
+            Server.printText(Plugin.GAME, "Started discord distance channel updater", "Discord");
         }
     }
 
     @Override
-    public void stop() {
+    public void preStop() {
         if (LoungeBridgeServer.isDiscord()) {
             Server.runTaskLaterSynchrony(() -> {
+                // move all users to lounge channel
                 LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
                 uuidsByTeam.put(DISCORD_LOUNGE, Server.getUsers().stream().map(User::getUniqueId).collect(Collectors.toList()));
-                Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+                Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                        MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
 
+                // clean up distance channels
                 if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
                     Server.runTaskLaterSynchrony(() -> {
                         if (this.updateTask != null) {
                             this.updateTask.cancel();
                         }
 
-                        Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.DESTROY_CHANNELS,
-                                new ArrayList<>(this.channelByName.keySet())));
+                        this.channelByName.values().forEach(DistanceChannel::clear);
+                        Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                                MessageType.Discord.DESTROY_CHANNELS, this.channelByName.keySet()));
                         this.channelByName.clear();
                         this.channelByUuid.clear();
                     }, 20 * 2, BasicLoungeBridge.getPlugin());
@@ -118,28 +117,37 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
         if (LoungeBridgeServer.isDiscord()) {
             LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
             uuidsByTeam.put(DISCORD_SPECTATOR, List.of(user.getUniqueId()));
-            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                    MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
         }
     }
 
     @EventHandler
     public void onUserJoin(AsyncUserJoinEvent e) {
-        this.actionsByUuid.put(e.getUser().getUniqueId(), Action.ADD);
+        if (e.getUser().isInGame()) {
+            this.actionsByUuid.put(e.getUser().getUniqueId(), Action.ADD);
+        }
     }
 
     @EventHandler
     public void onUserMove(AsyncUserMoveEvent e) {
-        this.actionsByUuid.put(e.getUser().getUniqueId(), Action.MOVE);
+        if (e.getUser().isInGame()) {
+            this.actionsByUuid.put(e.getUser().getUniqueId(), Action.MOVE);
+        }
     }
 
     @EventHandler
     public void onUserTeleport(UserTeleportEvent e) {
-        this.actionsByUuid.put(e.getUser().getUniqueId(), Action.MOVE);
+        if (e.getUser().isInGame()) {
+            this.actionsByUuid.put(e.getUser().getUniqueId(), Action.MOVE);
+        }
     }
 
     @EventHandler
     public void onUserQuit(AsyncUserQuitEvent e) {
-        this.actionsByUuid.put(e.getUser().getUniqueId(), Action.REMOVE);
+        if (e.getUser().isInGame()) {
+            this.actionsByUuid.put(e.getUser().getUniqueId(), Action.REMOVE);
+        }
     }
 
     public void updateDistanceChannels() {
@@ -164,7 +172,6 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
                 if (action == Action.REMOVE) {
                     this.removeUuid(uuid);
                 } else if (action == Action.ADD || action == Action.MOVE) {
-                    System.out.println(uuid);
                     DistanceChannel channelForUuid = null;
                     for (DistanceChannel channel : this.channelByName.values()) {
                         UUID joinToUuid = channel.canJoin(uuid);
@@ -189,11 +196,8 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
 
                     // move to default channel or extract new from default
                     if (channelForUuid == null) {
-                        UUID joinToUuid = this.canJoinTo(uuid, this.defaultChannel);
-                        if (joinToUuid != null) {
-                            this.createNewDistanceChannel(uuid, joinToUuid);
-                        } else {
-                            this.defaultChannel.add(uuid);
+                        if (!this.channelByUuid.containsKey(uuid) || this.channelByUuid.get(uuid).size() > 1) {
+                            this.moveUuidToEmptyChannel(uuid);
                         }
                     } else {
                         channelForUuid.add(uuid);
@@ -201,7 +205,10 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
                 }
             }
 
-            this.executeDistanceChannelUpdate();
+            if (!this.channelByName.isEmpty()) {
+                Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                        MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(this.channelByName)));
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -209,38 +216,15 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
         }
     }
 
+    private void moveUuidToEmptyChannel(UUID uuid) {
+        this.channelByName.values().stream().filter(DistanceChannel::isEmpty).findAny().get().add(uuid);
+    }
+
     private void removeUuid(UUID uuid) {
         Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.DISCONNECT_MEMBER, uuid));
     }
 
-    private void executeDistanceChannelUpdate() {
-        List<String> channelsToRemove = new LinkedList<>();
-        for (DistanceChannel channel : this.channelByName.values()) {
-            if (channel.isClosed()) {
-                this.channelByName.remove(channel.getName());
-                channelsToRemove.add(channel.getName());
-            }
-        }
-
-        if (!this.channelByName.isEmpty()) {
-            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(this.channelByName)));
-        }
-
-        if (channelsToRemove.size() > 0) {
-            Server.runTaskLaterSynchrony(() -> {
-                Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.DESTROY_CHANNELS, channelsToRemove));
-            }, 20, BasicLoungeBridge.getPlugin());
-        }
-    }
-
-    public DistanceChannel createNewDistanceChannel(UUID... uuids) {
-        DistanceChannel channel = new DistanceChannel(UUID.randomUUID().toString());
-        this.channelByName.put(channel.getName(), channel);
-        channel.addAll(Arrays.stream(uuids).toList());
-        return channel;
-    }
-
-    public UUID canJoinTo(UUID uuid, Collection<UUID> uuids) {
+    private UUID canJoinTo(UUID uuid, Collection<UUID> uuids) {
         User user = Server.getUser(uuid);
 
         if (user == null) {
@@ -255,7 +239,7 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
         return null;
     }
 
-    public boolean canJoinTo(User user, UUID toUuid) {
+    private boolean canJoinTo(User user, UUID toUuid) {
         User member = Server.getUser(toUuid);
         if (member == null || member.equals(user)) {
             return false;
@@ -268,7 +252,8 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
             return false;
         }
 
-        if (Math.pow(userLocation.getX() - memberLocation.getX(), 2) + Math.pow(userLocation.getZ() - memberLocation.getZ(), 2) <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
+        if (Math.pow(userLocation.getX() - memberLocation.getX(), 2) + Math.pow(userLocation.getZ() - memberLocation.getZ(), 2)
+                <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
             if (Math.abs(userLocation.getY() - memberLocation.getY()) <= VERTICAL_DISTANCE) {
                 return true;
             }
@@ -283,7 +268,7 @@ public class DiscordManager implements Listener, StopableTool, StartableTool {
         MOVE
     }
 
-    public class DistanceChannel extends HashSet<UUID> {
+    private class DistanceChannel extends HashSet<UUID> {
 
         private final String name;
         private boolean closed = false;
