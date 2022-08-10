@@ -86,6 +86,7 @@ public class UserManager implements Listener {
             }
 
             user.joinGame();
+            user.setKitItems();
 
             for (User otherUser : Server.getUsers()) {
                 if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus().equals(Status.User.OUT_GAME)) {

@@ -65,6 +65,11 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     private DiscordManager discordManager;
 
     public final void onLoungeBridgeEnable() {
+        this.toolManager = this.loadToolManager();
+        if (this.toolManager == null) {
+            this.toolManager = new ToolManager();
+        }
+
         super.onGameEnable();
 
         this.spectatorManager = new SpectatorManager();
@@ -86,11 +91,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
         this.userManager = new UserManager();
         this.gameScheduler = new GameScheduler();
-
-        this.toolManager = this.loadToolManager();
-        if (this.toolManager == null) {
-            this.toolManager = new ToolManager();
-        }
 
         StatsManager statsManager = this.loadStatsManager();
         if (statsManager != null) {
