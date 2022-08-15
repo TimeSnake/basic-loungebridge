@@ -3,7 +3,6 @@ package de.timesnake.basic.loungebridge.core;
 import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.game.util.TeamUser;
@@ -15,6 +14,8 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
@@ -269,8 +270,8 @@ public class UserManager implements Listener {
 
         if (!LoungeBridgeServer.isTeamMateDamage()) {
             if (clickedUser.isTeamMate(user)) {
-                user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), ChatColor.PERSONAL + "You can't damage "
-                        + "your teammate");
+                user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), Component.text("You can't damage "
+                        + "your teammate", ExTextColor.PERSONAL));
                 e.setCancelled(true);
                 return;
             }

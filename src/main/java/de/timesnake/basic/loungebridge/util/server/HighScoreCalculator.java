@@ -1,7 +1,11 @@
 package de.timesnake.basic.loungebridge.util.server;
 
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
+import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.extension.util.chat.Chat;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.TextComponent;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -60,16 +64,20 @@ public interface HighScoreCalculator {
         if (highestUsers.size() == 0 || !predicateToBroadcast.test(highestUsers.stream().findFirst().get())) {
             return;
         }
-        StringBuilder sb =
-                new StringBuilder(ChatColor.WHITE + name + ": " + ChatColor.GOLD + keyExtractor.apply(highestUsers.stream().findFirst().get()) + ChatColor.WHITE + " by ");
+
+        TextComponent.Builder builder = Component.text();
+
+        builder.append(Component.text(name + ": ", ExTextColor.WHITE))
+                .append(Component.text("" + keyExtractor.apply(highestUsers.stream().findFirst().get()), ExTextColor.GOLD))
+                .append(Component.text(" by ").color(ExTextColor.WHITE));
         for (GameUser user : highestUsers) {
-            sb.append(user.getChatName());
-            sb.append(", ");
+            builder.append(user.getChatNameComponent());
+            builder.append(Component.text(", "));
         }
 
-        sb.deleteCharAt(sb.length() - 1).deleteCharAt(sb.length() - 1);
+        builder.append(Chat.listToComponent(highestUsers.stream().map(User::getChatNameComponent).toList()));
 
-        this.broadcastGameMessage(sb.toString());
+        this.broadcastGameMessage(builder.build());
     }
 
     default void broadcastHighscore(String name, Collection<? extends GameUser> users, int number, Function<GameUser,
@@ -77,5 +85,5 @@ public interface HighScoreCalculator {
         this.broadcastHighscore(name, users, number, (u) -> true, keyExtractor);
     }
 
-    void broadcastGameMessage(String msg);
+    void broadcastGameMessage(Component msg);
 }

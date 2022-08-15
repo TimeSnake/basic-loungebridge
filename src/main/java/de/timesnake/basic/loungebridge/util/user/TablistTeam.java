@@ -21,7 +21,6 @@ public class TablistTeam implements TablistableGroup, TablistableRemainTeam {
         this.chatColor = chatColor;
     }
 
-    @Override
     public TablistGroupType getTeamType() {
         return de.timesnake.basic.loungebridge.util.user.TablistGroupType.GAME;
     }

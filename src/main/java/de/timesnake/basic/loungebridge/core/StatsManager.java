@@ -17,11 +17,12 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
-import de.timesnake.library.basic.util.chat.ChatColor;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
-import net.md_5.bungee.api.chat.ClickEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 
 import java.util.List;
 import java.util.Set;
@@ -83,9 +84,9 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
     public void sendStatSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.stats.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING +
-                                "Discard game " + ChatColor.BLUE + "stats?", "/stats_discard",
-                        "Click to discard all stats", ClickEvent.Action.RUN_COMMAND);
+                user.sendClickablePluginMessage(Plugin.GAME, Component.text("Discard game ", ExTextColor.WARNING)
+                                .append(Component.text("stats?", ExTextColor.BLUE)), "/stats_discard",
+                        Component.text("Click to discard all stats"), ClickEvent.Action.RUN_COMMAND);
             }
         }
     }
@@ -99,7 +100,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
                 }
 
                 if (user.hasPermission("game.stats.info")) {
-                    user.sendPluginMessage(Plugin.GAME, ChatColor.WARNING + "Saved all stats");
+                    user.sendPluginMessage(Plugin.GAME, Component.text("Saved all stats", ExTextColor.WARNING));
                 }
             }
 
@@ -108,7 +109,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
         } else {
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (user.hasPermission("game.stats.info")) {
-                    user.sendPluginMessage(Plugin.GAME, ChatColor.WARNING + "Discarded all stats");
+                    user.sendPluginMessage(Plugin.GAME, Component.text("Discarded all stats", ExTextColor.WARNING));
                 }
             }
 
@@ -126,7 +127,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
             }
 
             StatsManager.this.saveStats = false;
-            sender.sendPluginMessage(ChatColor.PERSONAL + "All stats will be discarded");
+            sender.sendPluginMessage(Component.text("All stats will be discarded", ExTextColor.PERSONAL));
         }
 
         @Override

@@ -2,7 +2,6 @@ package de.timesnake.basic.loungebridge.core;
 
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent;
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.ExInventory;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.User;
@@ -12,11 +11,13 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.packets.util.listener.PacketHandler;
 import de.timesnake.library.packets.util.listener.PacketPlayOutListener;
 import de.timesnake.library.packets.util.packet.ExPacket;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOut;
 import de.timesnake.library.packets.util.packet.ExPacketPlayOutEntityMetadata;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -181,24 +182,24 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
         } else if (clickedItem.equals(GLOWING)) {
             user.setGlowingEnabled(!user.hasGlowingEnabled());
             if (user.hasGlowingEnabled()) {
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Enabled glowing");
+                user.sendPluginMessage(Plugin.GAME, Component.text("Enabled glowing", ExTextColor.PERSONAL));
                 clickedItem.enchant();
             } else {
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled glowing");
+                user.sendPluginMessage(Plugin.GAME, Component.text("Disabled glowing", ExTextColor.PERSONAL));
                 clickedItem.disenchant();
             }
         } else if (clickedItem.equals(SPEED)) {
             user.setSpeedEnabled(!user.hasSpeedEnabled());
             if (user.hasSpeedEnabled()) {
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Enabled speed");
+                user.sendPluginMessage(Plugin.GAME, Component.text("Enabled speed", ExTextColor.PERSONAL));
                 clickedItem.enchant();
             } else {
-                user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + "Disabled speed");
+                user.sendPluginMessage(Plugin.GAME, Component.text("Disabled speed", ExTextColor.PERSONAL));
                 clickedItem.disenchant();
             }
         } else if (clickedItem.equals(FLYING)) {
             user.setFlyEnabled(user.hasFlyEnabled());
-            user.sendPluginMessage(Plugin.GAME, ChatColor.PERSONAL + (user.getAllowFlight() ? "Enabled" : "Disabled") + " flying");
+            user.sendPluginMessage(Plugin.GAME, Component.text((user.getAllowFlight() ? "Enabled" : "Disabled") + " flying", ExTextColor.PERSONAL));
             if (user.getAllowFlight()) clickedItem.enchant();
             else clickedItem.disenchant();
         }
@@ -223,7 +224,8 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
 
         User clickedUser = this.userHeadsById.get(clickedItem.getId());
         user.teleport(clickedUser);
-        user.asSender(Plugin.GAME).sendPluginMessage(ChatColor.PERSONAL + "Teleported to player " + ChatColor.VALUE + clickedUser.getChatName());
+        user.asSender(Plugin.GAME).sendPluginMessage(Component.text("Teleported to player ", ExTextColor.PERSONAL)
+                .append(clickedUser.getChatNameComponent()));
 
         e.setCancelled(true);
     }

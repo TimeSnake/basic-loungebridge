@@ -22,6 +22,8 @@ import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -35,7 +37,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
     public static final String SPECTATOR_TABLIST_PREFIX = "";
-    public static final org.bukkit.ChatColor SPECTATOR_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
+    public static final ExTextColor SPECTATOR_CHAT_COLOR = ExTextColor.GRAY;
     public static final org.bukkit.ChatColor SPECTATOR_TABLIST_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
     public static final org.bukkit.ChatColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
 
@@ -170,7 +172,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         for (Team team : this.getGame().getTeams()) {
             // chat
             if (team.hasPrivateChat()) {
-                Server.getChatManager().createChat(team.getName(), team.getDisplayName(), team.getChatColor(),
+                Server.getChatManager().createChat(team.getName(), team.getDisplayName(), team.getTextColor(),
                         new HashSet<>());
             }
         }
@@ -417,8 +419,14 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         return this.gameScheduler.getGameCountdown();
     }
 
+    @Deprecated
     public void broadcastLoungeBridgeMessage(String msg) {
-        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()) + msg);
+        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+                .append(Component.text(msg)));
+    }
+
+    public void broadcastLoungeBridgeMessage(Component msg) {
+        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()).append(msg));
     }
 
     public TeamTablist getGameTablist() {

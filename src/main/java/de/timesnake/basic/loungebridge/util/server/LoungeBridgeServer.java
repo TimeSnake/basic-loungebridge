@@ -15,6 +15,7 @@ import de.timesnake.basic.loungebridge.util.user.*;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.statistics.StatType;
+import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 
 import java.util.Collection;
@@ -49,7 +50,12 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getGameCountdown();
     }
 
+    @Deprecated
     public static void broadcastLoungeBridgeMessage(String msg) {
+        server.broadcastLoungeBridgeMessage(msg);
+    }
+
+    public static void broadcastLoungeBridgeMessage(Component msg) {
         server.broadcastLoungeBridgeMessage(msg);
     }
 
@@ -97,7 +103,12 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getKit(index);
     }
 
+    @Deprecated
     public static void broadcastGameMessage(String message) {
+        server.broadcastGameMessage(message);
+    }
+
+    public static void broadcastGameMessage(Component message) {
         server.broadcastGameMessage(message);
     }
 

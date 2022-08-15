@@ -1,7 +1,6 @@
 package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
@@ -9,6 +8,8 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.Team;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.basic.util.chat.ExTextColor;
+import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -136,8 +137,9 @@ public abstract class GameUser extends SpectatorUser {
         this.kills++;
         this.killStreak++;
         if ((this.killStreak % 5 == 0 && this.killStreak != 0) || this.killStreak == 3) {
-            LoungeBridgeServer.broadcastGameMessage(ChatColor.VALUE + this.getChatName() + ChatColor.PUBLIC + " has a" +
-                    " kill-streak of " + ChatColor.VALUE + this.killStreak);
+            LoungeBridgeServer.broadcastGameMessage(this.getChatNameComponent()
+                    .append(Component.text(" has a kill-streak of ", ExTextColor.PUBLIC))
+                    .append(Component.text(this.killStreak, ExTextColor.VALUE)));
         }
     }
 
@@ -255,7 +257,7 @@ public abstract class GameUser extends SpectatorUser {
         return longestShot;
     }
 
-    public String getHealthDisplay() {
+    public Component getHealthDisplay() {
         double health = this.getHealth() / 2;
         if (health - ((int) health) >= 0.25 && health - ((int) health) < 0.75) {
             health = ((int) health) + 0.5;
@@ -267,7 +269,7 @@ public abstract class GameUser extends SpectatorUser {
             health = 0.5;
         }
 
-        return ChatColor.RED + "" + health + "❤";
+        return Component.text(health + "❤", ExTextColor.WARNING);
     }
 
     @Override
