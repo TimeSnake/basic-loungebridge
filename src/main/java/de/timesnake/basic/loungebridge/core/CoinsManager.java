@@ -12,10 +12,11 @@ import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.basic.util.chat.ChatColor;
+import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
-import net.md_5.bungee.api.chat.ClickEvent;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 
 import java.util.List;
 
@@ -56,9 +57,9 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
     public void sendCoinsSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.coins.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, ChatColor.WARNING +
-                                "Discard game" + ChatColor.GOLD + " coins?", "/coins_discard",
-                        "Click to discard all coins", ClickEvent.Action.RUN_COMMAND);
+                user.sendClickablePluginMessage(Plugin.GAME, Component.text("Discard game", ExTextColor.WARNING)
+                                .append(Component.text(" coins?", ExTextColor.GOLD)), "/coins_discard",
+                        Component.text("Click to discard all coins"), ClickEvent.Action.RUN_COMMAND);
             }
         }
     }
@@ -68,7 +69,7 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
             Server.printText(Plugin.GAME, "Saved game coins", "Coins");
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (user.hasPermission("game.coins.info")) {
-                    user.sendPluginMessage(Plugin.GAME, ChatColor.WARNING + "Saved all coins");
+                    user.sendPluginMessage(Plugin.GAME, Component.text("Saved all coins", ExTextColor.WARNING));
                 }
             }
         } else {
@@ -76,7 +77,7 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 user.removeCoins(((GameUser) user).getGameCoins(), false);
                 if (user.hasPermission("game.coins.info")) {
-                    user.sendPluginMessage(Plugin.GAME, ChatColor.WARNING + "Discarded all coins");
+                    user.sendPluginMessage(Plugin.GAME, Component.text("Discarded all coins", ExTextColor.WARNING));
                 }
             }
         }
@@ -92,7 +93,7 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
             }
 
             CoinsManager.this.saveCoins = false;
-            sender.sendPluginMessage(ChatColor.PERSONAL + "All coins will be discarded");
+            sender.sendPluginMessage(Component.text("All coins will be discarded", ExTextColor.PERSONAL));
         }
 
         @Override

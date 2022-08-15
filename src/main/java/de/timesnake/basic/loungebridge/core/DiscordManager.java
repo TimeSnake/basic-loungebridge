@@ -30,10 +30,10 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
     public static final String DISCORD_SPECTATOR = "Spectator";
     public static final String DISCORD_LOUNGE = "Lounge";
 
-    public static final double HORIZONTAL_DISTANCE = 20;
+    public static final double HORIZONTAL_DISTANCE = 25;
     public static final double VERTICAL_DISTANCE = 10;
 
-    public static final int DELAY = 10;
+    public static final int DELAY = 5;
     private final Map<String, DistanceChannel> channelByName = new ConcurrentHashMap<>();
     private final Map<UUID, DistanceChannel> channelByUuid = new ConcurrentHashMap<>();
     private final Map<UUID, Action> actionsByUuid = new ConcurrentHashMap<>();
@@ -95,17 +95,18 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
 
                 // clean up distance channels
                 if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
-                    Server.runTaskLaterSynchrony(() -> {
-                        if (this.updateTask != null) {
-                            this.updateTask.cancel();
-                        }
+                    if (this.updateTask != null) {
+                        this.updateTask.cancel();
+                    }
 
-                        this.channelByName.values().forEach(DistanceChannel::clear);
+                    Server.runTaskLaterSynchrony(() -> {
+                        System.out.println(this.channelByName.size());
                         Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
                                 MessageType.Discord.DESTROY_CHANNELS, this.channelByName.keySet()));
+                        this.channelByName.values().forEach(DistanceChannel::clear);
                         this.channelByName.clear();
                         this.channelByUuid.clear();
-                    }, 20 * 2, BasicLoungeBridge.getPlugin());
+                    }, 20 * 4, BasicLoungeBridge.getPlugin());
                 }
 
             }, 20 * 2, BasicLoungeBridge.getPlugin());
@@ -327,6 +328,19 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
 
         public boolean isClosed() {
             return closed;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof DistanceChannel channel)) return false;
+            if (!super.equals(o)) return false;
+            return Objects.equals(name, channel.name);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name);
         }
     }
 

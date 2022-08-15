@@ -2,7 +2,7 @@ package de.timesnake.basic.loungebridge.util.server;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
-import de.timesnake.basic.bukkit.util.permission.Group;
+import de.timesnake.basic.bukkit.util.chat.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.game.util.Map;
@@ -23,8 +23,7 @@ public class TablistManager {
 
     public void loadTablist(Tablist.Type type) {
         // create team tablist
-        LinkedList<TablistGroupType> types = new LinkedList<>();
-        types.add(Group.getTablistType());
+        LinkedList<TablistGroupType> types = DisplayGroup.MAIN_TABLIST_GROUPS;
 
         // create spectatorTeam
         this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX,
