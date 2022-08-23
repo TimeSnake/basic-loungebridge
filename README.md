@@ -7,7 +7,7 @@ This plugin provides an API for all TmpGames and acts as bridge to the lounge se
 ## Usage
 
 All classes in the [de.timesnake.basic.loungebridge.util] module are intended to be used in the game plugins.
-It is highly recommended to not use the classes in the [de.timesnake.basic.loungebridge.util] package.
+It is highly recommended to not use the classes in the [de.timesnake.basic.loungebridge.core] package.
 
 ### [LoungeBridgeServerManger.java][LoungeBridgeServerManager]
 
@@ -30,6 +30,7 @@ initialize the manager by calling the `onLoungeBridgeEnable()` method.
 
 **Optional Hook-Points:**
 
+- `BowRunGame loadGame(DbGame dbGame, boolean loadWorlds)` - inject own game class, map or kit (see game section)
 - `void onMapLoad()` - called on map load, triggered by the map voting
 - `void onGamePrepare()` - called when the countdown starts running (7s before game start)
 - `void onGameUserRejoin(GameUser user)` - called if a user rejoins
