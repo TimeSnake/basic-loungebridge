@@ -457,7 +457,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
             case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
             case WAITING -> {
                 Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.STATE
+                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
                         , ChannelServerMessage.State.READY));
                 Server.printText(Plugin.GAME, "Send lounge ready state");
             }

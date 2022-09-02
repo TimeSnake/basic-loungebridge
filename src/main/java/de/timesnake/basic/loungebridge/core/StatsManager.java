@@ -104,7 +104,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
                 }
             }
 
-            Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getPort(), MessageType.Server.USER_STATS,
+            Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getName(), MessageType.Server.USER_STATS,
                     LoungeBridgeServer.getGame().getName()));
         } else {
             for (User user : LoungeBridgeServer.getGameUsers()) {
