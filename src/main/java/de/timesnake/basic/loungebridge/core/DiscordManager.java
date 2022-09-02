@@ -33,7 +33,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
     public static final double HORIZONTAL_DISTANCE = 25;
     public static final double VERTICAL_DISTANCE = 10;
 
-    public static final int DELAY = 5;
+    public static final int DELAY = 10;
     private final Map<String, DistanceChannel> channelByName = new ConcurrentHashMap<>();
     private final Map<UUID, DistanceChannel> channelByUuid = new ConcurrentHashMap<>();
     private final Map<UUID, Action> actionsByUuid = new ConcurrentHashMap<>();

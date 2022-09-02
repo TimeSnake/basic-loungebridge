@@ -70,10 +70,6 @@ public interface HighScoreCalculator {
         builder.append(Component.text(name + ": ", ExTextColor.WHITE))
                 .append(Component.text("" + keyExtractor.apply(highestUsers.stream().findFirst().get()), ExTextColor.GOLD))
                 .append(Component.text(" by ").color(ExTextColor.WHITE));
-        for (GameUser user : highestUsers) {
-            builder.append(user.getChatNameComponent());
-            builder.append(Component.text(", "));
-        }
 
         builder.append(Chat.listToComponent(highestUsers.stream().map(User::getChatNameComponent).toList()));
 

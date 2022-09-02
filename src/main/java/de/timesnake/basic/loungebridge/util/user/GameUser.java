@@ -137,10 +137,14 @@ public abstract class GameUser extends SpectatorUser {
         this.kills++;
         this.killStreak++;
         if ((this.killStreak % 5 == 0 && this.killStreak != 0) || this.killStreak == 3) {
-            LoungeBridgeServer.broadcastGameMessage(this.getChatNameComponent()
-                    .append(Component.text(" has a kill-streak of ", ExTextColor.PUBLIC))
-                    .append(Component.text(this.killStreak, ExTextColor.VALUE)));
+            this.broadcastKillstreak();
         }
+    }
+
+    public void broadcastKillstreak() {
+        LoungeBridgeServer.broadcastGameMessage(this.getChatNameComponent()
+                .append(Component.text(" has a kill-streak of ", ExTextColor.PUBLIC))
+                .append(Component.text(this.killStreak, ExTextColor.VALUE)));
     }
 
     public Integer getDeaths() {

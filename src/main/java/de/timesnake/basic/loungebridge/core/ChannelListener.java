@@ -13,8 +13,8 @@ import java.util.List;
 public class ChannelListener implements de.timesnake.channel.util.listener.ChannelListener {
 
     public ChannelListener() {
-        Server.getChannel().addListener(this, () -> List.of(Server.getPort(),
-                LoungeBridgeServer.getTwinServer().getPort()));
+        Server.getChannel().addListener(this, () -> List.of(Server.getName(),
+                LoungeBridgeServer.getTwinServer().getName()));
     }
 
     @ChannelHandler(type = {ListenerType.SERVER_MAP, ListenerType.SERVER_CUSTOM, ListenerType.SERVER_DISCORD},
