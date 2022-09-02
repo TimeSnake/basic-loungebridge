@@ -9,9 +9,10 @@ This plugin provides an API for all TmpGames and acts as bridge to the lounge se
 All classes in the [de.timesnake.basic.loungebridge.util] module are intended to be used in the game plugins.
 It is highly recommended to not use the classes in the [de.timesnake.basic.loungebridge.core] package.
 
-### [LoungeBridgeServerManger.java][LoungeBridgeServerManager]
+### [LoungeBridgeServerManager]
 
-The [LoungeBridgeServerManager] is the main hook-point for a game plugin. It is required to extend this class and to
+The [LoungeBridgeServerManager] class is the main hook-point for a game plugin. It is required to extend this class and
+to
 initialize the manager by calling the `onLoungeBridgeEnable()` method.
 
 **Required Hook-Points:**
