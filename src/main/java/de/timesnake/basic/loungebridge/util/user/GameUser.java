@@ -50,12 +50,14 @@ public abstract class GameUser extends SpectatorUser {
         }
         this.isLeaving = false;
 
-        this.setFlying(false);
-        this.setAllowFlight(false);
-
         if (LoungeBridgeServer.getGame().hasTexturePack()) {
             this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
         }
+    }
+
+    protected void loadGameSettings() {
+        this.setFlying(false);
+        this.setAllowFlight(false);
     }
 
     @Override
