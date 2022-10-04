@@ -27,7 +27,7 @@ public interface TempGameServerManager {
      *
      * @return Return the plugin
      */
-    de.timesnake.library.basic.util.chat.Plugin getGamePlugin();
+    de.timesnake.library.extension.util.chat.Plugin getGamePlugin();
 
     /**
      * @return Return true if the game is running

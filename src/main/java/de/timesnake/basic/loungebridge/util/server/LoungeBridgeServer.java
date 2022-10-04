@@ -13,8 +13,8 @@ import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.*;
 import de.timesnake.database.util.server.DbLoungeServer;
-import de.timesnake.library.basic.util.chat.Plugin;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.extension.util.chat.Plugin;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Location;
 
