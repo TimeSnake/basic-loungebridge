@@ -19,6 +19,7 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import net.kyori.adventure.text.Component;
@@ -120,9 +121,11 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
 
     public class StatsDiscardCmd implements CommandListener {
 
+        private Code.Permission statsDiscardPerm;
+
         @Override
         public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
-            if (!sender.hasPermission("game.stats.discard", 1504)) {
+            if (!sender.hasPermission(this.statsDiscardPerm)) {
                 return;
             }
 
@@ -133,6 +136,11 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
         @Override
         public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
             return List.of();
+        }
+
+        @Override
+        public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
+            this.statsDiscardPerm = plugin.createPermssionCode("gsd", "game.stats.discard");
         }
     }
 }

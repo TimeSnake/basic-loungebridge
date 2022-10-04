@@ -13,6 +13,7 @@ import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
 import net.kyori.adventure.text.Component;
@@ -86,9 +87,11 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
 
     public class CoinsDiscardCmd implements CommandListener {
 
+        private Code.Permission coinsDiscardPerm;
+
         @Override
         public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
-            if (!sender.hasPermission("game.coins.discard", 1506)) {
+            if (!sender.hasPermission(this.coinsDiscardPerm)) {
                 return;
             }
 
@@ -99,6 +102,11 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
         @Override
         public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
             return List.of();
+        }
+
+        @Override
+        public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
+            this.coinsDiscardPerm = plugin.createPermssionCode("gcd", "game.coins.discard");
         }
     }
 }
