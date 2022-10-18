@@ -45,7 +45,20 @@ public class TablistManager {
 
         // create spectatorTeam
         this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX,
-                SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR);
+                SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR) {
+            @Override
+            public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player, TablistableGroup otherGroup) {
+                if (otherGroup.equals(this)) {
+                    return NameTagVisibility.ALWAYS;
+                }
+                return NameTagVisibility.NEVER;
+            }
+
+            @Override
+            public NameTagVisibility isNameTagVisible(TablistablePlayer player) {
+                return NameTagVisibility.NEVER;
+            }
+        };
 
         TablistUserJoin tablistJoin = (e, tablist) -> {
             User user = e.getUser();
@@ -70,7 +83,7 @@ public class TablistManager {
 
         if (LoungeBridgeServer.getServerTeamAmount() > 0 && !LoungeBridgeServer.getGame().hideTeams()) {
             if (LoungeBridgeServer.getMaxPlayersPerTeam() == null) {
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
+                this.gameTablist = Server.getScoreboardManager().registerNewTagTeamTablist("game", type,
                         TeamTablist.ColorType.TEAM, LoungeBridgeServer.getGame().getTeams(),
                         de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM,
                         types, this.spectatorTeam, types, tablistJoin, tablistQuit);
@@ -83,17 +96,17 @@ public class TablistManager {
             } else {
                 LinkedList<TablistGroupType> gameTeamTypes = new LinkedList<>(types);
                 gameTeamTypes.addFirst(de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM);
-                this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
+                this.tablistGameTeam = this.loadGameTeam();
 
-                this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
+                this.gameTablist = Server.getScoreboardManager().registerNewTagTeamTablist("game", type,
                         TeamTablist.ColorType.FIRST_GROUP, List.of(this.tablistGameTeam),
                         this.tablistGameTeam.getTeamType(), gameTeamTypes, this.spectatorTeam, types,
                         tablistJoin, tablistQuit);
             }
         } else {
-            this.tablistGameTeam = new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
+            this.tablistGameTeam = this.loadGameTeam();
 
-            this.gameTablist = Server.getScoreboardManager().registerNewTeamTablist("game", type,
+            this.gameTablist = Server.getScoreboardManager().registerNewTagTeamTablist("game", type,
                     TeamTablist.ColorType.WHITE, List.of(this.tablistGameTeam), this.tablistGameTeam.getTeamType(),
                     types, this.spectatorTeam, types, tablistJoin, tablistQuit);
         }
@@ -121,6 +134,10 @@ public class TablistManager {
                 this.gameTablist.setHeader(ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName());
             }
         }
+    }
+
+    protected TablistTeam loadGameTeam() {
+        return new TablistTeam("0", "game", "", ChatColor.WHITE, ChatColor.WHITE);
     }
 
     public TablistTeam getTablistGameTeam() {

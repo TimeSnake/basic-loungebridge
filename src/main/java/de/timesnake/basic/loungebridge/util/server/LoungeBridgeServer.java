@@ -117,6 +117,10 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getSpectatorSideboard();
     }
 
+    public static TablistTeam getTablistSpectatorTeam() {
+        return server.getTablistSpectatorTeam();
+    }
+
     public static Kit getKit(int index) throws KitNotDefinedException {
         return server.getKit(index);
     }
