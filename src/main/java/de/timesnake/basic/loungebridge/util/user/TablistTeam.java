@@ -19,11 +19,13 @@
 package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableRemainTeam;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import org.bukkit.ChatColor;
 
-public class TablistTeam implements TablistableGroup, TablistableRemainTeam {
+/**
+ * Only for default team and spectator team. For all real teams, the {@link de.timesnake.basic.game.util.Team} class is used.
+ */
+public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTeam {
 
     private final String rank;
     private final String name;
@@ -66,5 +68,15 @@ public class TablistTeam implements TablistableGroup, TablistableRemainTeam {
     @Override
     public ChatColor getTablistChatColor() {
         return this.chatColor;
+    }
+
+    @Override
+    public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player, TablistableGroup otherGroup) {
+        return NameTagVisibility.ALWAYS;
+    }
+
+    @Override
+    public NameTagVisibility isNameTagVisible(TablistablePlayer player) {
+        return NameTagVisibility.ALWAYS;
     }
 }

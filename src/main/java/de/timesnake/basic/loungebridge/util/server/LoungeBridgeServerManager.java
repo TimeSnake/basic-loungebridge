@@ -388,6 +388,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         return this.tablistManager.getTablistGameTeam();
     }
 
+    public TablistTeam getTablistSpectatorTeam() {
+        return this.tablistManager.getSpectatorTeam();
+    }
+
     public boolean areKitsEnabled() {
         return kitsEnabled;
     }
