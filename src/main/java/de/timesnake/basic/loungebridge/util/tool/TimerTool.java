@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * timesnake.basic-lounge-bridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -25,11 +25,15 @@ import org.bukkit.scheduler.BukkitTask;
 
 public abstract class TimerTool implements GameTool, StartableTool, MapLoadableTool, PreStopableTool {
 
-    protected int time = 0;
-    protected BukkitTask task;
+    private int time = 0;
+    private BukkitTask task;
 
     public TimerTool() {
 
+    }
+
+    public TimerTool(int time) {
+        this.time = time;
     }
 
     @Override
@@ -61,6 +65,10 @@ public abstract class TimerTool implements GameTool, StartableTool, MapLoadableT
 
     public int getTime() {
         return time;
+    }
+
+    public void setTime(int time) {
+        this.time = time;
     }
 
     public BukkitTask getTask() {
