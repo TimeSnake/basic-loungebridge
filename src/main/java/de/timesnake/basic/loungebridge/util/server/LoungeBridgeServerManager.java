@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -104,7 +104,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
         this.twinServer = database.getTwinServer();
         if (twinServer == null) {
-            Server.printError(Plugin.LOUNGE, "No twin server found in database");
+            Server.printWarning(Plugin.LOUNGE, "No twin server found in database");
             Bukkit.shutdown();
             return;
         }
@@ -240,10 +240,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
                 game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(), kit.getDescription());
                 Server.printText(Plugin.LOUNGE, "Loaded kit " + kit.getName() + " into the database", "Kit");
             } catch (UnsupportedStringException e) {
-                Server.printError(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database " +
+                Server.printWarning(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database " +
                         "(UnsupportedStringException)", "Kit");
             } catch (Exception e) {
-                Server.printError(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database ", "Kit");
+                Server.printWarning(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database ", "Kit");
             }
         }
     }
