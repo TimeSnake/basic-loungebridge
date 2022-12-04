@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -123,11 +123,6 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static Kit getKit(int index) throws KitNotDefinedException {
         return server.getKit(index);
-    }
-
-    @Deprecated
-    public static void broadcastGameMessage(String message) {
-        server.broadcastGameMessage(message);
     }
 
     public static void broadcastGameMessage(Component message) {

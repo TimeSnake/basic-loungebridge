@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -66,7 +66,7 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     private Set<User> glowingUsers = new HashSet<>();
 
     public SpectatorManager() {
-        this.gameUserInv = Server.createExInventory(9, "Players");
+        this.gameUserInv = new ExInventory(9, Component.text("Players"));
 
         Server.getInventoryEventManager().addInteractListener(this, USER_INV, GLOWING, SPEED, FLYING, LEAVE_ITEM);
         Server.getPacketManager().addListener(this);
@@ -86,7 +86,7 @@ public class SpectatorManager implements UserInventoryClickListener, UserInvento
     private void updateTeleportInventory() {
         Server.getInventoryEventManager().removeClickListener(this);
         int inGame = Server.getInGameUsers().size();
-        this.gameUserInv = Server.createExInventory(inGame == 0 ? 9 : (inGame + 8) / 9 * 9, "Players");
+        this.gameUserInv = new ExInventory(inGame == 0 ? 9 : (inGame + 8) / 9 * 9, Component.text("Players"));
         this.userHeadsById.clear();
         int slot = 0;
         for (User user : Server.getInGameUsers()) {
