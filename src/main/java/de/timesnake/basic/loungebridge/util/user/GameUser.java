@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -23,7 +23,8 @@ import de.timesnake.basic.bukkit.util.user.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-import de.timesnake.basic.game.util.Team;
+import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.game.util.user.StatUser;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.ExTextColor;
@@ -31,7 +32,7 @@ import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-public abstract class GameUser extends SpectatorUser {
+public abstract class GameUser extends StatUser {
 
     protected boolean isLeaving;
 
@@ -90,6 +91,12 @@ public abstract class GameUser extends SpectatorUser {
     public void setStatus(Status.User status) {
         super.setStatus(status);
         LoungeBridgeServer.updateSpectatorInventory();
+    }
+
+    @Override
+    public void joinSpectator() {
+        super.joinSpectator();
+        LoungeBridgeServer.getDiscordManager().onUserJoinSpectator(this);
     }
 
     public boolean isLeaving() {

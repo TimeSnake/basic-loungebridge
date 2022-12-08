@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,6 +20,7 @@ package de.timesnake.basic.loungebridge.util.server;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
@@ -27,7 +28,6 @@ import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -137,7 +137,7 @@ public interface TempGameServerManager {
         return new Kit[]{};
     }
 
-    Location getSpectatorSpawn();
+    ExLocation getSpectatorSpawn();
 
     default OfflineUser loadOfflineUser(GameUser user) {
         return new OfflineUser(user);

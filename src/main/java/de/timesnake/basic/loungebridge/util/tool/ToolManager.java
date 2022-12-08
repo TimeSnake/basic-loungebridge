@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
 
 package de.timesnake.basic.loungebridge.util.tool;
 
-import de.timesnake.basic.game.util.Map;
+import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 
 import java.lang.reflect.InvocationTargetException;

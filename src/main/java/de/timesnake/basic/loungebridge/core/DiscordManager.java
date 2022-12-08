@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -24,12 +24,12 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.AsyncUserMoveEvent;
 import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserTeleportEvent;
+import de.timesnake.basic.game.util.user.Plugin;
+import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
-import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.PreStopableTool;
 import de.timesnake.basic.loungebridge.util.tool.StartableTool;
-import de.timesnake.basic.loungebridge.util.user.SpectatorUser;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.object.Type;
@@ -66,7 +66,8 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
 
     public void update() {
         if (LoungeBridgeServer.isDiscord()) {
-            if (LoungeBridgeServer.getGame().getDiscordType() == null || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
+            if (LoungeBridgeServer.getGame().getDiscordType() == null
+                    || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
                 return;
             }
 

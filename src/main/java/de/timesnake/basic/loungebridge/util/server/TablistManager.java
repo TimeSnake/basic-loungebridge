@@ -22,8 +22,8 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
-import de.timesnake.basic.game.util.Map;
-import de.timesnake.basic.game.util.Team;
+import de.timesnake.basic.game.util.game.Map;
+import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.library.basic.util.Status;
 
@@ -80,7 +80,7 @@ public class TablistManager {
                 this.gameTablist = Server.getScoreboardManager().registerTagTeamTablist(builder
                         .colorType(TeamTablist.ColorType.TEAM)
                         .teams(LoungeBridgeServer.getGame().getTeams())
-                        .teamType(de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM));
+                        .teamType(de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM));
 
                 for (Team team : LoungeBridgeServer.getGame().getTeamsSortedByRank(LoungeBridgeServer.getServerTeamAmount()).values()) {
                     this.gameTablist.addTeamHeader(team.getTablistRank(), "0",
@@ -88,7 +88,7 @@ public class TablistManager {
                 }
             } else {
                 LinkedList<TablistGroupType> gameTeamTypes = new LinkedList<>(types);
-                gameTeamTypes.addFirst(de.timesnake.basic.game.util.TablistGroupType.GAME_TEAM);
+                gameTeamTypes.addFirst(de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM);
                 this.tablistGameTeam = this.loadGameTeam();
 
                 this.gameTablist = Server.getScoreboardManager().registerTagTeamTablist(builder

@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,10 +20,11 @@ package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
+import de.timesnake.basic.game.util.game.Team;
 import org.bukkit.ChatColor;
 
 /**
- * Only for default team and spectator team. For all real teams, the {@link de.timesnake.basic.game.util.Team} class is used.
+ * Only for default team and spectator team. For all real teams, the {@link Team} class is used.
  */
 public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTeam {
 

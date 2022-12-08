@@ -21,12 +21,13 @@ package de.timesnake.basic.loungebridge.util.server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
-import de.timesnake.basic.game.util.GameServer;
-import de.timesnake.basic.game.util.Map;
-import de.timesnake.basic.game.util.Team;
-import de.timesnake.basic.game.util.TmpGame;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.basic.game.util.game.Map;
+import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.game.util.game.TmpGame;
+import de.timesnake.basic.game.util.server.GameServer;
+import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.DiscordManager;
-import de.timesnake.basic.loungebridge.core.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.*;
@@ -34,7 +35,6 @@ import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.chat.Plugin;
 import net.kyori.adventure.text.Component;
-import org.bukkit.Location;
 
 import java.util.Collection;
 import java.util.Comparator;
@@ -45,7 +45,7 @@ import java.util.function.Predicate;
 public abstract class LoungeBridgeServer extends GameServer {
 
     public static TmpGame getGame() {
-        return (TmpGame) server.getGame();
+        return server.getGame();
     }
 
     public static void closeGame() {
@@ -105,7 +105,7 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.loadMap();
     }
 
-    public static Location getSpectatorSpawn() {
+    public static ExLocation getSpectatorSpawn() {
         return server.getSpectatorSpawn();
     }
 

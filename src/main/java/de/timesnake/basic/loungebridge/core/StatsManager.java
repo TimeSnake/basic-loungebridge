@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -23,8 +23,8 @@ import de.timesnake.basic.bukkit.util.chat.Argument;
 import de.timesnake.basic.bukkit.util.chat.CommandListener;
 import de.timesnake.basic.bukkit.util.chat.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
-import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.TempGameServerManager;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
