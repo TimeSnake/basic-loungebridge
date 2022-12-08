@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -24,7 +24,7 @@ import org.bukkit.inventory.ItemStack;
 
 import java.util.List;
 
-public class Kit extends de.timesnake.basic.game.util.Kit {
+public class Kit extends de.timesnake.basic.game.util.game.Kit {
 
     private final List<ItemStack> items;
 

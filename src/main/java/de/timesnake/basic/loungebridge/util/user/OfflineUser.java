@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -18,7 +18,7 @@
 
 package de.timesnake.basic.loungebridge.util.user;
 
-import de.timesnake.basic.game.util.Team;
+import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.library.basic.util.Status;
 import org.bukkit.inventory.ItemStack;
 

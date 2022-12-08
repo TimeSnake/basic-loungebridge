@@ -1,5 +1,5 @@
 /*
- * basic-lounge-bridge.main
+ * workspace.basic-loungebridge.main
  * Copyright (C) 2022 timesnake
  *
  * This program is free software; you can redistribute it and/or
@@ -20,7 +20,7 @@ package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 
-public class TablistGroupType extends de.timesnake.basic.game.util.TablistGroupType {
+public class TablistGroupType extends de.timesnake.basic.game.util.game.TablistGroupType {
 
     public static final TablistGroupType GAME = new TablistGroupType(TablistTeam.class);
 

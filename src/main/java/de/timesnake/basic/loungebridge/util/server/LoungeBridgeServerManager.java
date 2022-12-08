@@ -24,10 +24,15 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
-import de.timesnake.basic.game.util.*;
+import de.timesnake.basic.game.util.game.Map;
+import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.game.util.game.TmpGame;
+import de.timesnake.basic.game.util.server.GameServer;
+import de.timesnake.basic.game.util.server.GameServerManager;
+import de.timesnake.basic.game.util.user.Plugin;
+import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.*;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
-import de.timesnake.basic.loungebridge.util.chat.Plugin;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
 import de.timesnake.basic.loungebridge.util.tool.*;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
@@ -68,7 +73,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     protected DbLoungeServer twinServer;
 
     protected LoungeBridgeServer.State state;
-    protected SpectatorManager spectatorManager;
     protected ChannelListener channelListener;
     protected boolean kitsEnabled;
     protected boolean mapsEnabled;
@@ -91,8 +95,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         }
 
         super.onGameEnable();
-
-        this.spectatorManager = new SpectatorManager();
 
         // update kits into database, if enabled
         this.kitsEnabled = ((DbTmpGameServer) this.getDatabase()).areKitsEnabled();
@@ -185,6 +187,11 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         return new DiscordManager();
     }
 
+    @Override
+    protected SpectatorManager loadSpectatorManager() {
+        return new de.timesnake.basic.loungebridge.core.main.SpectatorManager();
+    }
+
     public void loadChats() {
         // create team chat
         for (Team team : this.getGame().getTeams()) {
@@ -273,6 +280,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
         this.toolManager.runTools(StartableTool.class);
 
+        Server.getChat().broadcastJoinQuit(true);
+
         this.onGameStart();
     }
 
@@ -358,14 +367,13 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         }
 
         LoungeBridgeServer.resetKillsAndDeaths();
-        Server.getChat().broadcastJoinQuit(true);
 
         this.onGameReset();
         LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
     }
 
-    public SpectatorManager getSpectatorManager() {
-        return spectatorManager;
+    public de.timesnake.basic.loungebridge.core.main.SpectatorManager getSpectatorManager() {
+        return (de.timesnake.basic.loungebridge.core.main.SpectatorManager) super.getSpectatorManager();
     }
 
     public Chat getSpectatorChat() {
@@ -373,7 +381,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     }
 
     public void updateSpectatorTools() {
-        this.spectatorManager.updateSpectatorTools();
+        this.getSpectatorManager().updateSpectatorTools();
     }
 
     public boolean isTeamMateDamage() {
