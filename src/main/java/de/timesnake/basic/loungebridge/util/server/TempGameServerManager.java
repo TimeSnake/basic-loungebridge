@@ -125,6 +125,10 @@ public interface TempGameServerManager {
 
     }
 
+    default Sideboard getGameSideboard() {
+        return null;
+    }
+
     default Sideboard getSpectatorSideboard() {
         return null;
     }
@@ -150,6 +154,5 @@ public interface TempGameServerManager {
     default void saveGameUserStats(GameUser user) {
         user.getStat(GAMES_PLAYED).increaseAll(1);
     }
-
 
 }

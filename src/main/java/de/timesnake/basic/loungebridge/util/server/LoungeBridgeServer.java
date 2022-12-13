@@ -97,7 +97,7 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getSpectatorChat();
     }
 
-    public static void updateSpectatorInventory() {
+    public static void updateSpectatorTools() {
         server.updateSpectatorTools();
     }
 
@@ -270,6 +270,10 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static DiscordManager getDiscordManager() {
         return server.getDiscordManager();
+    }
+
+    public static Sideboard getGameSideboard() {
+        return server.getGameSideboard();
     }
 
     private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();

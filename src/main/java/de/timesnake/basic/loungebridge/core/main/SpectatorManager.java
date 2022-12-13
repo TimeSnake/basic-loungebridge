@@ -33,6 +33,11 @@ public class SpectatorManager extends de.timesnake.basic.game.util.user.Spectato
     }
 
     @Override
+    public @Nullable Sideboard getGameSideboard() {
+        return LoungeBridgeServer.getGameSideboard();
+    }
+
+    @Override
     public @Nullable Sideboard getSpectatorSideboard() {
         return LoungeBridgeServer.getSpectatorSideboard();
     }

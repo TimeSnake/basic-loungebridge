@@ -119,7 +119,7 @@ public class UserManager implements Listener {
 
             LoungeBridgeServer.checkGameStart();
 
-            LoungeBridgeServer.updateSpectatorInventory();
+            LoungeBridgeServer.updateSpectatorTools();
         } else {
             user.setStatus(Status.User.SPECTATOR);
             user.joinSpectator();
@@ -150,7 +150,7 @@ public class UserManager implements Listener {
                 LoungeBridgeServerManager.getInstance().onGameUserQuit((GameUser) user);
             }
 
-            LoungeBridgeServer.updateSpectatorInventory();
+            LoungeBridgeServer.updateSpectatorTools();
         }
 
         ((TeamUser) user).setTeam(null);
