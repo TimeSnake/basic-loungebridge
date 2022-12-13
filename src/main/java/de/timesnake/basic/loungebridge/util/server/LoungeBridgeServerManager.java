@@ -497,5 +497,4 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     public DiscordManager getDiscordManager() {
         return discordManager;
     }
-
 }

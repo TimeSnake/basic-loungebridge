@@ -26,7 +26,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.user.StatUser;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.ExTextColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -85,12 +84,6 @@ public abstract class GameUser extends StatUser {
             return LoungeBridgeServer.getTablistGameTeam();
         }
         return super.getTablistGroup(type);
-    }
-
-    @Override
-    public void setStatus(Status.User status) {
-        super.setStatus(status);
-        LoungeBridgeServer.updateSpectatorInventory();
     }
 
     @Override
@@ -314,16 +307,4 @@ public abstract class GameUser extends StatUser {
     }
 
     public abstract void joinGame();
-
-    public void rejoinGame() {
-        super.rejoinGame();
-
-        this.setDefault();
-        this.setCollitionWithEntites(true);
-        this.setAllowFlight(false);
-        this.setFlying(false);
-        this.setInvulnerable(false);
-        this.unlockInventory();
-        this.unlockInventoryItemMove();
-    }
 }
