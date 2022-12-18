@@ -67,7 +67,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
     public void update() {
         if (LoungeBridgeServer.isDiscord()) {
             if (LoungeBridgeServer.getGame().getDiscordType() == null
-                    || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
+                || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
                 return;
             }
 
@@ -119,7 +119,6 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
                     }
 
                     Server.runTaskLaterSynchrony(() -> {
-                        System.out.println(this.channelByName.size());
                         Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
                                 MessageType.Discord.DESTROY_CHANNELS, this.channelByName.keySet()));
                         this.channelByName.values().forEach(DistanceChannel::clear);
@@ -273,7 +272,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
         }
 
         if (Math.pow(userLocation.getX() - memberLocation.getX(), 2) + Math.pow(userLocation.getZ() - memberLocation.getZ(), 2)
-                <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
+            <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
             if (Math.abs(userLocation.getY() - memberLocation.getY()) <= VERTICAL_DISTANCE) {
                 return true;
             }
