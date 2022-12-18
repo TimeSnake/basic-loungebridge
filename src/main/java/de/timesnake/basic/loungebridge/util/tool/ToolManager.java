@@ -51,7 +51,6 @@ public class ToolManager {
                     try {
                         type.getDeclaredMethods()[0].invoke(gameTool);
                     } catch (IllegalAccessException | InvocationTargetException ignored) {
-                        System.out.println("ex");
                     }
                 });
     }
