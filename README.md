@@ -1,4 +1,9 @@
-# BasicLoungeBridge
+# basic-loungebridge
+
+This module is part of the plugin-project and won't run without
+the [root module](https://git.timesnake.de/timesnake/plugin-root-project) [1].
+
+---
 
 ## Description
 
@@ -6,12 +11,15 @@ This plugin provides an API for all TmpGames and acts as bridge to the lounge se
 
 ## Usage
 
-All classes in the [de.timesnake.basic.loungebridge.util] module are intended to be used in the game plugins.
-It is highly recommended to not use the classes in the [de.timesnake.basic.loungebridge.core] package.
+All classes in the [de.timesnake.basic.loungebridge.util] module are intended to be used in the game
+plugins.
+It is highly recommended to not use the classes in the [de.timesnake.basic.loungebridge.core]
+package.
 
 ### [LoungeBridgeServerManager]
 
-The [LoungeBridgeServerManager] class is the main hook-point for a game plugin. It is required to extend this class and
+The [LoungeBridgeServerManager] class is the main hook-point for a game plugin. It is required to
+extend this class and
 to
 initialize the manager by calling the `onLoungeBridgeEnable()` method.
 
@@ -31,14 +39,16 @@ initialize the manager by calling the `onLoungeBridgeEnable()` method.
 
 **Optional Hook-Points:**
 
-- `BowRunGame loadGame(DbGame dbGame, boolean loadWorlds)` - inject own game class, map or kit (see game section)
+- `BowRunGame loadGame(DbGame dbGame, boolean loadWorlds)` - inject own game class, map or kit (see
+  game section)
 - `void onMapLoad()` - called on map load, triggered by the map voting
 - `void onGamePrepare()` - called when the countdown starts running (7s before game start)
 - `void onGameUserRejoin(GameUser user)` - called if a user rejoins
 - `Sideboard getSpectatorSideboard()` - return a spectator sideboard
 - `Kit getKit(int index)` - return the kit by the giving index, *required for games with kits*
 - `Kit[] getKits()` - returns all kits, *required for games with kits*
-- `OfflineUser loadOfflineUser(GameUser user)` - called if a users leaves, allows to save data for rejoin
+- `OfflineUser loadOfflineUser(GameUser user)` - called if a users leaves, allows to save data for
+  rejoin
 - `Set<StatType<?>> getStats()` - returns the stat-type set, allows to add own stat-types
 - `void saveGameUserStats(GameUser user)` - allows to save custom stats after the game end
 
@@ -60,11 +70,15 @@ initialize the manager by calling the `onLoungeBridgeEnable()` method.
 
 [de.timesnake.basic.loungebridge.core]: src/main/java/de/timesnake/basic/loungebridge/core/
 
+---
+
 ## Code Style
 
-The code style guide can be found in the plugin root project:
-https://git.timesnake.de/timesnake/plugin-root-project
+The code style guide can be found in the plugin root project [1].
 
 ## License
 
-- The source is licensed under the GNU GPLv2 license that can be found in the [LICENSE](LICENSE) file.
+- The source is licensed under the GNU GPLv2 license that can be found in the [LICENSE](LICENSE)
+  file.
+
+[1] https://git.timesnake.de/timesnake/plugin-root-project
