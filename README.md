@@ -2,8 +2,7 @@
 
 This module is part of the plugin-project and won't run without
 the [root module](https://git.timesnake.de/timesnake/plugin-root-project) [1].
-
----
+[root module](https://git.timesnake.de/timesnake/plugin-root-project)
 
 ## Description
 
@@ -69,8 +68,7 @@ initialize the manager by calling the `onLoungeBridgeEnable()` method.
 [de.timesnake.basic.loungebridge.util]: src/main/java/de/timesnake/basic/loungebridge/util/
 
 [de.timesnake.basic.loungebridge.core]: src/main/java/de/timesnake/basic/loungebridge/core/
-
----
+[root module](https://git.timesnake.de/timesnake/plugin-root-project)
 
 ## Code Style
 
