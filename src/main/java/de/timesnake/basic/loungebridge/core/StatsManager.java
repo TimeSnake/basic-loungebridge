@@ -26,11 +26,10 @@ import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.event.ClickEvent;
-
 import java.util.List;
 import java.util.Set;
+import net.kyori.adventure.text.Component;
+import net.kyori.adventure.text.event.ClickEvent;
 
 public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, StopableTool {
 
@@ -89,9 +88,12 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
     public void sendStatSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.stats.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, Component.text("Discard game ", ExTextColor.WARNING)
-                                .append(Component.text("stats?", ExTextColor.BLUE)), "/stats_discard",
-                        Component.text("Click to discard all stats"), ClickEvent.Action.RUN_COMMAND);
+                user.sendClickablePluginMessage(Plugin.GAME,
+                        Component.text("Discard game ", ExTextColor.WARNING)
+                                .append(Component.text("stats?", ExTextColor.BLUE)),
+                        "/stats_discard",
+                        Component.text("Click to discard all stats"),
+                        ClickEvent.Action.RUN_COMMAND);
             }
         }
     }
@@ -105,16 +107,19 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
                 }
 
                 if (user.hasPermission("game.stats.info")) {
-                    user.sendPluginMessage(Plugin.GAME, Component.text("Saved all stats", ExTextColor.WARNING));
+                    user.sendPluginMessage(Plugin.GAME,
+                            Component.text("Saved all stats", ExTextColor.WARNING));
                 }
             }
 
-            Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getName(), MessageType.Server.USER_STATS,
-                    LoungeBridgeServer.getGame().getName()));
+            Server.getChannel().sendMessage(
+                    new ChannelServerMessage<>(Server.getName(), MessageType.Server.USER_STATS,
+                            LoungeBridgeServer.getGame().getName()));
         } else {
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (user.hasPermission("game.stats.info")) {
-                    user.sendPluginMessage(Plugin.GAME, Component.text("Discarded all stats", ExTextColor.WARNING));
+                    user.sendPluginMessage(Plugin.GAME,
+                            Component.text("Discarded all stats", ExTextColor.WARNING));
                 }
             }
 
@@ -125,26 +130,29 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
 
     public class StatsDiscardCmd implements CommandListener {
 
-        private Code.Permission statsDiscardPerm;
+        private Code statsDiscardPerm;
 
         @Override
-        public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+        public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
+                Arguments<Argument> args) {
             if (!sender.hasPermission(this.statsDiscardPerm)) {
                 return;
             }
 
             StatsManager.this.saveStats = false;
-            sender.sendPluginMessage(Component.text("All stats will be discarded", ExTextColor.PERSONAL));
+            sender.sendPluginMessage(
+                    Component.text("All stats will be discarded", ExTextColor.PERSONAL));
         }
 
         @Override
-        public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+        public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
+                Arguments<Argument> args) {
             return List.of();
         }
 
         @Override
         public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-            this.statsDiscardPerm = plugin.createPermssionCode("gsd", "game.stats.discard");
+            this.statsDiscardPerm = plugin.createPermssionCode("game.stats.discard");
         }
     }
 }

@@ -20,10 +20,9 @@ import de.timesnake.library.basic.util.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
+import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
-
-import java.util.List;
 
 public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTool {
 
@@ -62,9 +61,12 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
     public void sendCoinsSaveRequest() {
         for (User user : Server.getUsers()) {
             if (user.hasPermission("game.coins.discard")) {
-                user.sendClickablePluginMessage(Plugin.GAME, Component.text("Discard game", ExTextColor.WARNING)
-                                .append(Component.text(" coins?", ExTextColor.GOLD)), "/coins_discard",
-                        Component.text("Click to discard all coins"), ClickEvent.Action.RUN_COMMAND);
+                user.sendClickablePluginMessage(Plugin.GAME,
+                        Component.text("Discard game", ExTextColor.WARNING)
+                                .append(Component.text(" coins?", ExTextColor.GOLD)),
+                        "/coins_discard",
+                        Component.text("Click to discard all coins"),
+                        ClickEvent.Action.RUN_COMMAND);
             }
         }
     }
@@ -74,7 +76,8 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
             Server.printText(Plugin.GAME, "Saved game coins", "Coins");
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (user.hasPermission("game.coins.info")) {
-                    user.sendPluginMessage(Plugin.GAME, Component.text("Saved all coins", ExTextColor.WARNING));
+                    user.sendPluginMessage(Plugin.GAME,
+                            Component.text("Saved all coins", ExTextColor.WARNING));
                 }
             }
         } else {
@@ -82,7 +85,8 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 user.removeCoins(((GameUser) user).getGameCoins(), false);
                 if (user.hasPermission("game.coins.info")) {
-                    user.sendPluginMessage(Plugin.GAME, Component.text("Discarded all coins", ExTextColor.WARNING));
+                    user.sendPluginMessage(Plugin.GAME,
+                            Component.text("Discarded all coins", ExTextColor.WARNING));
                 }
             }
         }
@@ -91,26 +95,29 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
 
     public class CoinsDiscardCmd implements CommandListener {
 
-        private Code.Permission coinsDiscardPerm;
+        private Code coinsDiscardPerm;
 
         @Override
-        public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+        public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
+                Arguments<Argument> args) {
             if (!sender.hasPermission(this.coinsDiscardPerm)) {
                 return;
             }
 
             CoinsManager.this.saveCoins = false;
-            sender.sendPluginMessage(Component.text("All coins will be discarded", ExTextColor.PERSONAL));
+            sender.sendPluginMessage(
+                    Component.text("All coins will be discarded", ExTextColor.PERSONAL));
         }
 
         @Override
-        public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd, Arguments<Argument> args) {
+        public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
+                Arguments<Argument> args) {
             return List.of();
         }
 
         @Override
         public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-            this.coinsDiscardPerm = plugin.createPermssionCode("gcd", "game.coins.discard");
+            this.coinsDiscardPerm = plugin.createPermssionCode("game.coins.discard");
         }
     }
 }
