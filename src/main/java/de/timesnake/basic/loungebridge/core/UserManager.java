@@ -8,7 +8,12 @@ import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.*;
+import de.timesnake.basic.bukkit.util.user.event.UserDamageByUserEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserDeathEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserDropItemEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
+import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.game.util.user.TeamUser;
@@ -19,6 +24,8 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.basic.util.chat.ExTextColor;
+import java.util.HashMap;
+import java.util.UUID;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.block.Block;
@@ -35,17 +42,19 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.*;
+import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerPickupArrowEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
+import org.bukkit.event.player.PlayerSwapHandItemsEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.HashMap;
-import java.util.UUID;
-
 public class UserManager implements Listener {
 
-    private static final int REJOIN_TIME = 120; // in seconds
+    private static final int REJOIN_TIME_SEC = 180;
 
     private final HashMap<UUID, OfflineUser> offlineUsersByUniqueId = new HashMap<>();
     private final HashMap<UUID, BukkitTask> offlineUserRemoveTaskByUniqueId = new HashMap<>();
@@ -81,7 +90,8 @@ public class UserManager implements Listener {
 
             user.updateTeam();
 
-            if (user.getTeam() != null && user.getTeam().hasPrivateChat() && LoungeBridgeServer.getServerTeamAmount() > 0) {
+            if (user.getTeam() != null && user.getTeam().hasPrivateChat()
+                    && LoungeBridgeServer.getServerTeamAmount() > 0) {
                 Chat teamChat = Server.getChat(user.getTeam().getName());
                 if (teamChat != null) {
                     teamChat.addWriter(user);
@@ -94,7 +104,8 @@ public class UserManager implements Listener {
             user.setKitItems();
 
             for (User otherUser : Server.getUsers()) {
-                if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus().equals(Status.User.OUT_GAME)) {
+                if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus()
+                        .equals(Status.User.OUT_GAME)) {
                     otherUser.showUser(user);
                     user.hideUser(otherUser);
                 } else {
@@ -120,16 +131,19 @@ public class UserManager implements Listener {
     public void onUserQuit(UserQuitEvent e) {
         User user = e.getUser();
 
-        if (LoungeBridgeServer.isRejoiningAllowed() && !user.getStatus().equals(Status.User.SPECTATOR) && LoungeBridgeServer.isGameRunning()) {
+        if (LoungeBridgeServer.isRejoiningAllowed() && !user.getStatus()
+                .equals(Status.User.SPECTATOR) && LoungeBridgeServer.isGameRunning()) {
             OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
             this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
             Server.printText(Plugin.LOUNGE, "Saved user " + user.getChatName(), "User");
             this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(),
-                    Server.runTaskLaterSynchrony(() -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),
-                            20 * REJOIN_TIME, BasicLoungeBridge.getPlugin()));
+                    Server.runTaskLaterSynchrony(
+                            () -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),
+                            20 * REJOIN_TIME_SEC, BasicLoungeBridge.getPlugin()));
         }
 
-        if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus().equals(Status.User.PRE_GAME)) {
+        if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus()
+                .equals(Status.User.PRE_GAME)) {
             if (!LoungeBridgeServer.isGameRunning()) {
                 LoungeBridgeServerManager.getInstance().onGameUserQuitBeforeStart((GameUser) user);
             } else {
@@ -274,8 +288,9 @@ public class UserManager implements Listener {
 
         if (!LoungeBridgeServer.isTeamMateDamage()) {
             if (clickedUser.isTeamMate(user)) {
-                user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(), Component.text("You can't damage "
-                        + "your teammate", ExTextColor.PERSONAL));
+                user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(),
+                        Component.text("You can't damage "
+                                + "your teammate", ExTextColor.PERSONAL));
                 e.setCancelled(true);
                 return;
             }
@@ -491,7 +506,8 @@ public class UserManager implements Listener {
             return;
         }
 
-        if (e.getInventory().getHolder() instanceof Chest || e.getInventory().getHolder() instanceof ShulkerBox) {
+        if (e.getInventory().getHolder() instanceof Chest || e.getInventory()
+                .getHolder() instanceof ShulkerBox) {
             Status.User status = user.getStatus();
             if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
                 e.setCancelled(true);
