@@ -6,7 +6,7 @@ package de.timesnake.basic.loungebridge.util.server;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Chat;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.TextComponent;
