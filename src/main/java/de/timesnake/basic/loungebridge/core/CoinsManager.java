@@ -16,7 +16,7 @@ import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.basic.util.chat.ExTextColor;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
