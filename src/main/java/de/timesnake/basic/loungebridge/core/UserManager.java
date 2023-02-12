@@ -14,6 +14,7 @@ import de.timesnake.basic.bukkit.util.user.event.UserDeathEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserDropItemEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.game.util.user.TeamUser;
@@ -100,6 +101,7 @@ public class UserManager implements Listener {
                 }
             }
 
+            user.setSideboard(GameServer.getSpectatorManager().getGameSideboard());
             user.joinGame();
             user.setKitItems();
 
