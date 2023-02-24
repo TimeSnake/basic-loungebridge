@@ -9,7 +9,8 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import org.bukkit.scheduler.BukkitTask;
 
-public abstract class TimerTool implements GameTool, StartableTool, MapLoadableTool, PreStopableTool {
+public abstract class TimerTool implements GameTool, StartableTool, MapLoadableTool,
+        PreStopableTool {
 
     private int time = 0;
     private BukkitTask task;

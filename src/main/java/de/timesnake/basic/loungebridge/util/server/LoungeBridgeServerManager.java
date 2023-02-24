@@ -17,10 +17,23 @@ import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.server.GameServerManager;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.game.util.user.SpectatorManager;
-import de.timesnake.basic.loungebridge.core.*;
+import de.timesnake.basic.loungebridge.core.ChannelListener;
+import de.timesnake.basic.loungebridge.core.CoinsManager;
+import de.timesnake.basic.loungebridge.core.DiscordManager;
+import de.timesnake.basic.loungebridge.core.GameScheduler;
+import de.timesnake.basic.loungebridge.core.StatsManager;
+import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
-import de.timesnake.basic.loungebridge.util.tool.*;
+import de.timesnake.basic.loungebridge.util.tool.CloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.MapLoadableTool;
+import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.PreStopableTool;
+import de.timesnake.basic.loungebridge.util.tool.PrepareableTool;
+import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
+import de.timesnake.basic.loungebridge.util.tool.StartableTool;
+import de.timesnake.basic.loungebridge.util.tool.StopableTool;
+import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
@@ -32,15 +45,15 @@ import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.stream.Collectors;
-
-public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends GameServerManager<Game>
+public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
+        GameServerManager<Game>
         implements TempGameServerManager, HighScoreCalculator {
 
     public static final String SPECTATOR_NAME = "spectator";
@@ -68,6 +81,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     protected Integer estimatedPlayers;
     protected boolean discord;
     protected ToolManager toolManager;
+    protected Boolean running = false;
     private Map map;
     private UserManager userManager;
     private GameScheduler gameScheduler;
@@ -113,7 +127,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
         this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
         Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
-        this.serverTeamAmount = serverTeamAmount != null ? serverTeamAmount : this.getGame().getTeams().size();
+        this.serverTeamAmount =
+                serverTeamAmount != null ? serverTeamAmount : this.getGame().getTeams().size();
         this.maxPlayersPerTeam = ((DbTmpGameServer) this.getDatabase()).getMaxPlayersPerTeam();
 
         this.channelListener = new ChannelListener();
@@ -144,7 +159,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
         // silent join quit
         Server.getChat().broadcastJoinQuit(false);
-
 
         this.loadChats();
 
@@ -183,14 +197,16 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         for (Team team : this.getGame().getTeams()) {
             // chat
             if (team.hasPrivateChat()) {
-                Server.getChatManager().createChat(team.getName(), team.getDisplayName(), team.getTextColor(),
-                        new HashSet<>());
+                Server.getChatManager()
+                        .createChat(team.getName(), team.getDisplayName(), team.getTextColor(),
+                                new HashSet<>());
             }
         }
 
         // create spectator chat
-        Server.getChatManager().createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR,
-                new HashSet<>());
+        Server.getChatManager()
+                .createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR,
+                        new HashSet<>());
     }
 
     @Override
@@ -230,19 +246,24 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
                 game.removeKitSynchronized(kit.getId());
             }
             try {
-                game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(), kit.getDescription());
-                Server.printText(Plugin.LOUNGE, "Loaded kit " + kit.getName() + " into the database", "Kit");
+                game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(),
+                        kit.getDescription());
+                Server.printText(Plugin.LOUNGE,
+                        "Loaded kit " + kit.getName() + " into the database", "Kit");
             } catch (UnsupportedStringException e) {
-                Server.printWarning(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database " +
-                        "(UnsupportedStringException)", "Kit");
+                Server.printWarning(Plugin.LOUNGE,
+                        "Can not load kit " + kit.getName() + " into database " +
+                                "(UnsupportedStringException)", "Kit");
             } catch (Exception e) {
-                Server.printWarning(Plugin.LOUNGE, "Can not load kit " + kit.getName() + " into database ", "Kit");
+                Server.printWarning(Plugin.LOUNGE,
+                        "Can not load kit " + kit.getName() + " into database ", "Kit");
             }
         }
     }
 
     public final void loadMap() {
-        Map map = GameServer.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
+        Map map = GameServer.getGame()
+                .getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
         this.setMap(map);
 
         this.toolManager.runTools(MapLoadableTool.class);
@@ -259,6 +280,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
     public final void startGame() {
         LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
+        this.running = true;
+
         for (User user : Server.getPreGameUsers()) {
             user.setStatus(Status.User.IN_GAME);
             ((GameUser) user).playedGame();
@@ -272,6 +295,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     }
 
     public final void stopGame() {
+        this.running = false;
+
         this.toolManager.runTools(PreStopableTool.class);
 
         this.onGameStop();
@@ -336,7 +361,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
             }
 
             if (LoungeBridgeServer.getGame().hasTexturePack()) {
-                user.setTexturePack("https://timesnake.de/data/minecraft/resource_packs/texture_pack_base.zip");
+                user.setTexturePack(
+                        "https://timesnake.de/data/minecraft/resource_packs/texture_pack_base.zip");
             }
 
             user.switchToServer(LoungeBridgeServer.getTwinServer());
@@ -414,6 +440,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
         return toolManager;
     }
 
+    public boolean isGameRunning() {
+        return this.running;
+    }
+
     public Map getMap() {
         return map;
     }
@@ -437,12 +467,23 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
 
     @Deprecated
     public void broadcastLoungeBridgeMessage(String msg) {
-        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
-                .append(Component.text(msg)));
+        Server.broadcastMessage(
+                de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+                        .append(Component.text(msg)));
     }
 
     public void broadcastLoungeBridgeMessage(Component msg) {
-        Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()).append(msg));
+        Server.broadcastMessage(
+                de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+                        .append(msg));
+    }
+
+    public void broadcastGameMessage(Component msg) {
+        Server.broadcastMessage(this.getGamePlugin(), msg);
+    }
+
+    public void broadcastGameTDMessage(String msg) {
+        Server.broadcastTDMessage(this.getGamePlugin(), msg);
     }
 
     public TeamTablist getGameTablist() {
@@ -450,7 +491,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
     }
 
     public Collection<Team> getNotEmptyInGameTeams() {
-        return this.getGame().getTeams().stream().filter((team -> team.getInGameUsers().size() > 0)).collect(Collectors.toList());
+        return this.getGame().getTeams().stream().filter((team -> team.getInGameUsers().size() > 0))
+                .collect(Collectors.toList());
     }
 
     public Integer getEstimatedPlayers() {
@@ -473,8 +515,9 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends Ga
             case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
             case WAITING -> {
                 Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
-                        , ChannelServerMessage.State.READY));
+                Server.getChannel().sendMessage(
+                        new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
+                                , ChannelServerMessage.State.READY));
                 Server.printText(Plugin.GAME, "Send lounge ready state");
             }
         }

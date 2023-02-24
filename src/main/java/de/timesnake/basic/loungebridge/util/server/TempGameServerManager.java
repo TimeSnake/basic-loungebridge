@@ -13,11 +13,9 @@ import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
-import net.kyori.adventure.text.Component;
-import org.bukkit.entity.Player;
-
 import java.util.HashSet;
 import java.util.Set;
+import org.bukkit.entity.Player;
 
 public interface TempGameServerManager {
 
@@ -32,28 +30,6 @@ public interface TempGameServerManager {
      * @return Return the plugin
      */
     de.timesnake.library.extension.util.chat.Plugin getGamePlugin();
-
-    /**
-     * @return Return true if the game is running
-     */
-    boolean isGameRunning();
-
-    /**
-     * Broadcast game info chat messages
-     *
-     * @param message The message to broadcast
-     */
-    @Deprecated
-    default void broadcastGameMessage(String message) {
-
-    }
-
-    /**
-     * Broadcast game info chat messages
-     *
-     * @param message The message to broadcast
-     */
-    void broadcastGameMessage(Component message);
 
     /**
      * Called by channel map load message from lounge (map-voting).
