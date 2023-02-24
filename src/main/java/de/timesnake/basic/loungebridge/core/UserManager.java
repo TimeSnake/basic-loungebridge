@@ -101,7 +101,7 @@ public class UserManager implements Listener {
                 }
             }
 
-            user.setSideboard(GameServer.getSpectatorManager().getGameSideboard());
+            user.setSideboard(GameServer.getGameSideboard());
             user.joinGame();
             user.setKitItems();
 
@@ -170,6 +170,8 @@ public class UserManager implements Listener {
         if (user.isInGame()) {
             ((GameUser) user).addDeath();
         }
+
+        e.setAutoRespawn(true);
     }
 
 
