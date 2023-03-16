@@ -79,6 +79,15 @@ public interface TempGameServerManager {
     boolean isRejoiningAllowed();
 
     /**
+     * Allows users with status outgame to rejoin with status outgame
+     *
+     * @return true if it is allowed
+     */
+    default boolean isOutGameRejoiningAllowed() {
+        return false;
+    }
+
+    /**
      * Game user rejoins game
      *
      * @param user The user who is rejoining

@@ -53,8 +53,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
-        GameServerManager<Game>
-        implements TempGameServerManager, HighScoreCalculator {
+        GameServerManager<Game> implements TempGameServerManager, HighScoreCalculator {
 
     public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
@@ -147,6 +146,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         this.tablistManager.loadTablist(Tablist.Type.DUMMY);
         Server.getScoreboardManager().setActiveTablist(this.tablistManager.getGameTablist());
 
+        this.toolManager.add((StartableTool) () -> Server.getInGameUsers()
+                .forEach(u -> ((GameUser) u).onGameStart()));
+
+        this.toolManager.add((StopableTool) () -> Server.getInGameUsers()
+                .forEach(u -> ((GameUser) u).onGameStop()));
+
         // load maps, if enabled
         if (this.mapsEnabled) {
             for (Map map : this.getGame().getMaps()) {
@@ -214,7 +219,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     public void checkGameStart() {
         int gameUsers = Server.getPreGameUsers().size();
-        if (gameUsers >= LoungeBridgeServer.getEstimatedPlayers()) {
+        if (this.getEstimatedPlayers() != null && gameUsers >= this.getEstimatedPlayers()) {
             this.startGameCountdown();
         } else if (gameUsers == 1) {
             Server.runTaskLaterSynchrony(() -> {
@@ -273,9 +278,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     public final void prepareGame() {
-        this.toolManager.runTools(PrepareableTool.class);
-
         this.onGamePrepare();
+        this.toolManager.runTools(PrepareableTool.class);
     }
 
     public final void startGame() {
@@ -295,6 +299,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     public final void stopGame() {
+        if (!this.running) {
+            return;
+        }
+
         this.running = false;
 
         this.toolManager.runTools(PreStopableTool.class);
@@ -315,7 +323,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             for (User user : Server.getInGameUsers()) {
                 user.setDefault();
                 user.getPlayer().setInvulnerable(true);
-                user.lockLocation(true);
+                user.lockLocation();
             }
 
             for (User user : Server.getSpectatorUsers()) {
