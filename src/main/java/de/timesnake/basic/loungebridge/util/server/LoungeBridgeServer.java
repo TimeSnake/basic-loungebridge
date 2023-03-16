@@ -16,17 +16,20 @@ import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.DiscordManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
-import de.timesnake.basic.loungebridge.util.user.*;
+import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.basic.loungebridge.util.user.Kit;
+import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
+import de.timesnake.basic.loungebridge.util.user.OfflineUser;
+import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.chat.Plugin;
-import net.kyori.adventure.text.Component;
-
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import net.kyori.adventure.text.Component;
 
 public abstract class LoungeBridgeServer extends GameServer {
 
@@ -151,7 +154,8 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getMostKills(users, number);
     }
 
-    public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users, int number) {
+    public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users,
+            int number) {
         return server.getHighestKillStreak(users, number);
     }
 
@@ -167,18 +171,19 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getLongestShot(users, number);
     }
 
-    public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number, Comparator<U> comparator) {
+    public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number,
+            Comparator<U> comparator) {
         return server.getHighScore(user, number, comparator);
     }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
-                                          Predicate<GameUser> predicateToBroadcast, Function<GameUser, ?
-            extends Comparable> keyExtractor) {
+    public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
+            int number, Predicate<GameUser> predicateToBroadcast,
+            Function<GameUser, ? extends Comparable> keyExtractor) {
         server.broadcastHighscore(name, users, number, predicateToBroadcast, keyExtractor);
     }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
-                                          Function<GameUser, ? extends Comparable> keyExtractor) {
+    public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
+            int number, Function<GameUser, ? extends Comparable> keyExtractor) {
         server.broadcastHighscore(name, users, number, keyExtractor);
     }
 
@@ -200,6 +205,10 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static boolean isRejoiningAllowed() {
         return server.isRejoiningAllowed();
+    }
+
+    public static boolean isOutGameRejoiningAllowed() {
+        return server.isOutGameRejoiningAllowed();
     }
 
     public static void onGameUserRejoin(GameUser user) {
@@ -265,11 +274,6 @@ public abstract class LoungeBridgeServer extends GameServer {
     private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();
 
     public enum State {
-        STARTING,
-        RUNNING,
-        STOPPED,
-        CLOSING,
-        RESETTING,
-        WAITING
+        STARTING, RUNNING, STOPPED, CLOSING, RESETTING, WAITING
     }
 }

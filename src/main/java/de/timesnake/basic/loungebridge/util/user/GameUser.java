@@ -5,8 +5,8 @@
 package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
+import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.game.Team;
@@ -115,7 +115,8 @@ public abstract class GameUser extends StatUser {
 
         for (ItemStack item : this.kit.getItems()) {
             if (item instanceof ExItemStack && ((ExItemStack) item).getSlot() != null) {
-                this.getInventory().setItem(((ExItemStack) item).getSlot(), ((ExItemStack) item).cloneWithId());
+                this.getInventory().setItem(((ExItemStack) item).getSlot(),
+                        ((ExItemStack) item).cloneWithId());
             } else {
                 this.getInventory().addItem(item);
             }
@@ -143,11 +144,11 @@ public abstract class GameUser extends StatUser {
         this.kills++;
         this.killStreak++;
         if ((this.killStreak % 5 == 0 && this.killStreak != 0) || this.killStreak == 3) {
-            this.broadcastKillstreak();
+            this.broadcastKillStreak();
         }
     }
 
-    public void broadcastKillstreak() {
+    public void broadcastKillStreak() {
         LoungeBridgeServer.broadcastGameMessage(this.getChatNameComponent()
                 .append(Component.text(" has a kill-streak of ", ExTextColor.PUBLIC))
                 .append(Component.text(this.killStreak, ExTextColor.VALUE)));
@@ -159,7 +160,9 @@ public abstract class GameUser extends StatUser {
 
     public void setDeaths(Integer deaths) {
         this.deaths = deaths;
-        if (this.killStreak > this.highestKillStreak) this.highestKillStreak = this.killStreak;
+        if (this.killStreak > this.highestKillStreak) {
+            this.highestKillStreak = this.killStreak;
+        }
         this.killStreak = 0;
     }
 
@@ -172,14 +175,16 @@ public abstract class GameUser extends StatUser {
 
         this.killStreak = 0;
 
-        if (this.getLastDamager() != null && this.getLastDamager().getDamageType().equals(UserDamage.DamageType.INSTANT)) {
+        if (this.getLastDamager() != null && this.getLastDamager().getDamageType()
+                .equals(UserDamage.DamageType.INSTANT)) {
 
             GameUser damager = ((GameUser) this.getLastDamager().getDamager());
             damager.addKill();
 
             if (this.getLastDamager().getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
                 int distance =
-                        (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
+                        (int) this.getLastDamager().getUserLocation()
+                                .distance(this.getLastDamager().getDamagerLocation());
                 damager.checkLongestShot(distance);
             }
 
@@ -200,9 +205,11 @@ public abstract class GameUser extends StatUser {
                         return;
                     }
 
-                    if (this.getLastDamager().getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
+                    if (this.getLastDamager().getDamageType()
+                            .equals(UserDamage.DamageType.PLAYER_BOW)) {
                         int distance =
-                                (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
+                                (int) this.getLastDamager().getUserLocation()
+                                        .distance(this.getLastDamager().getDamagerLocation());
                         damager.checkLongestShot(distance);
                     }
                 }
@@ -293,4 +300,12 @@ public abstract class GameUser extends StatUser {
     }
 
     public abstract void joinGame();
+
+    public void onGameStart() {
+
+    }
+
+    public void onGameStop() {
+
+    }
 }

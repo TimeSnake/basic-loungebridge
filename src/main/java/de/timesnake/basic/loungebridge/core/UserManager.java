@@ -133,8 +133,11 @@ public class UserManager implements Listener {
     public void onUserQuit(UserQuitEvent e) {
         User user = e.getUser();
 
-        if (LoungeBridgeServer.isRejoiningAllowed() && !user.getStatus()
-                .equals(Status.User.SPECTATOR) && LoungeBridgeServer.isGameRunning()) {
+        if (LoungeBridgeServer.isRejoiningAllowed()
+                && (user.hasStatus(Status.User.IN_GAME)
+                || (LoungeBridgeServer.isOutGameRejoiningAllowed()
+                && user.hasStatus(Status.User.OUT_GAME)))
+                && LoungeBridgeServer.isGameRunning()) {
             OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
             this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
             Server.printText(Plugin.LOUNGE, "Saved user " + user.getChatName(), "User");
