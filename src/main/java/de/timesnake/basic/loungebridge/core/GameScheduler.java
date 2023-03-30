@@ -5,16 +5,15 @@
 package de.timesnake.basic.loungebridge.core;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
+import java.time.Duration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Instrument;
 import org.bukkit.Note;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.time.Duration;
 
 public class GameScheduler {
 
@@ -35,33 +34,41 @@ public class GameScheduler {
             this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
                 switch (gameCountdown) {
                     case 7 -> {
-                        Server.printText(Plugin.LOUNGE, "Preparing game ...");
-                        Server.runTaskSynchrony(LoungeBridgeServer::prepareGame, BasicLoungeBridge.getPlugin());
+                        Loggers.LOUNGE_BRIDGE.info("Preparing game ...");
+                        Server.runTaskSynchrony(LoungeBridgeServer::prepareGame,
+                                BasicLoungeBridge.getPlugin());
                     }
                     case 5, 4, 3, 2 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING), Component.empty(),
+                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                                Component.empty(),
                                 Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                .append(Component.text(gameCountdown, ExTextColor.VALUE))
-                                .append(Component.text(" seconds", ExTextColor.PUBLIC)));
+                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                                        .append(Component.text(gameCountdown, ExTextColor.VALUE))
+                                        .append(Component.text(" seconds", ExTextColor.PUBLIC)));
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
                     }
                     case 1 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING), Component.empty(),
+                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                                Component.empty(),
                                 Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                .append(Component.text(gameCountdown, ExTextColor.VALUE))
-                                .append(Component.text(" second", ExTextColor.PUBLIC)));
+                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                                        .append(Component.text(gameCountdown, ExTextColor.VALUE))
+                                        .append(Component.text(" second", ExTextColor.PUBLIC)));
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
                     }
                     case 0 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING), Component.empty(),
+                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                                Component.empty(),
                                 Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                .append(Component.text("now", ExTextColor.VALUE))
-                                .append(Component.text(" seconds", ExTextColor.PUBLIC)));
+                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                                        .append(Component.text("now", ExTextColor.VALUE))
+                                        .append(Component.text(" seconds", ExTextColor.PUBLIC)));
                         Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                        Server.runTaskSynchrony(LoungeBridgeServer::startGame, BasicLoungeBridge.getPlugin());
+                        Server.runTaskSynchrony(LoungeBridgeServer::startGame,
+                                BasicLoungeBridge.getPlugin());
                         this.gameCountdownTask.cancel();
                     }
                 }
@@ -71,12 +78,15 @@ public class GameScheduler {
     }
 
     public void closeGame() {
-        LoungeBridgeServer.broadcastLoungeBridgeMessage(Component.text("The game closes in 10 seconds", ExTextColor.WARNING));
+        LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                Component.text("The game closes in 10 seconds", ExTextColor.WARNING));
 
-        Server.runTaskLaterSynchrony(LoungeBridgeServer::closeGame6, 6 * 20, BasicLoungeBridge.getPlugin());
+        Server.runTaskLaterSynchrony(LoungeBridgeServer::closeGame6, 6 * 20,
+                BasicLoungeBridge.getPlugin());
 
         Server.runTaskLaterSynchrony(() -> {
-            LoungeBridgeServer.broadcastLoungeBridgeMessage(Component.text("Game closed", ExTextColor.WARNING));
+            LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                    Component.text("Game closed", ExTextColor.WARNING));
             LoungeBridgeServer.closeGame10();
 
             Server.runTaskLaterSynchrony(() -> {

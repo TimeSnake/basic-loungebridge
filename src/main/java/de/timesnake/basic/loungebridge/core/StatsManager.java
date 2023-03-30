@@ -21,8 +21,9 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
-import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
 import de.timesnake.library.extension.util.cmd.ExCommand;
@@ -100,7 +101,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
 
     public void saveGameStats() {
         if (this.isSaveStats()) {
-            Server.printText(Plugin.GAME, "Saved game stats", "Stats");
+            Loggers.LOUNGE_BRIDGE.info("Saved game stats");
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (((GameUser) user).hasPlayedGame()) {
                     LoungeBridgeServer.saveGameUserStats(((GameUser) user));
@@ -123,7 +124,7 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
                 }
             }
 
-            Server.printText(Plugin.GAME, "Discarded game stats", "Stats");
+            Loggers.LOUNGE_BRIDGE.info("Discarded game stats");
         }
 
     }
