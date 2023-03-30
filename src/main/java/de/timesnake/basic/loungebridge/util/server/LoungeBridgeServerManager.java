@@ -15,7 +15,6 @@ import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.game.TmpGame;
 import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.server.GameServerManager;
-import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.ChannelListener;
 import de.timesnake.basic.loungebridge.core.CoinsManager;
@@ -43,6 +42,7 @@ import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTmpGameServer;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import java.util.Collection;
@@ -105,7 +105,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
         this.twinServer = database.getTwinServer();
         if (twinServer == null) {
-            Server.printWarning(Plugin.LOUNGE, "No twin server found in database");
+            Loggers.LOUNGE_BRIDGE.warning("No twin server found in database");
             Bukkit.shutdown();
             return;
         }
@@ -168,7 +168,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         this.loadChats();
 
         // mark as ready
-        Server.printText(Plugin.GAME, "Server loaded");
+        Loggers.LOUNGE_BRIDGE.info("Server loaded");
         this.setState(LoungeBridgeServer.State.WAITING);
     }
 
@@ -253,15 +253,14 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             try {
                 game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(),
                         kit.getDescription());
-                Server.printText(Plugin.LOUNGE,
-                        "Loaded kit " + kit.getName() + " into the database", "Kit");
+                Loggers.LOUNGE_BRIDGE.info("Loaded kit " + kit.getName() + " into the database");
             } catch (UnsupportedStringException e) {
-                Server.printWarning(Plugin.LOUNGE,
+                Loggers.LOUNGE_BRIDGE.warning(
                         "Can not load kit " + kit.getName() + " into database " +
-                                "(UnsupportedStringException)", "Kit");
+                                "(UnsupportedStringException)");
             } catch (Exception e) {
-                Server.printWarning(Plugin.LOUNGE,
-                        "Can not load kit " + kit.getName() + " into database ", "Kit");
+                Loggers.LOUNGE_BRIDGE.warning(
+                        "Can not load kit " + kit.getName() + " into database ");
             }
         }
     }
@@ -274,7 +273,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         this.toolManager.runTools(MapLoadableTool.class);
         this.onMapLoad();
 
-        Server.printText(Plugin.LOUNGE, "Loaded map " + map.getName());
+        Loggers.LOUNGE_BRIDGE.info("Loaded map " + map.getName());
     }
 
     public final void prepareGame() {
@@ -369,8 +368,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             }
 
             if (LoungeBridgeServer.getGame().hasTexturePack()) {
-                user.setTexturePack(
-                        "https://timesnake.de/data/minecraft/resource_packs/texture_pack_base.zip");
+                user.setTexturePack(Server.DEFAULT_TEXTURE_PACK);
             }
 
             user.switchToServer(LoungeBridgeServer.getTwinServer());
@@ -526,7 +524,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
                 Server.getChannel().sendMessage(
                         new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
                                 , ChannelServerMessage.State.READY));
-                Server.printText(Plugin.GAME, "Send lounge ready state");
+                Loggers.LOUNGE_BRIDGE.info("Send lounge ready state");
             }
         }
     }

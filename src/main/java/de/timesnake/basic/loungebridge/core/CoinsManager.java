@@ -16,6 +16,7 @@ import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.chat.Code;
 import de.timesnake.library.extension.util.cmd.Arguments;
@@ -73,7 +74,7 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
 
     public void saveGameCoins() {
         if (this.isSaveCoins()) {
-            Server.printText(Plugin.GAME, "Saved game coins", "Coins");
+            Loggers.LOUNGE_BRIDGE.info("Saved game coins");
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 if (user.hasPermission("game.coins.info")) {
                     user.sendPluginMessage(Plugin.GAME,
@@ -81,7 +82,7 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
                 }
             }
         } else {
-            Server.printText(Plugin.GAME, "Discarded game coins", "Coins");
+            Loggers.LOUNGE_BRIDGE.info("Discarded game coins");
             for (User user : LoungeBridgeServer.getGameUsers()) {
                 user.removeCoins(((GameUser) user).getGameCoins(), false);
                 if (user.hasPermission("game.coins.info")) {

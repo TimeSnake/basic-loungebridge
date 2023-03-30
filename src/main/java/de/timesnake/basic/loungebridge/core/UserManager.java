@@ -15,7 +15,6 @@ import de.timesnake.basic.bukkit.util.user.event.UserDropItemEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
 import de.timesnake.basic.game.util.server.GameServer;
-import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.game.util.user.TeamUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
@@ -23,6 +22,7 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
+import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import java.util.HashMap;
@@ -140,7 +140,7 @@ public class UserManager implements Listener {
                 && LoungeBridgeServer.isGameRunning()) {
             OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
             this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
-            Server.printText(Plugin.LOUNGE, "Saved user " + user.getChatName(), "User");
+            Loggers.LOUNGE_BRIDGE.info("Saved user " + user.getChatName());
             this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(),
                     Server.runTaskLaterSynchrony(
                             () -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),

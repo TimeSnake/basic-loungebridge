@@ -118,6 +118,10 @@ public abstract class LoungeBridgeServer extends GameServer {
         server.broadcastGameMessage(message);
     }
 
+    public static void broadcastGameTDMessage(String message) {
+        server.broadcastGameTDMessage(message);
+    }
+
     public static Plugin getGamePlugin() {
         return server.getGamePlugin();
     }
