@@ -2,18 +2,20 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.loungebridge.util.tool;
+package de.timesnake.basic.loungebridge.util.tool.advanced;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.AsyncUserMoveEvent;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
+import de.timesnake.basic.loungebridge.util.tool.GameTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
-
-import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class AntiCampTool implements Listener, GameTool, StartableTool, StopableTool {
 
@@ -56,7 +58,9 @@ public abstract class AntiCampTool implements Listener, GameTool, StartableTool,
     @Override
     public void start() {
         this.task = Server.runTaskTimerAsynchrony(() -> {
-            this.locationsByUser.keySet().forEach(user -> Server.runTaskSynchrony(() -> this.teleport(user), BasicLoungeBridge.getPlugin()));
+            this.locationsByUser.keySet().forEach(
+                    user -> Server.runTaskSynchrony(() -> this.teleport(user),
+                            BasicLoungeBridge.getPlugin()));
             Server.getInGameUsers().forEach(u -> this.locationsByUser.put(u, u.getLocation()));
         }, 0, time * 20, BasicLoungeBridge.getPlugin());
     }

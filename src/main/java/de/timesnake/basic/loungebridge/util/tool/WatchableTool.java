@@ -5,7 +5,8 @@
 package de.timesnake.basic.loungebridge.util.tool;
 
 @FunctionalInterface
-public interface MapLoadableTool extends GameTool, MapDependable {
+public interface WatchableTool extends GameTool {
 
-    void onMapLoad();
+    ToolWatcher getWatchers();
+
 }
