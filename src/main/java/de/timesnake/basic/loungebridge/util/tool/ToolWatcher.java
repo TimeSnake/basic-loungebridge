@@ -4,8 +4,7 @@
 
 package de.timesnake.basic.loungebridge.util.tool;
 
-@FunctionalInterface
-public interface PreCloseableTool extends GameTool {
+public enum ToolWatcher {
 
-    void preClose();
+    ALL, IN_GAME, SPECTATOR;
 }

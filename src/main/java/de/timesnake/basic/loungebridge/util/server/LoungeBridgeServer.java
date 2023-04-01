@@ -235,10 +235,6 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.getLoungeBridgeUserManager();
     }
 
-    public static void resetKillsAndDeaths() {
-        server.resetKillsAndDeaths();
-    }
-
     public static void resetGame() {
         server.resetGame();
     }

@@ -24,14 +24,14 @@ import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
-import de.timesnake.basic.loungebridge.util.tool.CloseableTool;
-import de.timesnake.basic.loungebridge.util.tool.MapLoadableTool;
-import de.timesnake.basic.loungebridge.util.tool.PreCloseableTool;
-import de.timesnake.basic.loungebridge.util.tool.PreStopableTool;
-import de.timesnake.basic.loungebridge.util.tool.PrepareableTool;
-import de.timesnake.basic.loungebridge.util.tool.ResetableTool;
-import de.timesnake.basic.loungebridge.util.tool.StartableTool;
-import de.timesnake.basic.loungebridge.util.tool.StopableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.CloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.PrepareableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
@@ -88,7 +88,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     private DiscordManager discordManager;
 
     public final void onLoungeBridgeEnable() {
-        this.toolManager = this.loadToolManager();
+        this.toolManager = this.initToolManager();
         if (this.toolManager == null) {
             this.toolManager = new ToolManager();
         }
@@ -113,7 +113,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         this.userManager = new UserManager();
         this.gameScheduler = new GameScheduler();
 
-        StatsManager statsManager = this.loadStatsManager();
+        StatsManager statsManager = this.initStatsManager();
         if (statsManager != null) {
             statsManager.loadStatTypesIntoDatabase();
             this.toolManager.add(statsManager);
@@ -132,14 +132,14 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
         this.channelListener = new ChannelListener();
 
-        this.discordManager = this.loadDiscordManager();
+        this.discordManager = this.initDiscordManager();
         if (discordManager == null) {
             this.discordManager = new DiscordManager();
         }
         this.toolManager.add(this.discordManager);
         this.discordManager.update();
 
-        this.tablistManager = this.loadTablistManager();
+        this.tablistManager = this.initTablistManager();
         if (this.tablistManager == null) {
             this.tablistManager = new TablistManager();
         }
@@ -170,30 +170,32 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         // mark as ready
         Loggers.LOUNGE_BRIDGE.info("Server loaded");
         this.setState(LoungeBridgeServer.State.WAITING);
+
+        this.loadTools();
     }
 
-    public ToolManager loadToolManager() {
+    public ToolManager initToolManager() {
         return new ToolManager();
     }
 
-    public StatsManager loadStatsManager() {
+    public StatsManager initStatsManager() {
         return new StatsManager();
     }
 
-    public CoinsManager loadCoinsManager() {
+    public CoinsManager initCoinsManager() {
         return new CoinsManager();
     }
 
-    public TablistManager loadTablistManager() {
+    public TablistManager initTablistManager() {
         return new TablistManager();
     }
 
-    public DiscordManager loadDiscordManager() {
+    public DiscordManager initDiscordManager() {
         return new DiscordManager();
     }
 
     @Override
-    protected SpectatorManager loadSpectatorManager() {
+    protected SpectatorManager initSpectatorManager() {
         return new de.timesnake.basic.loungebridge.core.main.SpectatorManager();
     }
 
@@ -232,13 +234,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     private void startGameCountdown() {
         this.gameScheduler.startGameCountdown();
-    }
-
-    public void resetKillsAndDeaths() {
-        for (Team team : this.getGame().getTeams()) {
-            team.setDeaths(0);
-            team.setKills(0);
-        }
     }
 
     public void loadKitsIntoDatabase() {
@@ -384,10 +379,17 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             ((ResetableMap) this.getMap()).reset();
         }
 
-        LoungeBridgeServer.resetKillsAndDeaths();
-
         this.onGameReset();
         LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
+    }
+
+    private void loadTools() {
+        this.getToolManager().add((ResetableTool) () -> {
+            for (Team team : getGame().getTeams()) {
+                team.setDeaths(0);
+                team.setKills(0);
+            }
+        });
     }
 
     public de.timesnake.basic.loungebridge.core.main.SpectatorManager getSpectatorManager() {

@@ -20,6 +20,11 @@ import de.timesnake.basic.game.util.user.TeamUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
+import de.timesnake.basic.loungebridge.util.tool.listener.GameUserDeathListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.GameUserJoinListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.GameUserRespawnListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserQuitListener;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.Loggers;
@@ -27,8 +32,10 @@ import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import java.util.HashMap;
 import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
+import org.bukkit.Location;
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.type.Chest;
@@ -102,6 +109,10 @@ public class UserManager implements Listener {
             }
 
             user.setSideboard(GameServer.getGameSideboard());
+
+            LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class,
+                    t -> t.onGameUserJoin(user));
+
             user.joinGame();
             user.setKitItems();
 
@@ -156,9 +167,16 @@ public class UserManager implements Listener {
             }
 
             LoungeBridgeServer.updateSpectatorTools();
+
+            LoungeBridgeServer.getToolManager().applyOnTools(GameUserQuitListener.class,
+                    t -> t.onGameUserQuit(((GameUser) user)));
+        } else {
+            LoungeBridgeServer.getToolManager().applyOnTools(SpectatorUserQuitListener.class,
+                    t -> t.onSpectatorUserQuit(((SpectatorUser) user)));
         }
 
         ((TeamUser) user).setTeam(null);
+
 
     }
 
@@ -174,6 +192,9 @@ public class UserManager implements Listener {
             ((GameUser) user).addDeath();
         }
 
+        LoungeBridgeServer.getToolManager().applyOnTools(GameUserDeathListener.class,
+                t -> t.onGameUserDeath(((GameUser) user)));
+
         e.setAutoRespawn(true);
     }
 
@@ -186,8 +207,18 @@ public class UserManager implements Listener {
             return;
         }
 
-        if (user.getStatus().equals(Status.User.OUT_GAME)) {
-            ((GameUser) user).joinSpectator();
+        AtomicReference<Location> respawnLoc = null;
+
+        LoungeBridgeServer.getToolManager().applyOnTools(GameUserRespawnListener.class,
+                t -> {
+                    Location loc = t.onGameUserRespawn(((GameUser) user));
+                    if (loc != null) {
+                        respawnLoc.set(loc);
+                    }
+                });
+
+        if (respawnLoc.get() != null) {
+            e.setRespawnLocation(respawnLoc.get());
         }
     }
 

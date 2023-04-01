@@ -12,6 +12,8 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.user.StatUser;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
 import de.timesnake.library.chat.ExTextColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
@@ -75,6 +77,13 @@ public abstract class GameUser extends StatUser {
     @Override
     public void joinSpectator() {
         super.joinSpectator();
+
+        LoungeBridgeServer.getToolManager().applyOnTools(GameUserQuitListener.class,
+                t -> t.onGameUserQuit(this));
+
+        LoungeBridgeServer.getToolManager().applyOnTools(SpectatorUserJoinListener.class,
+                t -> t.onSpectatorUserJoin(this));
+
         LoungeBridgeServer.getDiscordManager().onUserJoinSpectator(this);
     }
 
@@ -299,7 +308,13 @@ public abstract class GameUser extends StatUser {
         return gameCoins;
     }
 
-    public abstract void joinGame();
+    public final void joinGame() {
+        this.onGameJoin();
+    }
+
+    public void onGameJoin() {
+
+    }
 
     public void onGameStart() {
 
