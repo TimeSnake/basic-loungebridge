@@ -7,6 +7,7 @@ package de.timesnake.basic.loungebridge.util.server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
@@ -35,6 +36,13 @@ public interface TempGameServerManager {
      * Called by channel map load message from lounge (map-voting).
      */
     default void onMapLoad() {
+
+    }
+
+    /**
+     * Called by channel world load message from lounge
+     */
+    default void onWorldLoad() {
 
     }
 
@@ -101,6 +109,10 @@ public interface TempGameServerManager {
     }
 
     default Sideboard getSpectatorSideboard() {
+        return null;
+    }
+
+    default ExWorld getGameWorld() {
         return null;
     }
 

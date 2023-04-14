@@ -81,6 +81,8 @@ public class UserManager implements Listener {
             this.offlineUserRemoveTaskByUniqueId.remove(user.getUniqueId()).cancel();
             offlineUser.loadInto(user);
             LoungeBridgeServer.onGameUserRejoin(user);
+            LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class,
+                    t -> t.onGameUserJoin(user));
         } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
                 && user.getStatus().equals(Status.User.PRE_GAME)) {
 
@@ -207,7 +209,7 @@ public class UserManager implements Listener {
             return;
         }
 
-        AtomicReference<Location> respawnLoc = null;
+        AtomicReference<Location> respawnLoc = new AtomicReference<>();
 
         LoungeBridgeServer.getToolManager().applyOnTools(GameUserRespawnListener.class,
                 t -> {

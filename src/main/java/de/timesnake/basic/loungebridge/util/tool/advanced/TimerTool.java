@@ -15,8 +15,8 @@ import org.bukkit.scheduler.BukkitTask;
 public abstract class TimerTool implements GameTool, StartableTool, PrepareableTool,
         PreStopableTool {
 
-    protected final int maxTime;
-    protected int time = 0;
+    protected int maxTime;
+    protected int time;
     protected BukkitTask task;
 
     public TimerTool(int time) {

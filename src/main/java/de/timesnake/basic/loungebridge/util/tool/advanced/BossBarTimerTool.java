@@ -9,10 +9,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.loungebridge.util.tool.ToolWatcher;
 import de.timesnake.basic.loungebridge.util.tool.WatchableTool;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserJoinListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserQuitListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.UserJoinQuitListener;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.player.UserSet;
@@ -21,11 +18,12 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 
 public abstract class BossBarTimerTool extends TimerTool implements WatchableTool,
-        GameUserJoinListener, GameUserQuitListener, SpectatorUserJoinListener,
-        SpectatorUserQuitListener {
+        UserJoinQuitListener {
 
     private final UserSet<User> listeners = new UserSet<>();
     private final BossBar bar;
+
+    private boolean finished = false;
 
     public BossBarTimerTool(int time, BarColor color) {
         super(time);
@@ -38,6 +36,8 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
 
         this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
         this.bar.setProgress(1);
+
+        this.finished = false;
     }
 
     @Override
@@ -50,10 +50,15 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
     public void onTimerEnd() {
         this.listeners.forEach(u -> u.removeBossBar(this.bar));
         this.listeners.clear();
+        this.finished = true;
     }
 
     @Override
     public void onGameUserJoin(GameUser user) {
+        if (this.finished) {
+            return;
+        }
+
         if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
             user.addBossBar(this.bar);
             this.listeners.add(user);
@@ -64,11 +69,16 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
     public void onGameUserQuit(GameUser user) {
         if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
             user.removeBossBar(this.bar);
+            this.listeners.remove(user);
         }
     }
 
     @Override
     public void onSpectatorUserJoin(SpectatorUser user) {
+        if (this.finished) {
+            return;
+        }
+
         if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
             user.addBossBar(this.bar);
             this.listeners.add(user);
@@ -79,6 +89,7 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
     public void onSpectatorUserQuit(SpectatorUser user) {
         if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
             user.removeBossBar(this.bar);
+            this.listeners.remove(user);
         }
     }
 

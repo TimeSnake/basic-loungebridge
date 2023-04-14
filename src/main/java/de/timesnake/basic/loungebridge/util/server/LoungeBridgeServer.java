@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
+import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.game.TmpGame;
@@ -92,6 +93,14 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static void loadMap() {
         server.loadMap();
+    }
+
+    public static void loadWorld() {
+        server.loadWorld();
+    }
+
+    public static ExWorld getGameWorld() {
+        return server.getGameWorld();
     }
 
     public static ExLocation getSpectatorSpawn() {
