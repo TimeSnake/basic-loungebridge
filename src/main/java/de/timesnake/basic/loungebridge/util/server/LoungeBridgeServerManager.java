@@ -13,7 +13,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.game.TmpGame;
-import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.server.GameServerManager;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.ChannelListener;
@@ -24,6 +23,7 @@ import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
+import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.CloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
@@ -32,7 +32,7 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.PrepareableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
-import de.timesnake.basic.loungebridge.util.tool.ToolManager;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.WorldLoadableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
@@ -261,14 +261,19 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     public final void loadMap() {
-        Map map = GameServer.getGame()
-                .getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
+        Map map = this.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
         this.setMap(map);
 
-        this.toolManager.runTools(MapLoadableTool.class);
         this.onMapLoad();
+        this.toolManager.runTools(MapLoadableTool.class);
 
         Loggers.LOUNGE_BRIDGE.info("Loaded map " + map.getName());
+    }
+
+    public final void loadWorld() {
+        this.onWorldLoad();
+
+        this.toolManager.runTools(WorldLoadableTool.class);
     }
 
     public final void prepareGame() {
