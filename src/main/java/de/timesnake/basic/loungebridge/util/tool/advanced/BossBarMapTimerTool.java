@@ -17,7 +17,7 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 
-public abstract class BossBarTimerTool extends TimerTool implements WatchableTool,
+public abstract class BossBarMapTimerTool extends MapTimerTool implements WatchableTool,
         UserJoinQuitListener {
 
     private final UserSet<User> listeners = new UserSet<>();
@@ -26,12 +26,12 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
 
     private boolean finished = false;
 
-    public BossBarTimerTool(int time) {
-        this(time, BarColor.WHITE, true);
+    public BossBarMapTimerTool() {
+        this(BarColor.WHITE, true);
     }
 
-    public BossBarTimerTool(int time, BarColor color, boolean timedColor) {
-        super(time);
+    public BossBarMapTimerTool(BarColor color, boolean timedColor) {
+        super();
         this.bar = Server.createBossBar("", color, BarStyle.SOLID);
         this.timedColor = timedColor;
     }

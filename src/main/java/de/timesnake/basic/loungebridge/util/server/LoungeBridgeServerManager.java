@@ -12,7 +12,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
-import de.timesnake.basic.game.util.game.TmpGame;
 import de.timesnake.basic.game.util.server.GameServerManager;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.ChannelListener;
@@ -23,6 +22,7 @@ import de.timesnake.basic.loungebridge.core.StatsManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
+import de.timesnake.basic.loungebridge.util.game.TmpGame;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.CloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
@@ -237,11 +237,11 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     public void loadKitsIntoDatabase() {
-        if (this.getKits() == null) {
+        if (this.getGame().getKitManager() == null) {
             return;
         }
         DbGame game = this.getGame().getDatabase();
-        for (Kit kit : this.getKits()) {
+        for (Kit kit : this.getGame().getKitManager().getKits()) {
             if (game.getKit(kit.getId()).exists()) {
                 game.removeKitSynchronized(kit.getId());
             }
@@ -252,7 +252,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             } catch (UnsupportedStringException e) {
                 Loggers.LOUNGE_BRIDGE.warning(
                         "Can not load kit " + kit.getName() + " into database " +
-                                "(UnsupportedStringException)");
+                                "(UnsupportedStringException: " + e.getMessage() + ")");
             } catch (Exception e) {
                 Loggers.LOUNGE_BRIDGE.warning(
                         "Can not load kit " + kit.getName() + " into database ");
