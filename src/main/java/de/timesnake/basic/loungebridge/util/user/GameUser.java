@@ -6,7 +6,6 @@ package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
-import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.game.Team;
@@ -17,7 +16,6 @@ import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListe
 import de.timesnake.library.chat.ExTextColor;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 
 public abstract class GameUser extends StatUser {
 
@@ -48,10 +46,7 @@ public abstract class GameUser extends StatUser {
             Integer kitId = this.getDatabase().getKit();
 
             if (kitId != null) {
-                try {
-                    this.kit = LoungeBridgeServer.getKit(kitId);
-                } catch (KitNotDefinedException ignored) {
-                }
+                this.kit = LoungeBridgeServer.getGame().getKitManager().getKit(kitId).orElse(null);
             }
         }
         this.isLeaving = false;
@@ -111,7 +106,7 @@ public abstract class GameUser extends StatUser {
         this.kit = kit;
     }
 
-    public boolean setKitItems() {
+    public boolean applyKit() {
         if (this.kitLoaded) {
             return false;
         }
@@ -122,15 +117,16 @@ public abstract class GameUser extends StatUser {
 
         this.kitLoaded = true;
 
-        for (ItemStack item : this.kit.getItems()) {
-            if (item instanceof ExItemStack && ((ExItemStack) item).getSlot() != null) {
-                this.getInventory().setItem(((ExItemStack) item).getSlot(),
-                        ((ExItemStack) item).cloneWithId());
-            } else {
-                this.getInventory().addItem(item);
-            }
-        }
+        this.kit.getApplier().forEach(a -> a.accept(this));
         return true;
+    }
+
+    public void changeKitTo(Kit kit) {
+        this.clearInventory();
+        this.removePotionEffects();
+
+        this.kit = kit;
+        kit.getApplier().forEach(a -> a.accept(this));
     }
 
     public Integer getKills() {

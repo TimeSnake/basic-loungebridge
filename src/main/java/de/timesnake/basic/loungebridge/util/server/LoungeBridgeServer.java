@@ -11,15 +11,13 @@ import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
-import de.timesnake.basic.game.util.game.TmpGame;
 import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.DiscordManager;
 import de.timesnake.basic.loungebridge.core.UserManager;
+import de.timesnake.basic.loungebridge.util.game.TmpGame;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.basic.loungebridge.util.user.Kit;
-import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.database.util.server.DbLoungeServer;
@@ -117,10 +115,6 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static TablistTeam getTablistSpectatorTeam() {
         return server.getTablistSpectatorTeam();
-    }
-
-    public static Kit getKit(int index) throws KitNotDefinedException {
-        return server.getKit(index);
     }
 
     public static void broadcastGameMessage(Component message) {

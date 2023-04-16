@@ -9,8 +9,6 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.basic.loungebridge.util.user.Kit;
-import de.timesnake.basic.loungebridge.util.user.KitNotDefinedException;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
@@ -114,14 +112,6 @@ public interface TempGameServerManager {
 
     default ExWorld getGameWorld() {
         return null;
-    }
-
-    default Kit getKit(int index) throws KitNotDefinedException {
-        return null;
-    }
-
-    default Kit[] getKits() {
-        return new Kit[]{};
     }
 
     ExLocation getSpectatorSpawn();
