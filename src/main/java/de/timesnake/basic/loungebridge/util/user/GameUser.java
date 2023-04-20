@@ -10,12 +10,15 @@ import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.user.StatUser;
+import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
 import de.timesnake.library.chat.ExTextColor;
+import java.time.Duration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
+import org.bukkit.scheduler.BukkitTask;
 
 public abstract class GameUser extends StatUser {
 
@@ -39,6 +42,8 @@ public abstract class GameUser extends StatUser {
     private boolean playedGame = false;
 
     private float gameCoins = 0;
+
+    private BukkitTask respawnTask;
 
     public GameUser(Player player) {
         super(player);
@@ -308,6 +313,34 @@ public abstract class GameUser extends StatUser {
         this.onGameJoin();
     }
 
+    public final void stopGame() {
+        if (this.respawnTask != null) {
+            this.respawnTask.cancel();
+        }
+        this.onGameStop();
+    }
+
+    public final void respawn() {
+        this.onGameRespawn();
+    }
+
+    public final void respawnDelayed(int seconds) {
+        this.lockLocation();
+        this.lockInventory();
+        this.lockBlockBreakPlace();
+
+        this.respawnTask = Server.runTaskTimerSynchrony(time -> {
+            this.showTDTitle("§w" + time, "", Duration.ofSeconds(1));
+
+            if (time == 0) {
+                this.unlockLocation();
+                this.unlockInventory();
+                this.unlockBlockBreakPlace();
+                this.onGameRespawn();
+            }
+        }, seconds, true, 20, 0, BasicLoungeBridge.getPlugin());
+    }
+
     public void onGameJoin() {
 
     }
@@ -317,6 +350,10 @@ public abstract class GameUser extends StatUser {
     }
 
     public void onGameStop() {
+
+    }
+
+    public void onGameRespawn() {
 
     }
 }

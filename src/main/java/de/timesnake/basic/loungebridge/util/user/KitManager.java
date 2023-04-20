@@ -9,17 +9,18 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserMoveEvent;
 import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.library.extension.util.player.UserSet;
+import de.timesnake.library.extension.util.player.UserMap;
 import java.util.Collection;
 import java.util.Optional;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.scheduler.BukkitTask;
 
 public abstract class KitManager<K extends Kit> implements Listener {
 
     protected static final double DISTANCE = 3d;
 
-    protected UserSet<GameUser> informedUsers = new UserSet<>();
+    protected UserMap<GameUser, BukkitTask> informedUsers = new UserMap<>();
     protected ExInventory changeInventory;
     protected boolean inGameChange;
 
@@ -69,8 +70,8 @@ public abstract class KitManager<K extends Kit> implements Listener {
                         BasicLoungeBridge.getPlugin());
             } else {
                 Server.runTaskSynchrony(() -> {
-                    if (!this.informedUsers.contains(user)) {
-                        this.informedUsers.add(user);
+                    if (!this.informedUsers.containsKey(user)) {
+                        this.informedUsers.put(user, null);
                         user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(),
                                 "§sSneak to open kit selection");
                     }
@@ -78,7 +79,7 @@ public abstract class KitManager<K extends Kit> implements Listener {
             }
         } else {
             Server.runTaskSynchrony(() -> {
-                if (this.informedUsers.contains(user)) {
+                if (this.informedUsers.get(user) == null) {
                     Server.runTaskLaterAsynchrony(() -> this.informedUsers.remove(user), 20,
                             BasicLoungeBridge.getPlugin());
                 }

@@ -195,7 +195,7 @@ public class UserManager implements Listener {
         }
 
         LoungeBridgeServer.getToolManager().applyOnTools(GameUserDeathListener.class,
-                t -> t.onGameUserDeath(((GameUser) user)));
+                t -> t.onGameUserDeath(e, ((GameUser) user)));
 
         e.setAutoRespawn(true);
     }
