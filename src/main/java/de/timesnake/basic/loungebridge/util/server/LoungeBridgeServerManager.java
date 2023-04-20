@@ -150,7 +150,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
                 .forEach(u -> ((GameUser) u).onGameStart()));
 
         this.toolManager.add((StopableTool) () -> Server.getInGameUsers()
-                .forEach(u -> ((GameUser) u).onGameStop()));
+                .forEach(u -> ((GameUser) u).stopGame()));
 
         // load maps, if enabled
         if (this.mapsEnabled) {
@@ -388,7 +388,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
     }
 
-    private void loadTools() {
+    public void loadTools() {
         this.getToolManager().add((ResetableTool) () -> {
             for (Team team : getGame().getTeams()) {
                 team.setDeaths(0);
