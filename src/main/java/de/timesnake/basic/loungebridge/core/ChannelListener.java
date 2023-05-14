@@ -21,8 +21,7 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
     }
 
     @ChannelHandler(type = {ListenerType.SERVER_GAME_MAP, ListenerType.SERVER_GAME_WORLD,
-            ListenerType.SERVER_CUSTOM, ListenerType.SERVER_DISCORD},
-            filtered = true)
+            ListenerType.SERVER_CUSTOM}, filtered = true)
     public void onServerMessage(ChannelServerMessage<?> msg) {
         if (msg.getMessageType().equals(MessageType.Server.GAME_MAP)) {
             LoungeBridgeServer.loadMap();
@@ -41,9 +40,6 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
                     }
                 }
             }
-        } else if (msg.getMessageType().equals(MessageType.Server.DISCORD)) {
-            LoungeBridgeServer.setDiscord((boolean) msg.getValue());
-            LoungeBridgeServer.getDiscordManager().update();
         }
     }
 

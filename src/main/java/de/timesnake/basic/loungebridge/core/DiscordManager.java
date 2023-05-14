@@ -15,7 +15,11 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
+import de.timesnake.channel.util.listener.ChannelHandler;
+import de.timesnake.channel.util.listener.ChannelListener;
+import de.timesnake.channel.util.listener.ListenerType;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
+import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.library.basic.util.Loggers;
@@ -34,7 +38,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 
-public class DiscordManager implements Listener, PreStopableTool, StartableTool {
+public class DiscordManager implements Listener, PreStopableTool, StartableTool, ChannelListener {
 
     public static final String DISCORD_SPECTATOR = "Spectator";
     public static final String DISCORD_LOUNGE = "Lounge";
@@ -47,16 +51,23 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
     private final Map<UUID, DistanceChannel> channelByUuid = new ConcurrentHashMap<>();
     private final Map<UUID, Action> actionsByUuid = new ConcurrentHashMap<>();
     private boolean lock = false;
+    private boolean enabled;
     private BukkitTask updateTask;
 
     private boolean isLoaded = false;
 
     public DiscordManager() {
+        Server.getChannel().addListener(this,
+                () -> List.of(LoungeBridgeServer.getTwinServer().getName()));
+    }
 
+    @ChannelHandler(type = ListenerType.SERVER_DISCORD, filtered = true)
+    public void onServerMessage(ChannelServerMessage<Boolean> msg) {
+        this.setEnabled(msg.getValue());
     }
 
     public void update() {
-        if (LoungeBridgeServer.isDiscord()) {
+        if (this.isEnabled()) {
             if (LoungeBridgeServer.getGame().getDiscordType() == null
                     || LoungeBridgeServer.getGame().getDiscordType()
                     .equals(Type.Discord.FORBIDDEN)) {
@@ -78,7 +89,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
 
     @Override
     public void start() {
-        if (LoungeBridgeServer.isDiscord() && LoungeBridgeServer.getGame().getDiscordType()
+        if (this.isEnabled() && LoungeBridgeServer.getGame().getDiscordType()
                 .equals(Type.Discord.DISTANCE)) {
             Server.getChannel().sendMessage(
                     new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.HIDE_CHANNELS,
@@ -100,7 +111,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
 
     @Override
     public void preStop() {
-        if (LoungeBridgeServer.isDiscord()) {
+        if (this.isEnabled()) {
             Server.runTaskLaterSynchrony(() -> {
                 // move all users to lounge channel
                 LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
@@ -133,7 +144,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
     }
 
     public void onUserJoinSpectator(SpectatorUser user) {
-        if (LoungeBridgeServer.isDiscord()) {
+        if (this.isEnabled()) {
             LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
             uuidsByTeam.put(DISCORD_SPECTATOR, List.of(user.getUniqueId()));
             Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
@@ -286,6 +297,15 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool 
         }
 
         return false;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+        Loggers.GAME.info((enabled ? "Enabled" : "Disabled") + " discord voice channels");
+    }
+
+    public boolean isEnabled() {
+        return enabled;
     }
 
     enum Action {

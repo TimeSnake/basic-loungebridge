@@ -16,7 +16,7 @@ import java.util.HashSet;
 import java.util.Set;
 import org.bukkit.entity.Player;
 
-public interface TempGameServerManager {
+public interface TmpGameServerManager {
 
     StatType<Integer> GAMES_PLAYED = new IntegerStat("games_played", "Games Played", 0, 10,
             1, false, 0, 1);
@@ -47,6 +47,7 @@ public interface TempGameServerManager {
     /**
      * Countdown 7s, during user join
      */
+    @Deprecated
     default void onGamePrepare() {
 
     }

@@ -28,7 +28,6 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.CloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.PrepareableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
@@ -53,7 +52,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
-        GameServerManager<Game> implements TempGameServerManager, HighScoreCalculator {
+        GameServerManager<Game> implements TmpGameServerManager, HighScoreCalculator {
 
     public static final String SPECTATOR_NAME = "spectator";
     public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
@@ -78,7 +77,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     protected Integer maxPlayersPerTeam;
     protected boolean teamMateDamage = true;
     protected Integer estimatedPlayers;
-    protected boolean discord;
     protected ToolManager toolManager;
     protected Boolean running = false;
     private Map map;
@@ -126,8 +124,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
         this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
         Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
-        this.serverTeamAmount =
-                serverTeamAmount != null ? serverTeamAmount : this.getGame().getTeams().size();
+        this.serverTeamAmount = serverTeamAmount != null ? serverTeamAmount : 0;
         this.maxPlayersPerTeam = ((DbTmpGameServer) this.getDatabase()).getMaxPlayersPerTeam();
 
         this.channelListener = new ChannelListener();
@@ -276,9 +273,9 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         this.toolManager.runTools(WorldLoadableTool.class);
     }
 
+    @Deprecated
     public final void prepareGame() {
         this.onGamePrepare();
-        this.toolManager.runTools(PrepareableTool.class);
     }
 
     public final void startGame() {
@@ -435,14 +432,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     public UserManager getLoungeBridgeUserManager() {
         return this.userManager;
-    }
-
-    public boolean isDiscord() {
-        return discord;
-    }
-
-    public void setDiscord(boolean discord) {
-        this.discord = discord;
     }
 
     public Integer getMaxPlayersPerTeam() {

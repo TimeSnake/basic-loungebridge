@@ -12,7 +12,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.basic.loungebridge.util.server.TempGameServerManager;
+import de.timesnake.basic.loungebridge.util.server.TmpGameServerManager;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
@@ -34,7 +34,7 @@ import net.kyori.adventure.text.event.ClickEvent;
 
 public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, StopableTool {
 
-    public static final Set<StatType<?>> BASE_STATS = Set.of(TempGameServerManager.GAMES_PLAYED);
+    public static final Set<StatType<?>> BASE_STATS = Set.of(TmpGameServerManager.GAMES_PLAYED);
 
     private boolean saveStats;
 
