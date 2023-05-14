@@ -7,13 +7,14 @@ package de.timesnake.basic.loungebridge.util.tool.advanced;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.PrepareableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.WorldLoadableTool;
 import org.bukkit.scheduler.BukkitTask;
 
-public abstract class TimerTool implements GameTool, StartableTool, PrepareableTool,
-        PreStopableTool {
+public abstract class TimerTool implements GameTool, StartableTool, WorldLoadableTool,
+        MapLoadableTool, PreStopableTool {
 
     protected int maxTime;
     protected int time;
@@ -25,7 +26,16 @@ public abstract class TimerTool implements GameTool, StartableTool, PrepareableT
     }
 
     @Override
-    public void prepare() {
+    public void onWorldLoad() {
+        this.prepare();
+    }
+
+    @Override
+    public void onMapLoad() {
+        this.prepare();
+    }
+
+    protected void prepare() {
         this.time = this.maxTime;
     }
 

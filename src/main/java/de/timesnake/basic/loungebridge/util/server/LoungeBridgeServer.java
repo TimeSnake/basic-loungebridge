@@ -14,7 +14,6 @@ import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.DiscordManager;
-import de.timesnake.basic.loungebridge.core.UserManager;
 import de.timesnake.basic.loungebridge.util.game.TmpGame;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
@@ -226,16 +225,13 @@ public abstract class LoungeBridgeServer extends GameServer {
         return server.loadOfflineUser(user);
     }
 
+    @Deprecated
     public static void prepareGame() {
         server.prepareGame();
     }
 
     public static void startGame() {
         server.startGame();
-    }
-
-    public static UserManager getLoungeBridgeUserManager() {
-        return server.getLoungeBridgeUserManager();
     }
 
     public static void resetGame() {
@@ -248,14 +244,6 @@ public abstract class LoungeBridgeServer extends GameServer {
 
     public static void saveGameUserStats(GameUser user) {
         server.saveGameUserStats(user);
-    }
-
-    public static boolean isDiscord() {
-        return server.isDiscord();
-    }
-
-    public static void setDiscord(boolean enable) {
-        server.setDiscord(enable);
     }
 
     public static Integer getMaxPlayersPerTeam() {

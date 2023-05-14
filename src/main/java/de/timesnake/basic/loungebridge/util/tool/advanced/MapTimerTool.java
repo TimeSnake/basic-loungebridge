@@ -15,13 +15,8 @@ public abstract class MapTimerTool extends TimerTool implements MapLoadableTool 
     }
 
     @Override
-    public void onMapLoad() {
+    protected void prepare() {
         this.maxTime = ((Timeable) LoungeBridgeServer.getMap()).getTime();
         this.time = ((Timeable) LoungeBridgeServer.getMap()).getTime();
-    }
-
-    @Override
-    public void prepare() {
-
     }
 }

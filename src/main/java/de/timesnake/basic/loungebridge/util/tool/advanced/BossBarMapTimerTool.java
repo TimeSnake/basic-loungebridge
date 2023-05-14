@@ -41,6 +41,7 @@ public abstract class BossBarMapTimerTool extends MapTimerTool implements Watcha
         super.prepare();
 
         this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
+        this.bar.setColor(BarColor.WHITE);
         this.bar.setProgress(1);
 
         this.finished = false;
@@ -52,9 +53,9 @@ public abstract class BossBarMapTimerTool extends MapTimerTool implements Watcha
         this.bar.setProgress(this.time / ((double) this.maxTime));
 
         if (this.timedColor) {
-            if (this.time < this.maxTime / 10) {
+            if (this.time <= this.maxTime / 10) {
                 this.bar.setColor(BarColor.RED);
-            } else if (this.time < this.maxTime / 4) {
+            } else if (this.time <= this.maxTime / 4) {
                 this.bar.setColor(BarColor.YELLOW);
             }
         }
