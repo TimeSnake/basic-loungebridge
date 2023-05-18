@@ -12,24 +12,24 @@ import org.jetbrains.annotations.Nullable;
 
 public class SpectatorManager extends de.timesnake.basic.game.util.user.SpectatorManager {
 
-    @Override
-    public @Nullable Sideboard getSpectatorSideboard() {
-        return LoungeBridgeServer.getSpectatorSideboard();
-    }
+  @Override
+  public @Nullable Sideboard getSpectatorSideboard() {
+    return LoungeBridgeServer.getSpectatorSideboard();
+  }
 
-    @Override
-    public @Nullable Chat getSpectatorChat() {
-        return LoungeBridgeServer.getSpectatorChat();
-    }
+  @Override
+  public @Nullable Chat getSpectatorChat() {
+    return LoungeBridgeServer.getSpectatorChat();
+  }
 
-    @Override
-    public ExLocation getSpectatorSpawn() {
-        return LoungeBridgeServer.getSpectatorSpawn();
-    }
+  @Override
+  public ExLocation getSpectatorSpawn() {
+    return LoungeBridgeServer.getSpectatorSpawn();
+  }
 
-    @Override
-    public boolean loadTools() {
-        return !LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.CLOSING)
-                && !LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STOPPED);
-    }
+  @Override
+  public boolean loadTools() {
+    return !LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.CLOSING)
+        && !LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STOPPED);
+  }
 }

@@ -31,240 +31,240 @@ import net.kyori.adventure.text.Component;
 
 public abstract class LoungeBridgeServer extends GameServer {
 
-    public static TmpGame getGame() {
-        return server.getGame();
-    }
+  public static TmpGame getGame() {
+    return server.getGame();
+  }
 
-    public static void closeGame() {
-        server.closeGame();
-    }
+  public static void closeGame() {
+    server.closeGame();
+  }
 
-    public static void closeGame6() {
-        server.closeGame6();
-    }
+  public static void closeGame6() {
+    server.closeGame6();
+  }
 
-    public static void closeGame10() {
-        server.closeGame10();
-    }
+  public static void closeGame10() {
+    server.closeGame10();
+  }
 
-    public static DbLoungeServer getTwinServer() {
-        return server.getTwinServer();
-    }
+  public static DbLoungeServer getTwinServer() {
+    return server.getTwinServer();
+  }
 
-    public static int getGameCountdown() {
-        return server.getGameCountdown();
-    }
+  public static int getGameCountdown() {
+    return server.getGameCountdown();
+  }
 
-    @Deprecated
-    public static void broadcastLoungeBridgeMessage(String msg) {
-        server.broadcastLoungeBridgeMessage(msg);
-    }
+  @Deprecated
+  public static void broadcastLoungeBridgeMessage(String msg) {
+    server.broadcastLoungeBridgeMessage(msg);
+  }
 
-    public static void broadcastLoungeBridgeMessage(Component msg) {
-        server.broadcastLoungeBridgeMessage(msg);
-    }
+  public static void broadcastLoungeBridgeMessage(Component msg) {
+    server.broadcastLoungeBridgeMessage(msg);
+  }
 
-    public static State getState() {
-        return server.getState();
-    }
+  public static State getState() {
+    return server.getState();
+  }
 
-    public static void setState(State state) {
-        server.setState(state);
-    }
+  public static void setState(State state) {
+    server.setState(state);
+  }
 
-    public static TeamTablist getGameTablist() {
-        return server.getGameTablist();
-    }
+  public static TeamTablist getGameTablist() {
+    return server.getGameTablist();
+  }
 
-    public static SpectatorManager getSpectatorManager() {
-        return server.getSpectatorManager();
-    }
+  public static SpectatorManager getSpectatorManager() {
+    return server.getSpectatorManager();
+  }
 
-    public static Chat getSpectatorChat() {
-        return server.getSpectatorChat();
-    }
+  public static Chat getSpectatorChat() {
+    return server.getSpectatorChat();
+  }
 
-    public static void updateSpectatorTools() {
-        server.updateSpectatorTools();
-    }
+  public static void updateSpectatorTools() {
+    server.updateSpectatorTools();
+  }
 
-    public static void loadMap() {
-        server.loadMap();
-    }
+  public static void loadMap() {
+    server.loadMap();
+  }
 
-    public static void loadWorld() {
-        server.loadWorld();
-    }
+  public static void loadWorld() {
+    server.loadWorld();
+  }
 
-    public static ExWorld getGameWorld() {
-        return server.getGameWorld();
-    }
+  public static ExWorld getGameWorld() {
+    return server.getGameWorld();
+  }
 
-    public static ExLocation getSpectatorSpawn() {
-        return server.getSpectatorSpawn();
-    }
+  public static ExLocation getSpectatorSpawn() {
+    return server.getSpectatorSpawn();
+  }
 
-    public static boolean isGameRunning() {
-        return server.isGameRunning();
-    }
+  public static boolean isGameRunning() {
+    return server.isGameRunning();
+  }
 
-    public static Sideboard getSpectatorSideboard() {
-        return server.getSpectatorSideboard();
-    }
+  public static Sideboard getSpectatorSideboard() {
+    return server.getSpectatorSideboard();
+  }
 
-    public static TablistTeam getTablistSpectatorTeam() {
-        return server.getTablistSpectatorTeam();
-    }
+  public static TablistTeam getTablistSpectatorTeam() {
+    return server.getTablistSpectatorTeam();
+  }
 
-    public static void broadcastGameMessage(Component message) {
-        server.broadcastGameMessage(message);
-    }
+  public static void broadcastGameMessage(Component message) {
+    server.broadcastGameMessage(message);
+  }
 
-    public static void broadcastGameTDMessage(String message) {
-        server.broadcastGameTDMessage(message);
-    }
+  public static void broadcastGameTDMessage(String message) {
+    server.broadcastGameTDMessage(message);
+  }
 
-    public static Plugin getGamePlugin() {
-        return server.getGamePlugin();
-    }
+  public static Plugin getGamePlugin() {
+    return server.getGamePlugin();
+  }
 
-    public static boolean isTeamMateDamage() {
-        return server.isTeamMateDamage();
-    }
+  public static boolean isTeamMateDamage() {
+    return server.isTeamMateDamage();
+  }
 
-    public static void setTeamMateDamage(boolean teamMateDamage) {
-        server.setTeamMateDamage(teamMateDamage);
-    }
+  public static void setTeamMateDamage(boolean teamMateDamage) {
+    server.setTeamMateDamage(teamMateDamage);
+  }
 
-    public static TablistTeam getTablistGameTeam() {
-        return server.getTablistGameTeam();
-    }
+  public static TablistTeam getTablistGameTeam() {
+    return server.getTablistGameTeam();
+  }
 
-    public static Integer getServerTeamAmount() {
-        return server.getServerTeamAmount();
-    }
+  public static Integer getServerTeamAmount() {
+    return server.getServerTeamAmount();
+  }
 
-    public static boolean areKitsEnabled() {
-        return server.areKitsEnabled();
-    }
+  public static boolean areKitsEnabled() {
+    return server.areKitsEnabled();
+  }
 
-    public static boolean areMapsEnabled() {
-        return server.areMapsEnabled();
-    }
+  public static boolean areMapsEnabled() {
+    return server.areMapsEnabled();
+  }
 
-    public static <M extends Map> M getMap() {
-        return (M) server.getMap();
-    }
+  public static <M extends Map> M getMap() {
+    return (M) server.getMap();
+  }
 
-    public static <U extends GameUser> Set<U> getMostKills(Collection<U> users, int number) {
-        return server.getMostKills(users, number);
-    }
+  public static <U extends GameUser> Set<U> getMostKills(Collection<U> users, int number) {
+    return server.getMostKills(users, number);
+  }
 
-    public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users,
-            int number) {
-        return server.getHighestKillStreak(users, number);
-    }
+  public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users,
+      int number) {
+    return server.getHighestKillStreak(users, number);
+  }
 
-    public static <U extends GameUser> Set<U> getMostDeaths(Collection<U> users, int number) {
-        return server.getMostDeaths(users, number);
-    }
+  public static <U extends GameUser> Set<U> getMostDeaths(Collection<U> users, int number) {
+    return server.getMostDeaths(users, number);
+  }
 
-    public static <U extends GameUser> Set<U> getHighestKD(Collection<U> users, int number) {
-        return server.getHighestKD(users, number);
-    }
+  public static <U extends GameUser> Set<U> getHighestKD(Collection<U> users, int number) {
+    return server.getHighestKD(users, number);
+  }
 
-    public static <U extends GameUser> Set<U> getLongestShot(Collection<U> users, int number) {
-        return server.getLongestShot(users, number);
-    }
+  public static <U extends GameUser> Set<U> getLongestShot(Collection<U> users, int number) {
+    return server.getLongestShot(users, number);
+  }
 
-    public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number,
-            Comparator<U> comparator) {
-        return server.getHighScore(user, number, comparator);
-    }
+  public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number,
+      Comparator<U> comparator) {
+    return server.getHighScore(user, number, comparator);
+  }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
-            int number, Predicate<GameUser> predicateToBroadcast,
-            Function<GameUser, ? extends Comparable> keyExtractor) {
-        server.broadcastHighscore(name, users, number, predicateToBroadcast, keyExtractor);
-    }
+  public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
+      int number, Predicate<GameUser> predicateToBroadcast,
+      Function<GameUser, ? extends Comparable> keyExtractor) {
+    server.broadcastHighscore(name, users, number, predicateToBroadcast, keyExtractor);
+  }
 
-    public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
-            int number, Function<GameUser, ? extends Comparable> keyExtractor) {
-        server.broadcastHighscore(name, users, number, keyExtractor);
-    }
+  public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
+      int number, Function<GameUser, ? extends Comparable> keyExtractor) {
+    server.broadcastHighscore(name, users, number, keyExtractor);
+  }
 
-    public static Collection<Team> getNotEmptyGameTeams() {
-        return server.getNotEmptyInGameTeams();
-    }
+  public static Collection<Team> getNotEmptyGameTeams() {
+    return server.getNotEmptyInGameTeams();
+  }
 
-    public static Integer getEstimatedPlayers() {
-        return server.getEstimatedPlayers();
-    }
+  public static Integer getEstimatedPlayers() {
+    return server.getEstimatedPlayers();
+  }
 
-    public static void setEstimatedPlayers(Integer amount) {
-        server.setEstimatedPlayers(amount);
-    }
+  public static void setEstimatedPlayers(Integer amount) {
+    server.setEstimatedPlayers(amount);
+  }
 
-    public static void checkGameStart() {
-        server.checkGameStart();
-    }
+  public static void checkGameStart() {
+    server.checkGameStart();
+  }
 
-    public static boolean isRejoiningAllowed() {
-        return server.isRejoiningAllowed();
-    }
+  public static boolean isRejoiningAllowed() {
+    return server.isRejoiningAllowed();
+  }
 
-    public static boolean isOutGameRejoiningAllowed() {
-        return server.isOutGameRejoiningAllowed();
-    }
+  public static boolean isOutGameRejoiningAllowed() {
+    return server.isOutGameRejoiningAllowed();
+  }
 
-    public static void onGameUserRejoin(GameUser user) {
-        server.onGameUserRejoin(user);
-    }
+  public static void onGameUserRejoin(GameUser user) {
+    server.onGameUserRejoin(user);
+  }
 
-    public static OfflineUser loadOfflineUser(GameUser user) {
-        return server.loadOfflineUser(user);
-    }
+  public static OfflineUser loadOfflineUser(GameUser user) {
+    return server.loadOfflineUser(user);
+  }
 
-    @Deprecated
-    public static void prepareGame() {
-        server.prepareGame();
-    }
+  @Deprecated
+  public static void prepareGame() {
+    server.prepareGame();
+  }
 
-    public static void startGame() {
-        server.startGame();
-    }
+  public static void startGame() {
+    server.startGame();
+  }
 
-    public static void resetGame() {
-        server.resetGame();
-    }
+  public static void resetGame() {
+    server.resetGame();
+  }
 
-    public static Set<StatType<?>> getStats() {
-        return server.getStats();
-    }
+  public static Set<StatType<?>> getStats() {
+    return server.getStats();
+  }
 
-    public static void saveGameUserStats(GameUser user) {
-        server.saveGameUserStats(user);
-    }
+  public static void saveGameUserStats(GameUser user) {
+    server.saveGameUserStats(user);
+  }
 
-    public static Integer getMaxPlayersPerTeam() {
-        return server.getMaxPlayersPerTeam();
-    }
+  public static Integer getMaxPlayersPerTeam() {
+    return server.getMaxPlayersPerTeam();
+  }
 
-    public static ToolManager getToolManager() {
-        return server.getToolManager();
-    }
+  public static ToolManager getToolManager() {
+    return server.getToolManager();
+  }
 
-    public static DiscordManager getDiscordManager() {
-        return server.getDiscordManager();
-    }
+  public static DiscordManager getDiscordManager() {
+    return server.getDiscordManager();
+  }
 
-    public static Sideboard getGameSideboard() {
-        return server.getGameSideboard();
-    }
+  public static Sideboard getGameSideboard() {
+    return server.getGameSideboard();
+  }
 
-    private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();
+  private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();
 
-    public enum State {
-        STARTING, RUNNING, STOPPED, CLOSING, RESETTING, WAITING
-    }
+  public enum State {
+    STARTING, RUNNING, STOPPED, CLOSING, RESETTING, WAITING
+  }
 }

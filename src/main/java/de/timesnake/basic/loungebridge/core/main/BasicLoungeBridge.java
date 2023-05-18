@@ -8,14 +8,14 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 public class BasicLoungeBridge extends JavaPlugin {
 
-    public static BasicLoungeBridge getPlugin() {
-        return plugin;
-    }
+  public static BasicLoungeBridge getPlugin() {
+    return plugin;
+  }
 
-    private static BasicLoungeBridge plugin;
+  private static BasicLoungeBridge plugin;
 
-    @Override
-    public void onEnable() {
-        plugin = this;
-    }
+  @Override
+  public void onEnable() {
+    plugin = this;
+  }
 }

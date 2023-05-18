@@ -10,5 +10,5 @@ import de.timesnake.basic.loungebridge.util.tool.MapDependable;
 @FunctionalInterface
 public interface StopableTool extends GameTool, MapDependable {
 
-    void stop();
+  void stop();
 }

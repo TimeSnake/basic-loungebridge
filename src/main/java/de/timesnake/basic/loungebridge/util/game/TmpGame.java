@@ -13,33 +13,33 @@ import java.util.Optional;
 
 public class TmpGame extends de.timesnake.basic.game.util.game.TmpGame {
 
-    protected KitManager<?> kitManager;
+  protected KitManager<?> kitManager;
 
-    public TmpGame(DbTmpGame database, boolean loadWorlds) {
-        super(database, loadWorlds);
+  public TmpGame(DbTmpGame database, boolean loadWorlds) {
+    super(database, loadWorlds);
+  }
+
+  public KitManager<?> loadKitManager() {
+    return null;
+  }
+
+  @Override
+  public void loadKits(DbGame database) {
+    this.kitManager = this.loadKitManager();
+
+    if (this.kitManager == null) {
+      return;
     }
 
-    public KitManager<?> loadKitManager() {
-        return null;
-    }
+    this.kits.addAll(this.getKitManager().getKits());
+  }
 
-    @Override
-    public void loadKits(DbGame database) {
-        this.kitManager = this.loadKitManager();
+  public KitManager<?> getKitManager() {
+    return kitManager;
+  }
 
-        if (this.kitManager == null) {
-            return;
-        }
-
-        this.kits.addAll(this.getKitManager().getKits());
-    }
-
-    public KitManager<?> getKitManager() {
-        return kitManager;
-    }
-
-    @Override
-    public Optional<? extends Kit> loadKit(DbKit dbKit) {
-        return this.getKitManager().getKit(dbKit.getId());
-    }
+  @Override
+  public Optional<? extends Kit> loadKit(DbKit dbKit) {
+    return this.getKitManager().getKit(dbKit.getId());
+  }
 }

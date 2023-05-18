@@ -14,66 +14,66 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.WorldLoadableTool;
 import org.bukkit.scheduler.BukkitTask;
 
 public abstract class TimerTool implements GameTool, StartableTool, WorldLoadableTool,
-        MapLoadableTool, PreStopableTool {
+    MapLoadableTool, PreStopableTool {
 
-    protected int maxTime;
-    protected int time;
-    protected BukkitTask task;
+  protected int maxTime;
+  protected int time;
+  protected BukkitTask task;
 
-    public TimerTool(int time) {
-        this.maxTime = time;
-        this.time = time;
+  public TimerTool(int time) {
+    this.maxTime = time;
+    this.time = time;
+  }
+
+  @Override
+  public void onWorldLoad() {
+    this.prepare();
+  }
+
+  @Override
+  public void onMapLoad() {
+    this.prepare();
+  }
+
+  protected void prepare() {
+    this.time = this.maxTime;
+  }
+
+  @Override
+  public void start() {
+    this.task = Server.runTaskTimerSynchrony(() -> {
+      this.onTimerUpdate();
+
+      if (this.time <= 0) {
+        this.onTimerEnd();
+        this.task.cancel();
+        return;
+      }
+
+      this.time--;
+    }, 0, 20, BasicLoungeBridge.getPlugin());
+  }
+
+  @Override
+  public void preStop() {
+    if (this.task != null) {
+      this.task.cancel();
     }
+  }
 
-    @Override
-    public void onWorldLoad() {
-        this.prepare();
-    }
+  public int getTime() {
+    return time;
+  }
 
-    @Override
-    public void onMapLoad() {
-        this.prepare();
-    }
+  public void setTime(int time) {
+    this.time = time;
+  }
 
-    protected void prepare() {
-        this.time = this.maxTime;
-    }
+  public BukkitTask getTask() {
+    return task;
+  }
 
-    @Override
-    public void start() {
-        this.task = Server.runTaskTimerSynchrony(() -> {
-            this.onTimerUpdate();
+  public abstract void onTimerUpdate();
 
-            if (this.time <= 0) {
-                this.onTimerEnd();
-                this.task.cancel();
-                return;
-            }
-
-            this.time--;
-        }, 0, 20, BasicLoungeBridge.getPlugin());
-    }
-
-    @Override
-    public void preStop() {
-        if (this.task != null) {
-            this.task.cancel();
-        }
-    }
-
-    public int getTime() {
-        return time;
-    }
-
-    public void setTime(int time) {
-        this.time = time;
-    }
-
-    public BukkitTask getTask() {
-        return task;
-    }
-
-    public abstract void onTimerUpdate();
-
-    public abstract void onTimerEnd();
+  public abstract void onTimerEnd();
 }

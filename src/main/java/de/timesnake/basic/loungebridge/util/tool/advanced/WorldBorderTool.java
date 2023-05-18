@@ -19,76 +19,76 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import org.bukkit.Location;
 
 public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableTool,
-        GameUserJoinListener, GameUserQuitListener,
-        SpectatorUserJoinListener, SpectatorUserQuitListener {
+    GameUserJoinListener, GameUserQuitListener,
+    SpectatorUserJoinListener, SpectatorUserQuitListener {
 
-    private ExWorldBorder border;
+  private ExWorldBorder border;
 
-    @Override
-    public void onMapLoad() {
-        Map map = LoungeBridgeServer.getMap();
+  @Override
+  public void onMapLoad() {
+    Map map = LoungeBridgeServer.getMap();
 
-        if (map == null) {
-            return;
-        }
-
-        this.loadBorder(map.getWorld());
+    if (map == null) {
+      return;
     }
 
-    @Override
-    public void onWorldLoad() {
-        ExWorld world = LoungeBridgeServer.getGameWorld();
+    this.loadBorder(map.getWorld());
+  }
 
-        if (world == null) {
-            return;
-        }
+  @Override
+  public void onWorldLoad() {
+    ExWorld world = LoungeBridgeServer.getGameWorld();
 
-        this.loadBorder(world);
+    if (world == null) {
+      return;
     }
 
-    private void loadBorder(ExWorld world) {
-        Location center = this.getBorderCenter();
-        double size = this.getBorderSize();
-        double damage = this.getBorderDamagePerSec();
+    this.loadBorder(world);
+  }
 
-        this.border = new ExWorldBorder.Builder()
-                .world(world)
-                .centerX(center.getX())
-                .centerZ(center.getZ())
-                .size(size)
-                .warningDistance(5)
-                .damagePerSec(damage)
-                .sound(true)
-                .build();
-    }
+  private void loadBorder(ExWorld world) {
+    Location center = this.getBorderCenter();
+    double size = this.getBorderSize();
+    double damage = this.getBorderDamagePerSec();
 
-    @Override
-    public void onGameUserJoin(GameUser user) {
-        this.border.addUser(user);
-    }
+    this.border = new ExWorldBorder.Builder()
+        .world(world)
+        .centerX(center.getX())
+        .centerZ(center.getZ())
+        .size(size)
+        .warningDistance(5)
+        .damagePerSec(damage)
+        .sound(true)
+        .build();
+  }
 
-    @Override
-    public void onGameUserQuit(GameUser user) {
-        this.border.removeUser(user);
-    }
+  @Override
+  public void onGameUserJoin(GameUser user) {
+    this.border.addUser(user);
+  }
 
-    @Override
-    public void onSpectatorUserJoin(SpectatorUser user) {
-        this.border.addSpectator(user);
-    }
+  @Override
+  public void onGameUserQuit(GameUser user) {
+    this.border.removeUser(user);
+  }
 
-    @Override
-    public void onSpectatorUserQuit(SpectatorUser user) {
-        this.border.removeSpectator(user);
-    }
+  @Override
+  public void onSpectatorUserJoin(SpectatorUser user) {
+    this.border.addSpectator(user);
+  }
 
-    public ExWorldBorder getBorder() {
-        return border;
-    }
+  @Override
+  public void onSpectatorUserQuit(SpectatorUser user) {
+    this.border.removeSpectator(user);
+  }
 
-    public abstract Location getBorderCenter();
+  public ExWorldBorder getBorder() {
+    return border;
+  }
 
-    public abstract double getBorderSize();
+  public abstract Location getBorderCenter();
 
-    public abstract double getBorderDamagePerSec();
+  public abstract double getBorderSize();
+
+  public abstract double getBorderDamagePerSec();
 }

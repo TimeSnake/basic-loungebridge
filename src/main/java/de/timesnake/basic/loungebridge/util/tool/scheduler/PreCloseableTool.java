@@ -9,5 +9,5 @@ import de.timesnake.basic.loungebridge.util.tool.GameTool;
 @FunctionalInterface
 public interface PreCloseableTool extends GameTool {
 
-    void preClose();
+  void preClose();
 }

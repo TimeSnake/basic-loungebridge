@@ -17,93 +17,93 @@ import org.bukkit.scheduler.BukkitTask;
 
 public class GameScheduler {
 
-    private static final Integer COUNTDOWN_TIME = 7;
-    private static final Integer TEXTURE_PACK_OFFSET = 2;
+  private static final Integer COUNTDOWN_TIME = 7;
+  private static final Integer TEXTURE_PACK_OFFSET = 2;
 
-    protected int gameCountdown = COUNTDOWN_TIME;
-    protected BukkitTask gameCountdownTask;
+  protected int gameCountdown = COUNTDOWN_TIME;
+  protected BukkitTask gameCountdownTask;
 
-    public void startGameCountdown() {
-        if (!LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STARTING)) {
-            LoungeBridgeServer.setState(LoungeBridgeServer.State.STARTING);
+  public void startGameCountdown() {
+    if (!LoungeBridgeServer.getState().equals(LoungeBridgeServer.State.STARTING)) {
+      LoungeBridgeServer.setState(LoungeBridgeServer.State.STARTING);
 
-            if (LoungeBridgeServer.getGame().hasTexturePack()) {
-                this.gameCountdown += TEXTURE_PACK_OFFSET;
-            }
+      if (LoungeBridgeServer.getGame().hasTexturePack()) {
+        this.gameCountdown += TEXTURE_PACK_OFFSET;
+      }
 
-            this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
-                switch (gameCountdown) {
-                    case 7 -> {
-                        Loggers.LOUNGE_BRIDGE.info("Preparing game ...");
-                        Server.runTaskSynchrony(LoungeBridgeServer::prepareGame,
-                                BasicLoungeBridge.getPlugin());
-                    }
-                    case 5, 4, 3, 2 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
-                                Component.empty(),
-                                Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
-                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                        .append(Component.text(gameCountdown, ExTextColor.VALUE))
-                                        .append(Component.text(" seconds", ExTextColor.PUBLIC)));
-                        Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                    }
-                    case 1 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
-                                Component.empty(),
-                                Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
-                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                        .append(Component.text(gameCountdown, ExTextColor.VALUE))
-                                        .append(Component.text(" second", ExTextColor.PUBLIC)));
-                        Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                    }
-                    case 0 -> {
-                        Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
-                                Component.empty(),
-                                Duration.ofSeconds(1));
-                        LoungeBridgeServer.broadcastLoungeBridgeMessage(
-                                Component.text("The Game starts in ", ExTextColor.PUBLIC)
-                                        .append(Component.text("now", ExTextColor.VALUE))
-                                        .append(Component.text(" seconds", ExTextColor.PUBLIC)));
-                        Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
-                        Server.runTaskSynchrony(LoungeBridgeServer::startGame,
-                                BasicLoungeBridge.getPlugin());
-                        this.gameCountdownTask.cancel();
-                    }
-                }
-                gameCountdown--;
-            }, 0, 20, BasicLoungeBridge.getPlugin());
-        }
-    }
-
-    public void closeGame() {
-        LoungeBridgeServer.broadcastLoungeBridgeMessage(
-                Component.text("The game closes in 10 seconds", ExTextColor.WARNING));
-
-        Server.runTaskLaterSynchrony(LoungeBridgeServer::closeGame6, 6 * 20,
+      this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
+        switch (gameCountdown) {
+          case 7 -> {
+            Loggers.LOUNGE_BRIDGE.info("Preparing game ...");
+            Server.runTaskSynchrony(LoungeBridgeServer::prepareGame,
                 BasicLoungeBridge.getPlugin());
-
-        Server.runTaskLaterSynchrony(() -> {
+          }
+          case 5, 4, 3, 2 -> {
+            Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                Component.empty(),
+                Duration.ofSeconds(1));
             LoungeBridgeServer.broadcastLoungeBridgeMessage(
-                    Component.text("Game closed", ExTextColor.WARNING));
-            LoungeBridgeServer.closeGame10();
-
-            Server.runTaskLaterSynchrony(() -> {
-                this.resetGameCountdown();
-                LoungeBridgeServer.resetGame();
-            }, 5 * 20, BasicLoungeBridge.getPlugin());
-        }, 12 * 20, BasicLoungeBridge.getPlugin());
-    }
-
-    private void resetGameCountdown() {
-        if (this.gameCountdownTask != null) {
+                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                    .append(Component.text(gameCountdown, ExTextColor.VALUE))
+                    .append(Component.text(" seconds", ExTextColor.PUBLIC)));
+            Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
+          }
+          case 1 -> {
+            Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                Component.empty(),
+                Duration.ofSeconds(1));
+            LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                    .append(Component.text(gameCountdown, ExTextColor.VALUE))
+                    .append(Component.text(" second", ExTextColor.PUBLIC)));
+            Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
+          }
+          case 0 -> {
+            Server.broadcastTitle(Component.text(gameCountdown, ExTextColor.WARNING),
+                Component.empty(),
+                Duration.ofSeconds(1));
+            LoungeBridgeServer.broadcastLoungeBridgeMessage(
+                Component.text("The Game starts in ", ExTextColor.PUBLIC)
+                    .append(Component.text("now", ExTextColor.VALUE))
+                    .append(Component.text(" seconds", ExTextColor.PUBLIC)));
+            Server.broadcastNote(Instrument.STICKS, Note.natural(1, Note.Tone.A));
+            Server.runTaskSynchrony(LoungeBridgeServer::startGame,
+                BasicLoungeBridge.getPlugin());
             this.gameCountdownTask.cancel();
+          }
         }
-        this.gameCountdown = COUNTDOWN_TIME;
+        gameCountdown--;
+      }, 0, 20, BasicLoungeBridge.getPlugin());
     }
+  }
 
-    public int getGameCountdown() {
-        return gameCountdown;
+  public void closeGame() {
+    LoungeBridgeServer.broadcastLoungeBridgeMessage(
+        Component.text("The game closes in 10 seconds", ExTextColor.WARNING));
+
+    Server.runTaskLaterSynchrony(LoungeBridgeServer::closeGame6, 6 * 20,
+        BasicLoungeBridge.getPlugin());
+
+    Server.runTaskLaterSynchrony(() -> {
+      LoungeBridgeServer.broadcastLoungeBridgeMessage(
+          Component.text("Game closed", ExTextColor.WARNING));
+      LoungeBridgeServer.closeGame10();
+
+      Server.runTaskLaterSynchrony(() -> {
+        this.resetGameCountdown();
+        LoungeBridgeServer.resetGame();
+      }, 5 * 20, BasicLoungeBridge.getPlugin());
+    }, 12 * 20, BasicLoungeBridge.getPlugin());
+  }
+
+  private void resetGameCountdown() {
+    if (this.gameCountdownTask != null) {
+      this.gameCountdownTask.cancel();
     }
+    this.gameCountdown = COUNTDOWN_TIME;
+  }
+
+  public int getGameCountdown() {
+    return gameCountdown;
+  }
 }

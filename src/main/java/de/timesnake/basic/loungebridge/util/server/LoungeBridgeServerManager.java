@@ -52,480 +52,480 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
-        GameServerManager<Game> implements TmpGameServerManager, HighScoreCalculator {
+    GameServerManager<Game> implements TmpGameServerManager, HighScoreCalculator {
 
-    public static final String SPECTATOR_NAME = "spectator";
-    public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
-    public static final String SPECTATOR_TABLIST_PREFIX = "";
-    public static final ExTextColor SPECTATOR_CHAT_COLOR = ExTextColor.GRAY;
-    public static final org.bukkit.ChatColor SPECTATOR_TABLIST_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
-    public static final org.bukkit.ChatColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
+  public static final String SPECTATOR_NAME = "spectator";
+  public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
+  public static final String SPECTATOR_TABLIST_PREFIX = "";
+  public static final ExTextColor SPECTATOR_CHAT_COLOR = ExTextColor.GRAY;
+  public static final org.bukkit.ChatColor SPECTATOR_TABLIST_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
+  public static final org.bukkit.ChatColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
 
-    public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
+  public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
-    public static LoungeBridgeServerManager<?> getInstance() {
-        return (LoungeBridgeServerManager<?>) ServerManager.getInstance();
+  public static LoungeBridgeServerManager<?> getInstance() {
+    return (LoungeBridgeServerManager<?>) ServerManager.getInstance();
+  }
+
+  protected DbLoungeServer twinServer;
+
+  protected LoungeBridgeServer.State state;
+  protected ChannelListener channelListener;
+  protected boolean kitsEnabled;
+  protected boolean mapsEnabled;
+  protected Integer serverTeamAmount;
+  protected Integer maxPlayersPerTeam;
+  protected boolean teamMateDamage = true;
+  protected Integer estimatedPlayers;
+  protected ToolManager toolManager;
+  protected Boolean running = false;
+  private Map map;
+  private UserManager userManager;
+  private GameScheduler gameScheduler;
+  private TablistManager tablistManager;
+  private DiscordManager discordManager;
+
+  public final void onLoungeBridgeEnable() {
+    this.toolManager = this.initToolManager();
+    if (this.toolManager == null) {
+      this.toolManager = new ToolManager();
     }
 
-    protected DbLoungeServer twinServer;
+    super.onGameEnable();
 
-    protected LoungeBridgeServer.State state;
-    protected ChannelListener channelListener;
-    protected boolean kitsEnabled;
-    protected boolean mapsEnabled;
-    protected Integer serverTeamAmount;
-    protected Integer maxPlayersPerTeam;
-    protected boolean teamMateDamage = true;
-    protected Integer estimatedPlayers;
-    protected ToolManager toolManager;
-    protected Boolean running = false;
-    private Map map;
-    private UserManager userManager;
-    private GameScheduler gameScheduler;
-    private TablistManager tablistManager;
-    private DiscordManager discordManager;
-
-    public final void onLoungeBridgeEnable() {
-        this.toolManager = this.initToolManager();
-        if (this.toolManager == null) {
-            this.toolManager = new ToolManager();
-        }
-
-        super.onGameEnable();
-
-        // update kits into database, if enabled
-        this.kitsEnabled = ((DbTmpGameServer) this.getDatabase()).areKitsEnabled();
-        if (this.kitsEnabled) {
-            this.loadKitsIntoDatabase();
-        }
-
-        // search twin server
-        DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
-        this.twinServer = database.getTwinServer();
-        if (twinServer == null) {
-            Loggers.LOUNGE_BRIDGE.warning("No twin server found in database");
-            Bukkit.shutdown();
-            return;
-        }
-
-        this.userManager = new UserManager();
-        this.gameScheduler = new GameScheduler();
-
-        StatsManager statsManager = this.initStatsManager();
-        if (statsManager != null) {
-            statsManager.loadStatTypesIntoDatabase();
-            this.toolManager.add(statsManager);
-        }
-
-        CoinsManager coinsManager = new CoinsManager();
-        if (coinsManager != null) {
-            this.toolManager.add(coinsManager);
-        }
-
-        this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
-        Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
-        this.serverTeamAmount = serverTeamAmount != null ? serverTeamAmount : 0;
-        this.maxPlayersPerTeam = ((DbTmpGameServer) this.getDatabase()).getMaxPlayersPerTeam();
-
-        this.channelListener = new ChannelListener();
-
-        this.discordManager = this.initDiscordManager();
-        if (discordManager == null) {
-            this.discordManager = new DiscordManager();
-        }
-        this.toolManager.add(this.discordManager);
-        this.discordManager.update();
-
-        this.tablistManager = this.initTablistManager();
-        if (this.tablistManager == null) {
-            this.tablistManager = new TablistManager();
-        }
-        this.tablistManager.loadTablist(Tablist.Type.DUMMY);
-        Server.getScoreboardManager().setActiveTablist(this.tablistManager.getGameTablist());
-
-        this.toolManager.add((StartableTool) () -> Server.getInGameUsers()
-                .forEach(u -> ((GameUser) u).onGameStart()));
-
-        this.toolManager.add((StopableTool) () -> Server.getInGameUsers()
-                .forEach(u -> ((GameUser) u).stopGame()));
-
-        // load maps, if enabled
-        if (this.mapsEnabled) {
-            for (Map map : this.getGame().getMaps()) {
-                map.getWorld();
-            }
-        }
-
-        // set map from database
-        this.setMap(this.getGame().getMap(database.getMapName()));
-
-        // silent join quit
-        Server.getChat().broadcastJoinQuit(false);
-
-        this.loadChats();
-
-        // mark as ready
-        Loggers.LOUNGE_BRIDGE.info("Server loaded");
-        this.setState(LoungeBridgeServer.State.WAITING);
-
-        this.loadTools();
+    // update kits into database, if enabled
+    this.kitsEnabled = ((DbTmpGameServer) this.getDatabase()).areKitsEnabled();
+    if (this.kitsEnabled) {
+      this.loadKitsIntoDatabase();
     }
 
-    public ToolManager initToolManager() {
-        return new ToolManager();
+    // search twin server
+    DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
+    this.twinServer = database.getTwinServer();
+    if (twinServer == null) {
+      Loggers.LOUNGE_BRIDGE.warning("No twin server found in database");
+      Bukkit.shutdown();
+      return;
     }
 
-    public StatsManager initStatsManager() {
-        return new StatsManager();
+    this.userManager = new UserManager();
+    this.gameScheduler = new GameScheduler();
+
+    StatsManager statsManager = this.initStatsManager();
+    if (statsManager != null) {
+      statsManager.loadStatTypesIntoDatabase();
+      this.toolManager.add(statsManager);
     }
 
-    public CoinsManager initCoinsManager() {
-        return new CoinsManager();
+    CoinsManager coinsManager = new CoinsManager();
+    if (coinsManager != null) {
+      this.toolManager.add(coinsManager);
     }
 
-    public TablistManager initTablistManager() {
-        return new TablistManager();
+    this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
+    Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
+    this.serverTeamAmount = serverTeamAmount != null ? serverTeamAmount : 0;
+    this.maxPlayersPerTeam = ((DbTmpGameServer) this.getDatabase()).getMaxPlayersPerTeam();
+
+    this.channelListener = new ChannelListener();
+
+    this.discordManager = this.initDiscordManager();
+    if (discordManager == null) {
+      this.discordManager = new DiscordManager();
+    }
+    this.toolManager.add(this.discordManager);
+    this.discordManager.update();
+
+    this.tablistManager = this.initTablistManager();
+    if (this.tablistManager == null) {
+      this.tablistManager = new TablistManager();
+    }
+    this.tablistManager.loadTablist(Tablist.Type.DUMMY);
+    Server.getScoreboardManager().setActiveTablist(this.tablistManager.getGameTablist());
+
+    this.toolManager.add((StartableTool) () -> Server.getInGameUsers()
+        .forEach(u -> ((GameUser) u).onGameStart()));
+
+    this.toolManager.add((StopableTool) () -> Server.getInGameUsers()
+        .forEach(u -> ((GameUser) u).stopGame()));
+
+    // load maps, if enabled
+    if (this.mapsEnabled) {
+      for (Map map : this.getGame().getMaps()) {
+        map.getWorld();
+      }
     }
 
-    public DiscordManager initDiscordManager() {
-        return new DiscordManager();
-    }
+    // set map from database
+    this.setMap(this.getGame().getMap(database.getMapName()));
 
-    @Override
-    protected SpectatorManager initSpectatorManager() {
-        return new de.timesnake.basic.loungebridge.core.main.SpectatorManager();
-    }
+    // silent join quit
+    Server.getChat().broadcastJoinQuit(false);
 
-    public void loadChats() {
-        // create team chat
-        for (Team team : this.getGame().getTeams()) {
-            // chat
-            if (team.hasPrivateChat()) {
-                Server.getChatManager()
-                        .createChat(team.getName(), team.getDisplayName(), team.getTextColor(),
-                                new HashSet<>());
-            }
-        }
+    this.loadChats();
 
-        // create spectator chat
+    // mark as ready
+    Loggers.LOUNGE_BRIDGE.info("Server loaded");
+    this.setState(LoungeBridgeServer.State.WAITING);
+
+    this.loadTools();
+  }
+
+  public ToolManager initToolManager() {
+    return new ToolManager();
+  }
+
+  public StatsManager initStatsManager() {
+    return new StatsManager();
+  }
+
+  public CoinsManager initCoinsManager() {
+    return new CoinsManager();
+  }
+
+  public TablistManager initTablistManager() {
+    return new TablistManager();
+  }
+
+  public DiscordManager initDiscordManager() {
+    return new DiscordManager();
+  }
+
+  @Override
+  protected SpectatorManager initSpectatorManager() {
+    return new de.timesnake.basic.loungebridge.core.main.SpectatorManager();
+  }
+
+  public void loadChats() {
+    // create team chat
+    for (Team team : this.getGame().getTeams()) {
+      // chat
+      if (team.hasPrivateChat()) {
         Server.getChatManager()
-                .createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR,
-                        new HashSet<>());
+            .createChat(team.getName(), team.getDisplayName(), team.getTextColor(),
+                new HashSet<>());
+      }
     }
 
-    @Override
-    public abstract GameUser loadUser(Player player);
+    // create spectator chat
+    Server.getChatManager()
+        .createChat(SPECTATOR_NAME, SPECTATOR_CHAT_DISPLAY_NAME, SPECTATOR_CHAT_COLOR,
+            new HashSet<>());
+  }
 
-    public void checkGameStart() {
-        int gameUsers = Server.getPreGameUsers().size();
-        if (this.getEstimatedPlayers() != null && gameUsers >= this.getEstimatedPlayers()) {
-            this.startGameCountdown();
-        } else if (gameUsers == 1) {
-            Server.runTaskLaterSynchrony(() -> {
-                if (!this.state.equals(LoungeBridgeServer.State.STARTING)) {
-                    this.startGameCountdown();
-                }
-            }, LoungeBridgeServerManager.MAX_START_DELAY, BasicLoungeBridge.getPlugin());
+  @Override
+  public abstract GameUser loadUser(Player player);
+
+  public void checkGameStart() {
+    int gameUsers = Server.getPreGameUsers().size();
+    if (this.getEstimatedPlayers() != null && gameUsers >= this.getEstimatedPlayers()) {
+      this.startGameCountdown();
+    } else if (gameUsers == 1) {
+      Server.runTaskLaterSynchrony(() -> {
+        if (!this.state.equals(LoungeBridgeServer.State.STARTING)) {
+          this.startGameCountdown();
         }
+      }, LoungeBridgeServerManager.MAX_START_DELAY, BasicLoungeBridge.getPlugin());
+    }
+  }
+
+  private void startGameCountdown() {
+    this.gameScheduler.startGameCountdown();
+  }
+
+  public void loadKitsIntoDatabase() {
+    if (this.getGame().getKitManager() == null) {
+      return;
+    }
+    DbGame game = this.getGame().getDatabase();
+    for (Kit kit : this.getGame().getKitManager().getKits()) {
+      if (game.getKit(kit.getId()).exists()) {
+        game.removeKitSynchronized(kit.getId());
+      }
+      try {
+        game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(),
+            kit.getDescription());
+        Loggers.LOUNGE_BRIDGE.info("Loaded kit " + kit.getName() + " into the database");
+      } catch (UnsupportedStringException e) {
+        Loggers.LOUNGE_BRIDGE.warning(
+            "Can not load kit " + kit.getName() + " into database " +
+                "(UnsupportedStringException: " + e.getMessage() + ")");
+      } catch (Exception e) {
+        Loggers.LOUNGE_BRIDGE.warning(
+            "Can not load kit " + kit.getName() + " into database ");
+      }
+    }
+  }
+
+  public final void loadMap() {
+    Map map = this.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
+    this.setMap(map);
+
+    this.onMapLoad();
+    this.toolManager.runTools(MapLoadableTool.class);
+
+    Loggers.LOUNGE_BRIDGE.info("Loaded map " + map.getName());
+  }
+
+  public final void loadWorld() {
+    this.onWorldLoad();
+
+    this.toolManager.runTools(WorldLoadableTool.class);
+  }
+
+  @Deprecated
+  public final void prepareGame() {
+    this.onGamePrepare();
+  }
+
+  public final void startGame() {
+    LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
+    this.running = true;
+
+    for (User user : Server.getPreGameUsers()) {
+      user.setStatus(Status.User.IN_GAME);
+      ((GameUser) user).playedGame();
     }
 
-    private void startGameCountdown() {
-        this.gameScheduler.startGameCountdown();
+    this.toolManager.runTools(StartableTool.class);
+
+    Server.getChat().broadcastJoinQuit(true);
+
+    this.onGameStart();
+  }
+
+  public final void stopGame() {
+    if (!this.running) {
+      return;
     }
 
-    public void loadKitsIntoDatabase() {
-        if (this.getGame().getKitManager() == null) {
-            return;
-        }
-        DbGame game = this.getGame().getDatabase();
-        for (Kit kit : this.getGame().getKitManager().getKits()) {
-            if (game.getKit(kit.getId()).exists()) {
-                game.removeKitSynchronized(kit.getId());
-            }
-            try {
-                game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(),
-                        kit.getDescription());
-                Loggers.LOUNGE_BRIDGE.info("Loaded kit " + kit.getName() + " into the database");
-            } catch (UnsupportedStringException e) {
-                Loggers.LOUNGE_BRIDGE.warning(
-                        "Can not load kit " + kit.getName() + " into database " +
-                                "(UnsupportedStringException: " + e.getMessage() + ")");
-            } catch (Exception e) {
-                Loggers.LOUNGE_BRIDGE.warning(
-                        "Can not load kit " + kit.getName() + " into database ");
-            }
-        }
-    }
+    this.running = false;
 
-    public final void loadMap() {
-        Map map = this.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
-        this.setMap(map);
+    this.toolManager.runTools(PreStopableTool.class);
 
-        this.onMapLoad();
-        this.toolManager.runTools(MapLoadableTool.class);
+    this.onGameStop();
 
-        Loggers.LOUNGE_BRIDGE.info("Loaded map " + map.getName());
-    }
+    this.toolManager.runTools(StopableTool.class);
 
-    public final void loadWorld() {
-        this.onWorldLoad();
+    this.closeGame();
+  }
 
-        this.toolManager.runTools(WorldLoadableTool.class);
-    }
+  public final void closeGame() {
+    if (LoungeBridgeServer.getState() != LoungeBridgeServer.State.CLOSING) {
+      LoungeBridgeServer.setState(LoungeBridgeServer.State.CLOSING);
 
-    @Deprecated
-    public final void prepareGame() {
-        this.onGamePrepare();
-    }
+      this.toolManager.runTools(CloseableTool.class);
 
-    public final void startGame() {
-        LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
-        this.running = true;
+      for (User user : Server.getInGameUsers()) {
+        user.setDefault();
+        user.getPlayer().setInvulnerable(true);
+        user.lockLocation();
+      }
 
-        for (User user : Server.getPreGameUsers()) {
-            user.setStatus(Status.User.IN_GAME);
-            ((GameUser) user).playedGame();
-        }
+      for (User user : Server.getSpectatorUsers()) {
+        user.clearInventory();
+      }
 
-        this.toolManager.runTools(StartableTool.class);
+      this.getLoungeBridgeUserManager().clearRejoinUsers();
 
-        Server.getChat().broadcastJoinQuit(true);
-
-        this.onGameStart();
-    }
-
-    public final void stopGame() {
-        if (!this.running) {
-            return;
-        }
-
-        this.running = false;
-
-        this.toolManager.runTools(PreStopableTool.class);
-
-        this.onGameStop();
-
-        this.toolManager.runTools(StopableTool.class);
-
-        this.closeGame();
-    }
-
-    public final void closeGame() {
-        if (LoungeBridgeServer.getState() != LoungeBridgeServer.State.CLOSING) {
-            LoungeBridgeServer.setState(LoungeBridgeServer.State.CLOSING);
-
-            this.toolManager.runTools(CloseableTool.class);
-
-            for (User user : Server.getInGameUsers()) {
-                user.setDefault();
-                user.getPlayer().setInvulnerable(true);
-                user.lockLocation();
-            }
-
-            for (User user : Server.getSpectatorUsers()) {
-                user.clearInventory();
-            }
-
-            this.getLoungeBridgeUserManager().clearRejoinUsers();
-
-            Chat specChat = this.getSpectatorChat();
-            for (User user : Server.getUsers()) {
-                if (((GameUser) user).getTeam() != null) {
-                    Chat teamChat = Server.getChat(((GameUser) user).getTeam().getName());
-                    if (teamChat != null) {
-                        teamChat.removeWriter(user);
-                        teamChat.removeListener(user);
-                    }
-                }
-
-                specChat.removeWriter(user);
-                specChat.removeListener(user);
-
-                Server.getGlobalChat().addWriter(user);
-                Server.getGlobalChat().addListener(user);
-                user.clearInventory();
-            }
-
-            this.getSpectatorManager().clearTools();
-
-            this.gameScheduler.closeGame();
-        }
-    }
-
-    public final void closeGame6() {
-        this.toolManager.runTools(PreCloseableTool.class);
-    }
-
-    public final void closeGame10() {
-        Server.getChat().broadcastJoinQuit(false);
-        for (User user : Server.getUsers()) {
-            if (!user.isAirMode() && !user.isService()) {
-                user.getDatabase().setKit(null);
-                ((GameUser) user).setTeam(null);
-            }
-
-            if (LoungeBridgeServer.getGame().hasTexturePack()) {
-                user.setTexturePack(Server.DEFAULT_TEXTURE_PACK);
-            }
-
-            user.switchToServer(LoungeBridgeServer.getTwinServer());
-        }
-    }
-
-    public final void resetGame() {
-        LoungeBridgeServer.setState(LoungeBridgeServer.State.RESETTING);
-
-        this.toolManager.runTools(ResetableTool.class);
-
-        if (this.getMap() != null && this.getMap() instanceof ResetableMap) {
-            ((ResetableMap) this.getMap()).reset();
+      Chat specChat = this.getSpectatorChat();
+      for (User user : Server.getUsers()) {
+        if (((GameUser) user).getTeam() != null) {
+          Chat teamChat = Server.getChat(((GameUser) user).getTeam().getName());
+          if (teamChat != null) {
+            teamChat.removeWriter(user);
+            teamChat.removeListener(user);
+          }
         }
 
-        this.onGameReset();
-        LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
+        specChat.removeWriter(user);
+        specChat.removeListener(user);
+
+        Server.getGlobalChat().addWriter(user);
+        Server.getGlobalChat().addListener(user);
+        user.clearInventory();
+      }
+
+      this.getSpectatorManager().clearTools();
+
+      this.gameScheduler.closeGame();
+    }
+  }
+
+  public final void closeGame6() {
+    this.toolManager.runTools(PreCloseableTool.class);
+  }
+
+  public final void closeGame10() {
+    Server.getChat().broadcastJoinQuit(false);
+    for (User user : Server.getUsers()) {
+      if (!user.isAirMode() && !user.isService()) {
+        user.getDatabase().setKit(null);
+        ((GameUser) user).setTeam(null);
+      }
+
+      if (LoungeBridgeServer.getGame().hasTexturePack()) {
+        user.setTexturePack(Server.DEFAULT_TEXTURE_PACK);
+      }
+
+      user.switchToServer(LoungeBridgeServer.getTwinServer());
+    }
+  }
+
+  public final void resetGame() {
+    LoungeBridgeServer.setState(LoungeBridgeServer.State.RESETTING);
+
+    this.toolManager.runTools(ResetableTool.class);
+
+    if (this.getMap() != null && this.getMap() instanceof ResetableMap) {
+      ((ResetableMap) this.getMap()).reset();
     }
 
-    public void loadTools() {
-        this.getToolManager().add((ResetableTool) () -> {
-            for (Team team : getGame().getTeams()) {
-                team.setDeaths(0);
-                team.setKills(0);
-            }
-        });
-    }
+    this.onGameReset();
+    LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
+  }
 
-    public de.timesnake.basic.loungebridge.core.main.SpectatorManager getSpectatorManager() {
-        return (de.timesnake.basic.loungebridge.core.main.SpectatorManager) super.getSpectatorManager();
-    }
+  public void loadTools() {
+    this.getToolManager().add((ResetableTool) () -> {
+      for (Team team : getGame().getTeams()) {
+        team.setDeaths(0);
+        team.setKills(0);
+      }
+    });
+  }
 
-    public Chat getSpectatorChat() {
-        return Server.getChat(SPECTATOR_NAME);
-    }
+  public de.timesnake.basic.loungebridge.core.main.SpectatorManager getSpectatorManager() {
+    return (de.timesnake.basic.loungebridge.core.main.SpectatorManager) super.getSpectatorManager();
+  }
 
-    public void updateSpectatorTools() {
-        this.getSpectatorManager().updateSpectatorTools();
-    }
+  public Chat getSpectatorChat() {
+    return Server.getChat(SPECTATOR_NAME);
+  }
 
-    public boolean isTeamMateDamage() {
-        return teamMateDamage;
-    }
+  public void updateSpectatorTools() {
+    this.getSpectatorManager().updateSpectatorTools();
+  }
 
-    public void setTeamMateDamage(boolean teamMateDamage) {
-        this.teamMateDamage = teamMateDamage;
-    }
+  public boolean isTeamMateDamage() {
+    return teamMateDamage;
+  }
 
-    public TablistTeam getTablistGameTeam() {
-        return this.tablistManager.getTablistGameTeam();
-    }
+  public void setTeamMateDamage(boolean teamMateDamage) {
+    this.teamMateDamage = teamMateDamage;
+  }
 
-    public TablistTeam getTablistSpectatorTeam() {
-        return this.tablistManager.getSpectatorTeam();
-    }
+  public TablistTeam getTablistGameTeam() {
+    return this.tablistManager.getTablistGameTeam();
+  }
 
-    public boolean areKitsEnabled() {
-        return kitsEnabled;
-    }
+  public TablistTeam getTablistSpectatorTeam() {
+    return this.tablistManager.getSpectatorTeam();
+  }
 
-    public boolean areMapsEnabled() {
-        return mapsEnabled;
-    }
+  public boolean areKitsEnabled() {
+    return kitsEnabled;
+  }
 
-    public UserManager getLoungeBridgeUserManager() {
-        return this.userManager;
-    }
+  public boolean areMapsEnabled() {
+    return mapsEnabled;
+  }
 
-    public Integer getMaxPlayersPerTeam() {
-        return maxPlayersPerTeam;
-    }
+  public UserManager getLoungeBridgeUserManager() {
+    return this.userManager;
+  }
 
-    public ToolManager getToolManager() {
-        return toolManager;
-    }
+  public Integer getMaxPlayersPerTeam() {
+    return maxPlayersPerTeam;
+  }
 
-    public boolean isGameRunning() {
-        return this.running;
-    }
+  public ToolManager getToolManager() {
+    return toolManager;
+  }
 
-    public Map getMap() {
-        return map;
-    }
+  public boolean isGameRunning() {
+    return this.running;
+  }
 
-    public void setMap(Map map) {
-        this.map = map;
-        this.tablistManager.updateMapFooter(map);
-    }
+  public Map getMap() {
+    return map;
+  }
 
-    public Integer getServerTeamAmount() {
-        return serverTeamAmount;
-    }
+  public void setMap(Map map) {
+    this.map = map;
+    this.tablistManager.updateMapFooter(map);
+  }
 
-    public DbLoungeServer getTwinServer() {
-        return twinServer;
-    }
+  public Integer getServerTeamAmount() {
+    return serverTeamAmount;
+  }
 
-    public int getGameCountdown() {
-        return this.gameScheduler.getGameCountdown();
-    }
+  public DbLoungeServer getTwinServer() {
+    return twinServer;
+  }
 
-    @Deprecated
-    public void broadcastLoungeBridgeMessage(String msg) {
-        Server.broadcastMessage(
-                de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
-                        .append(Component.text(msg)));
-    }
+  public int getGameCountdown() {
+    return this.gameScheduler.getGameCountdown();
+  }
 
-    public void broadcastLoungeBridgeMessage(Component msg) {
-        Server.broadcastMessage(
-                de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
-                        .append(msg));
-    }
+  @Deprecated
+  public void broadcastLoungeBridgeMessage(String msg) {
+    Server.broadcastMessage(
+        de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+            .append(Component.text(msg)));
+  }
 
-    public void broadcastGameMessage(Component msg) {
-        Server.broadcastMessage(this.getGamePlugin(), msg);
-    }
+  public void broadcastLoungeBridgeMessage(Component msg) {
+    Server.broadcastMessage(
+        de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+            .append(msg));
+  }
 
-    public void broadcastGameTDMessage(String msg) {
-        Server.broadcastTDMessage(this.getGamePlugin(), msg);
-    }
+  public void broadcastGameMessage(Component msg) {
+    Server.broadcastMessage(this.getGamePlugin(), msg);
+  }
 
-    public TeamTablist getGameTablist() {
-        return this.tablistManager.getGameTablist();
-    }
+  public void broadcastGameTDMessage(String msg) {
+    Server.broadcastTDMessage(this.getGamePlugin(), msg);
+  }
 
-    public Collection<Team> getNotEmptyInGameTeams() {
-        return this.getGame().getTeams().stream().filter((team -> team.getInGameUsers().size() > 0))
-                .collect(Collectors.toList());
-    }
+  public TeamTablist getGameTablist() {
+    return this.tablistManager.getGameTablist();
+  }
 
-    public Integer getEstimatedPlayers() {
-        return this.estimatedPlayers;
-    }
+  public Collection<Team> getNotEmptyInGameTeams() {
+    return this.getGame().getTeams().stream().filter((team -> team.getInGameUsers().size() > 0))
+        .collect(Collectors.toList());
+  }
 
-    public void setEstimatedPlayers(Integer amount) {
-        this.estimatedPlayers = amount;
-    }
+  public Integer getEstimatedPlayers() {
+    return this.estimatedPlayers;
+  }
 
-    public LoungeBridgeServer.State getState() {
-        return state;
-    }
+  public void setEstimatedPlayers(Integer amount) {
+    this.estimatedPlayers = amount;
+  }
 
-    public void setState(LoungeBridgeServer.State state) {
-        this.state = state;
-        switch (state) {
-            case RUNNING, STOPPED -> Server.setStatus(Status.Server.IN_GAME);
-            case STARTING -> Server.setStatus(Status.Server.PRE_GAME);
-            case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
-            case WAITING -> {
-                Server.setStatus(Status.Server.ONLINE);
-                Server.getChannel().sendMessage(
-                        new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
-                                , ChannelServerMessage.State.READY));
-                Loggers.LOUNGE_BRIDGE.info("Send lounge ready state");
-            }
-        }
-    }
+  public LoungeBridgeServer.State getState() {
+    return state;
+  }
 
-    public DiscordManager getDiscordManager() {
-        return discordManager;
+  public void setState(LoungeBridgeServer.State state) {
+    this.state = state;
+    switch (state) {
+      case RUNNING, STOPPED -> Server.setStatus(Status.Server.IN_GAME);
+      case STARTING -> Server.setStatus(Status.Server.PRE_GAME);
+      case CLOSING, RESETTING -> Server.setStatus(Status.Server.POST_GAME);
+      case WAITING -> {
+        Server.setStatus(Status.Server.ONLINE);
+        Server.getChannel().sendMessage(
+            new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
+                , ChannelServerMessage.State.READY));
+        Loggers.LOUNGE_BRIDGE.info("Send lounge ready state");
+      }
     }
+  }
+
+  public DiscordManager getDiscordManager() {
+    return discordManager;
+  }
 }

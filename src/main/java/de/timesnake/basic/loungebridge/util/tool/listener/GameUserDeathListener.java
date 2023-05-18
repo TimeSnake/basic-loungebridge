@@ -11,6 +11,6 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 @FunctionalInterface
 public interface GameUserDeathListener extends GameTool {
 
-    void onGameUserDeath(UserDeathEvent e, GameUser user);
+  void onGameUserDeath(UserDeathEvent e, GameUser user);
 
 }

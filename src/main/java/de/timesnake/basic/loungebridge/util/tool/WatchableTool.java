@@ -7,6 +7,6 @@ package de.timesnake.basic.loungebridge.util.tool;
 @FunctionalInterface
 public interface WatchableTool extends GameTool {
 
-    ToolWatcher getWatchers();
+  ToolWatcher getWatchers();
 
 }
