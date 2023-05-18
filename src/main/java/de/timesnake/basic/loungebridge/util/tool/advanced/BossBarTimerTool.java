@@ -18,96 +18,96 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 
 public abstract class BossBarTimerTool extends TimerTool implements WatchableTool,
-        UserJoinQuitListener {
+    UserJoinQuitListener {
 
-    private final UserSet<User> listeners = new UserSet<>();
-    private final BossBar bar;
-    private final boolean timedColor;
+  private final UserSet<User> listeners = new UserSet<>();
+  private final BossBar bar;
+  private final boolean timedColor;
 
-    private boolean finished = false;
+  private boolean finished = false;
 
-    public BossBarTimerTool(int time) {
-        this(time, BarColor.WHITE, true);
+  public BossBarTimerTool(int time) {
+    this(time, BarColor.WHITE, true);
+  }
+
+  public BossBarTimerTool(int time, BarColor color, boolean timedColor) {
+    super(time);
+    this.bar = Server.createBossBar("", color, BarStyle.SOLID);
+    this.timedColor = timedColor;
+  }
+
+  @Override
+  public void prepare() {
+    super.prepare();
+
+    this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
+    this.bar.setColor(BarColor.WHITE);
+    this.bar.setProgress(1);
+
+    this.finished = false;
+  }
+
+  @Override
+  public void onTimerUpdate() {
+    this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
+    this.bar.setProgress(this.time / ((double) this.maxTime));
+
+    if (this.timedColor) {
+      if (this.time <= this.maxTime / 10) {
+        this.bar.setColor(BarColor.RED);
+      } else if (this.time <= this.maxTime / 4) {
+        this.bar.setColor(BarColor.YELLOW);
+      }
+    }
+  }
+
+  @Override
+  public void onTimerEnd() {
+    this.listeners.forEach(u -> u.removeBossBar(this.bar));
+    this.listeners.clear();
+    this.finished = true;
+  }
+
+  @Override
+  public void onGameUserJoin(GameUser user) {
+    if (this.finished) {
+      return;
     }
 
-    public BossBarTimerTool(int time, BarColor color, boolean timedColor) {
-        super(time);
-        this.bar = Server.createBossBar("", color, BarStyle.SOLID);
-        this.timedColor = timedColor;
+    if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
+      user.addBossBar(this.bar);
+      this.listeners.add(user);
+    }
+  }
+
+  @Override
+  public void onGameUserQuit(GameUser user) {
+    if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
+      user.removeBossBar(this.bar);
+      this.listeners.remove(user);
+    }
+  }
+
+  @Override
+  public void onSpectatorUserJoin(SpectatorUser user) {
+    if (this.finished) {
+      return;
     }
 
-    @Override
-    public void prepare() {
-        super.prepare();
-
-        this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
-        this.bar.setColor(BarColor.WHITE);
-        this.bar.setProgress(1);
-
-        this.finished = false;
+    if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
+      user.addBossBar(this.bar);
+      this.listeners.add(user);
     }
+  }
 
-    @Override
-    public void onTimerUpdate() {
-        this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
-        this.bar.setProgress(this.time / ((double) this.maxTime));
-
-        if (this.timedColor) {
-            if (this.time <= this.maxTime / 10) {
-                this.bar.setColor(BarColor.RED);
-            } else if (this.time <= this.maxTime / 4) {
-                this.bar.setColor(BarColor.YELLOW);
-            }
-        }
+  @Override
+  public void onSpectatorUserQuit(SpectatorUser user) {
+    if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
+      user.removeBossBar(this.bar);
+      this.listeners.remove(user);
     }
+  }
 
-    @Override
-    public void onTimerEnd() {
-        this.listeners.forEach(u -> u.removeBossBar(this.bar));
-        this.listeners.clear();
-        this.finished = true;
-    }
-
-    @Override
-    public void onGameUserJoin(GameUser user) {
-        if (this.finished) {
-            return;
-        }
-
-        if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
-            user.addBossBar(this.bar);
-            this.listeners.add(user);
-        }
-    }
-
-    @Override
-    public void onGameUserQuit(GameUser user) {
-        if (this.getWatchers() == ToolWatcher.IN_GAME || this.getWatchers() == ToolWatcher.ALL) {
-            user.removeBossBar(this.bar);
-            this.listeners.remove(user);
-        }
-    }
-
-    @Override
-    public void onSpectatorUserJoin(SpectatorUser user) {
-        if (this.finished) {
-            return;
-        }
-
-        if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
-            user.addBossBar(this.bar);
-            this.listeners.add(user);
-        }
-    }
-
-    @Override
-    public void onSpectatorUserQuit(SpectatorUser user) {
-        if (this.getWatchers() == ToolWatcher.SPECTATOR || this.getWatchers() == ToolWatcher.ALL) {
-            user.removeBossBar(this.bar);
-            this.listeners.remove(user);
-        }
-    }
-
-    public abstract String getTitle(String time);
+  public abstract String getTitle(String time);
 
 }

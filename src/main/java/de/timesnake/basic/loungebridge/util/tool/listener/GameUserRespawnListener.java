@@ -11,5 +11,5 @@ import org.bukkit.Location;
 @FunctionalInterface
 public interface GameUserRespawnListener extends GameTool {
 
-    Location onGameUserRespawn(GameUser user);
+  Location onGameUserRespawn(GameUser user);
 }

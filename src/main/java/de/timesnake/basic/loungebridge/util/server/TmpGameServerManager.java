@@ -18,115 +18,115 @@ import org.bukkit.entity.Player;
 
 public interface TmpGameServerManager {
 
-    StatType<Integer> GAMES_PLAYED = new IntegerStat("games_played", "Games Played", 0, 10,
-            1, false, 0, 1);
+  StatType<Integer> GAMES_PLAYED = new IntegerStat("games_played", "Games Played", 0, 10,
+      1, false, 0, 1);
 
-    GameUser loadUser(Player player);
+  GameUser loadUser(Player player);
 
-    /**
-     * Get the game {@link de.timesnake.basic.bukkit.util.chat.Plugin}
-     *
-     * @return Return the plugin
-     */
-    de.timesnake.library.extension.util.chat.Plugin getGamePlugin();
+  /**
+   * Get the game {@link de.timesnake.basic.bukkit.util.chat.Plugin}
+   *
+   * @return Return the plugin
+   */
+  de.timesnake.library.extension.util.chat.Plugin getGamePlugin();
 
-    /**
-     * Called by channel map load message from lounge (map-voting).
-     */
-    default void onMapLoad() {
+  /**
+   * Called by channel map load message from lounge (map-voting).
+   */
+  default void onMapLoad() {
 
-    }
+  }
 
-    /**
-     * Called by channel world load message from lounge
-     */
-    default void onWorldLoad() {
+  /**
+   * Called by channel world load message from lounge
+   */
+  default void onWorldLoad() {
 
-    }
+  }
 
-    /**
-     * Countdown 7s, during user join
-     */
-    @Deprecated
-    default void onGamePrepare() {
+  /**
+   * Countdown 7s, during user join
+   */
+  @Deprecated
+  default void onGamePrepare() {
 
-    }
+  }
 
-    /**
-     * Countdown 0s
-     */
-    void onGameStart();
+  /**
+   * Countdown 0s
+   */
+  void onGameStart();
 
-    void onGameStop();
+  void onGameStop();
 
-    /**
-     * Called after all users quit
-     */
-    void onGameReset();
+  /**
+   * Called after all users quit
+   */
+  void onGameReset();
 
-    /**
-     * Ingame user quits the server
-     *
-     * @param user The {@link User} who left
-     */
-    void onGameUserQuit(GameUser user);
+  /**
+   * Ingame user quits the server
+   *
+   * @param user The {@link User} who left
+   */
+  void onGameUserQuit(GameUser user);
 
-    /**
-     * Ingame user quits before the game started.
-     *
-     * @param user The {@link User} who left
-     */
-    void onGameUserQuitBeforeStart(GameUser user);
+  /**
+   * Ingame user quits before the game started.
+   *
+   * @param user The {@link User} who left
+   */
+  void onGameUserQuitBeforeStart(GameUser user);
 
-    /**
-     * Allows users to rejoin the game
-     *
-     * @return true if it is allowed
-     */
-    boolean isRejoiningAllowed();
+  /**
+   * Allows users to rejoin the game
+   *
+   * @return true if it is allowed
+   */
+  boolean isRejoiningAllowed();
 
-    /**
-     * Allows users with status outgame to rejoin with status outgame
-     *
-     * @return true if it is allowed
-     */
-    default boolean isOutGameRejoiningAllowed() {
-        return false;
-    }
+  /**
+   * Allows users with status outgame to rejoin with status outgame
+   *
+   * @return true if it is allowed
+   */
+  default boolean isOutGameRejoiningAllowed() {
+    return false;
+  }
 
-    /**
-     * Game user rejoins game
-     *
-     * @param user The user who is rejoining
-     */
-    default void onGameUserRejoin(GameUser user) {
+  /**
+   * Game user rejoins game
+   *
+   * @param user The user who is rejoining
+   */
+  default void onGameUserRejoin(GameUser user) {
 
-    }
+  }
 
-    default Sideboard getGameSideboard() {
-        return null;
-    }
+  default Sideboard getGameSideboard() {
+    return null;
+  }
 
-    default Sideboard getSpectatorSideboard() {
-        return null;
-    }
+  default Sideboard getSpectatorSideboard() {
+    return null;
+  }
 
-    default ExWorld getGameWorld() {
-        return null;
-    }
+  default ExWorld getGameWorld() {
+    return null;
+  }
 
-    ExLocation getSpectatorSpawn();
+  ExLocation getSpectatorSpawn();
 
-    default OfflineUser loadOfflineUser(GameUser user) {
-        return new OfflineUser(user);
-    }
+  default OfflineUser loadOfflineUser(GameUser user) {
+    return new OfflineUser(user);
+  }
 
-    default Set<StatType<?>> getStats() {
-        return new HashSet<>();
-    }
+  default Set<StatType<?>> getStats() {
+    return new HashSet<>();
+  }
 
-    default void saveGameUserStats(GameUser user) {
-        user.getStat(GAMES_PLAYED).increaseAll(1);
-    }
+  default void saveGameUserStats(GameUser user) {
+    user.getStat(GAMES_PLAYED).increaseAll(1);
+  }
 
 }

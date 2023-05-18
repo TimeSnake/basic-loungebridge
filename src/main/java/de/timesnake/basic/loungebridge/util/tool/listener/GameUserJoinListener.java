@@ -10,6 +10,6 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 @FunctionalInterface
 public interface GameUserJoinListener extends GameTool {
 
-    void onGameUserJoin(GameUser user);
+  void onGameUserJoin(GameUser user);
 
 }

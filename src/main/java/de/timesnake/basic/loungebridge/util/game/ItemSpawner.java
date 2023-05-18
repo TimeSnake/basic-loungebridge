@@ -11,66 +11,65 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
+import java.util.List;
+import java.util.Random;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
-import java.util.List;
-import java.util.Random;
-
 public class ItemSpawner implements GameTool, StartableTool, StopableTool {
 
-    private final int delayBase;
-    private final int delayRange;
-    private final Integer locationIndex;
-    private final List<? extends ItemStack> items;
-    private final Random random = new Random();
-    private boolean inTicks = false;
-    private BukkitTask task;
-    private int delay;
+  private final int delayBase;
+  private final int delayRange;
+  private final Integer locationIndex;
+  private final List<? extends ItemStack> items;
+  private final Random random = new Random();
+  private boolean inTicks = false;
+  private BukkitTask task;
+  private int delay;
 
-    public ItemSpawner(Integer locationIndex, int delay, int delayRange,
-            List<? extends ItemStack> items) {
-        this.locationIndex = locationIndex;
-        this.items = items;
-        this.delayBase = delay;
-        this.delayRange = delayRange;
+  public ItemSpawner(Integer locationIndex, int delay, int delayRange,
+      List<? extends ItemStack> items) {
+    this.locationIndex = locationIndex;
+    this.items = items;
+    this.delayBase = delay;
+    this.delayRange = delayRange;
+  }
+
+  public ItemSpawner(Integer locationIndex, int delay, int delayRange, boolean inTicks,
+      List<? extends ItemStack> items) {
+    this.locationIndex = locationIndex;
+    this.items = items;
+    this.delayBase = delay;
+    this.delayRange = delayRange;
+    this.inTicks = true;
+  }
+
+  @Override
+  public void start() {
+    ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
+
+    if (location == null) {
+      return;
     }
 
-    public ItemSpawner(Integer locationIndex, int delay, int delayRange, boolean inTicks,
-            List<? extends ItemStack> items) {
-        this.locationIndex = locationIndex;
-        this.items = items;
-        this.delayBase = delay;
-        this.delayRange = delayRange;
-        this.inTicks = true;
-    }
+    this.delay = this.random.nextInt(delayRange) + delayBase;
 
-    @Override
-    public void start() {
-        ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
+    this.task = Server.runTaskTimerSynchrony(() -> {
+      delay--;
 
-        if (location == null) {
-            return;
-        }
-
+      if (delay <= 0) {
+        location.getWorld()
+            .dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
         this.delay = this.random.nextInt(delayRange) + delayBase;
+      }
+    }, this.inTicks ? 1 : 20, this.inTicks ? 1 : 20, BasicLoungeBridge.getPlugin());
+  }
 
-        this.task = Server.runTaskTimerSynchrony(() -> {
-            delay--;
-
-            if (delay <= 0) {
-                location.getWorld()
-                        .dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
-                this.delay = this.random.nextInt(delayRange) + delayBase;
-            }
-        }, this.inTicks ? 1 : 20, this.inTicks ? 1 : 20, BasicLoungeBridge.getPlugin());
+  @Override
+  public void stop() {
+    if (this.task != null) {
+      this.task.cancel();
     }
-
-    @Override
-    public void stop() {
-        if (this.task != null) {
-            this.task.cancel();
-        }
-    }
+  }
 
 }

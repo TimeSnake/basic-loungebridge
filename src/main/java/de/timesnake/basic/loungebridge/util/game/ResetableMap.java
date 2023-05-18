@@ -9,9 +9,9 @@ import de.timesnake.basic.bukkit.util.world.ExWorld;
 
 public interface ResetableMap {
 
-    default void reset() {
-        Server.getWorldManager().reloadWorld(this.getWorld());
-    }
+  default void reset() {
+    Server.getWorldManager().reloadWorld(this.getWorld());
+  }
 
-    ExWorld getWorld();
+  ExWorld getWorld();
 }

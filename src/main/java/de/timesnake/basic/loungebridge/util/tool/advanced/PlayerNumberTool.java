@@ -12,27 +12,27 @@ import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserQuitListe
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 
 public abstract class PlayerNumberTool implements GameUserJoinListener, GameUserQuitListener,
-        SpectatorUserJoinListener, SpectatorUserQuitListener {
+    SpectatorUserJoinListener, SpectatorUserQuitListener {
 
-    @Override
-    public void onGameUserJoin(GameUser user) {
-        this.onPlayerUpdate();
-    }
+  @Override
+  public void onGameUserJoin(GameUser user) {
+    this.onPlayerUpdate();
+  }
 
-    @Override
-    public void onGameUserQuit(GameUser user) {
-        this.onPlayerUpdate();
-    }
+  @Override
+  public void onGameUserQuit(GameUser user) {
+    this.onPlayerUpdate();
+  }
 
-    @Override
-    public void onSpectatorUserJoin(SpectatorUser user) {
-        this.onPlayerUpdate();
-    }
+  @Override
+  public void onSpectatorUserJoin(SpectatorUser user) {
+    this.onPlayerUpdate();
+  }
 
-    @Override
-    public void onSpectatorUserQuit(SpectatorUser user) {
-        this.onPlayerUpdate();
-    }
+  @Override
+  public void onSpectatorUserQuit(SpectatorUser user) {
+    this.onPlayerUpdate();
+  }
 
-    public abstract void onPlayerUpdate();
+  public abstract void onPlayerUpdate();
 }

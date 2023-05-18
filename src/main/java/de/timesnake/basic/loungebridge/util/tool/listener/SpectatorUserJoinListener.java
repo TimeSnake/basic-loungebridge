@@ -10,6 +10,6 @@ import de.timesnake.basic.loungebridge.util.tool.GameTool;
 @FunctionalInterface
 public interface SpectatorUserJoinListener extends GameTool {
 
-    void onSpectatorUserJoin(SpectatorUser user);
+  void onSpectatorUserJoin(SpectatorUser user);
 
 }

@@ -9,6 +9,6 @@ import de.timesnake.basic.loungebridge.util.tool.GameTool;
 @FunctionalInterface
 public interface WorldLoadableTool extends GameTool {
 
-    void onWorldLoad();
+  void onWorldLoad();
 
 }
