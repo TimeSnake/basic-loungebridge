@@ -37,8 +37,8 @@ public abstract class BossBarMapTimerTool extends MapTimerTool implements Watcha
   }
 
   @Override
-  public void prepare() {
-    super.prepare();
+  public void prepareTimer() {
+    super.prepareTimer();
 
     this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
     this.bar.setColor(BarColor.WHITE);

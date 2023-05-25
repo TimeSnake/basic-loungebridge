@@ -44,6 +44,7 @@ import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.extension.util.NetworkVariables;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.stream.Collectors;
@@ -365,7 +366,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       }
 
       if (LoungeBridgeServer.getGame().hasTexturePack()) {
-        user.setTexturePack(Server.DEFAULT_TEXTURE_PACK);
+        user.setTexturePack(Server.getNetwork().getVariables()
+            .getValue(NetworkVariables.DEFAULT_TEXTURE_PACK_LINK));
       }
 
       user.switchToServer(LoungeBridgeServer.getTwinServer());
