@@ -11,12 +11,6 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 public abstract class MapTimerTool extends TimerTool implements MapLoadableTool {
 
   public MapTimerTool() {
-    super(0);
-  }
-
-  @Override
-  protected void prepare() {
-    this.maxTime = ((Timeable) LoungeBridgeServer.getMap()).getTime();
-    this.time = ((Timeable) LoungeBridgeServer.getMap()).getTime();
+    super(() -> ((Timeable) LoungeBridgeServer.getMap()).getTime());
   }
 }

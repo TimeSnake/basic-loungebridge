@@ -13,6 +13,7 @@ import de.timesnake.basic.loungebridge.util.tool.listener.UserJoinQuitListener;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.extension.util.chat.Chat;
 import de.timesnake.library.extension.util.player.UserSet;
+import java.util.function.Supplier;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
@@ -27,18 +28,26 @@ public abstract class BossBarTimerTool extends TimerTool implements WatchableToo
   private boolean finished = false;
 
   public BossBarTimerTool(int time) {
-    this(time, BarColor.WHITE, true);
+    this(() -> time);
+  }
+
+  public BossBarTimerTool(Supplier<Integer> timeSupplier) {
+    this(timeSupplier, BarColor.WHITE, true);
   }
 
   public BossBarTimerTool(int time, BarColor color, boolean timedColor) {
-    super(time);
+    this(() -> time, color, timedColor);
+  }
+
+  public BossBarTimerTool(Supplier<Integer> timeSupplier, BarColor color, boolean timedColor) {
+    super(timeSupplier);
     this.bar = Server.createBossBar("", color, BarStyle.SOLID);
     this.timedColor = timedColor;
   }
 
   @Override
-  public void prepare() {
-    super.prepare();
+  public void prepareTimer() {
+    super.prepareTimer();
 
     this.bar.setTitle(this.getTitle(Chat.getTimeString(this.time)));
     this.bar.setColor(BarColor.WHITE);
