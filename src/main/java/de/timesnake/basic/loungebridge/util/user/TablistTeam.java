@@ -4,12 +4,8 @@
 
 package de.timesnake.basic.loungebridge.util.user;
 
-import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TagTablistableGroup;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TagTablistableRemainTeam;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.game.util.game.Team;
 import org.bukkit.ChatColor;
 
@@ -25,7 +21,7 @@ public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTea
   private final ChatColor chatColor;
 
   public TablistTeam(String rank, String name, String prefix, ChatColor prefixChatColor,
-      ChatColor chatColor) {
+                     ChatColor chatColor) {
     this.rank = rank;
     this.name = name;
     this.prefix = prefix;
@@ -64,7 +60,7 @@ public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTea
 
   @Override
   public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player,
-      TablistableGroup otherGroup) {
+                                              TablistableGroup otherGroup) {
     return NameTagVisibility.ALWAYS;
   }
 
