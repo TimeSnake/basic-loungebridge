@@ -4,27 +4,19 @@
 
 package de.timesnake.basic.loungebridge.util.server;
 
-import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_NAME;
-import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_TABLIST_CHAT_COLOR;
-import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_TABLIST_PREFIX;
-import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_TABLIST_PREFIX_CHAT_COLOR;
-
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.ChatColor;
 import de.timesnake.basic.bukkit.util.group.DisplayGroup;
-import de.timesnake.basic.bukkit.util.user.scoreboard.NameTagVisibility;
-import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistablePlayer;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablistBuilder;
+import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.library.basic.util.Status;
+
 import java.util.LinkedList;
 import java.util.List;
+
+import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.*;
 
 public class TablistManager {
 
@@ -38,7 +30,7 @@ public class TablistManager {
         SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR) {
       @Override
       public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player,
-          TablistableGroup otherGroup) {
+                                                  TablistableGroup otherGroup) {
         if (otherGroup.equals(this)) {
           return NameTagVisibility.ALWAYS;
         }
