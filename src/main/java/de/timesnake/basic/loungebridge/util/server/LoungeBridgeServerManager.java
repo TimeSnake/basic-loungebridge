@@ -14,24 +14,12 @@ import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.server.GameServerManager;
 import de.timesnake.basic.game.util.user.SpectatorManager;
-import de.timesnake.basic.loungebridge.core.ChannelListener;
-import de.timesnake.basic.loungebridge.core.CoinsManager;
-import de.timesnake.basic.loungebridge.core.DiscordManager;
-import de.timesnake.basic.loungebridge.core.GameScheduler;
-import de.timesnake.basic.loungebridge.core.StatsManager;
-import de.timesnake.basic.loungebridge.core.UserManager;
+import de.timesnake.basic.loungebridge.core.*;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.game.ResetableMap;
 import de.timesnake.basic.loungebridge.util.game.TmpGame;
 import de.timesnake.basic.loungebridge.util.tool.ToolManager;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.CloseableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
-import de.timesnake.basic.loungebridge.util.tool.scheduler.WorldLoadableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.*;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.Kit;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
@@ -45,12 +33,13 @@ import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.extension.util.NetworkVariables;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.stream.Collectors;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.stream.Collectors;
 
 public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     GameServerManager<Game> implements TmpGameServerManager, HighScoreCalculator {
@@ -78,6 +67,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   protected Integer maxPlayersPerTeam;
   protected boolean teamMateDamage = true;
   protected Integer estimatedPlayers;
+  protected Integer startPlayers;
   protected ToolManager toolManager;
   protected Boolean running = false;
   private Map map;
@@ -288,6 +278,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       ((GameUser) user).playedGame();
     }
 
+    this.startPlayers = Server.getInGameUsers().size();
+
     this.toolManager.runTools(StartableTool.class);
 
     Server.getChat().broadcastJoinQuit(true);
@@ -376,6 +368,9 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public final void resetGame() {
     LoungeBridgeServer.setState(LoungeBridgeServer.State.RESETTING);
+
+    this.estimatedPlayers = null;
+    this.startPlayers = null;
 
     this.toolManager.runTools(ResetableTool.class);
 
@@ -529,5 +524,9 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public DiscordManager getDiscordManager() {
     return discordManager;
+  }
+
+  public Integer getStartPlayers() {
+    return startPlayers != null ? startPlayers : this.getEstimatedPlayers();
   }
 }
