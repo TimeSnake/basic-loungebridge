@@ -84,7 +84,7 @@ public class UserManager implements Listener {
       LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class,
           t -> t.onGameUserJoin(user));
     } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
-        && user.getStatus().equals(Status.User.PRE_GAME)) {
+        && user.hasStatus(Status.User.PRE_GAME)) {
 
       user.getInventory().clear();
       user.heal();
@@ -119,8 +119,7 @@ public class UserManager implements Listener {
       user.applyKit();
 
       for (User otherUser : Server.getUsers()) {
-        if (otherUser.getStatus().equals(Status.User.SPECTATOR) || otherUser.getStatus()
-            .equals(Status.User.OUT_GAME)) {
+        if (otherUser.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
           otherUser.showUser(user);
           user.hideUser(otherUser);
         } else {
