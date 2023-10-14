@@ -23,20 +23,15 @@ import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.object.Type;
 import de.timesnake.library.basic.util.Loggers;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Collectors;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class DiscordManager implements Listener, PreStopableTool, StartableTool, ChannelListener {
 
@@ -131,7 +126,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
             Server.getChannel()
                 .sendMessage(new ChannelDiscordMessage<>(Server.getName(),
                     MessageType.Discord.DESTROY_CHANNELS,
-                    this.channelByName.keySet()));
+                    new LinkedList<>(this.channelByName.keySet())));
             this.channelByName.values().forEach(DistanceChannel::clear);
             this.channelByName.clear();
             this.channelByUuid.clear();
