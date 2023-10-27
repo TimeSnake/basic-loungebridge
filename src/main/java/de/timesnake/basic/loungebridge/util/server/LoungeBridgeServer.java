@@ -22,12 +22,13 @@ import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.chat.Plugin;
+import net.kyori.adventure.text.Component;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import net.kyori.adventure.text.Component;
 
 public abstract class LoungeBridgeServer extends GameServer {
 
@@ -58,6 +59,10 @@ public abstract class LoungeBridgeServer extends GameServer {
   @Deprecated
   public static void broadcastLoungeBridgeMessage(String msg) {
     server.broadcastLoungeBridgeMessage(msg);
+  }
+
+  public static void broadcastLoungeBridgeTDMessage(String msg) {
+    server.broadcastLoungeBridgeTDMessage(msg);
   }
 
   public static void broadcastLoungeBridgeMessage(Component msg) {
@@ -94,6 +99,10 @@ public abstract class LoungeBridgeServer extends GameServer {
 
   public static void loadWorld() {
     server.loadWorld();
+  }
+
+  public static void onGamePlayerNumber(int number) {
+    server.onGamePlayerNumber(number);
   }
 
   public static ExWorld getGameWorld() {

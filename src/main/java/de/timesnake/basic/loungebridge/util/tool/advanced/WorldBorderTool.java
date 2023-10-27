@@ -51,6 +51,10 @@ public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableT
     double size = this.getBorderSize();
     double damage = this.getBorderDamagePerSec();
 
+    if (this.border != null) {
+      this.border.destroy();
+    }
+
     this.border = new ExWorldBorder.Builder()
         .world(world)
         .centerX(center.getX())

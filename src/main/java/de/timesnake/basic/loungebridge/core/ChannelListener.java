@@ -11,6 +11,7 @@ import de.timesnake.channel.util.listener.ListenerType;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.Loggers;
+
 import java.util.List;
 
 public class ChannelListener implements de.timesnake.channel.util.listener.ChannelListener {
@@ -21,25 +22,23 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
   }
 
   @ChannelHandler(type = {ListenerType.SERVER_GAME_MAP, ListenerType.SERVER_GAME_WORLD,
-      ListenerType.SERVER_CUSTOM}, filtered = true)
+      ListenerType.SERVER_GAME_PLAYERS}, filtered = true)
   public void onServerMessage(ChannelServerMessage<?> msg) {
     if (msg.getMessageType().equals(MessageType.Server.GAME_MAP)) {
       LoungeBridgeServer.loadMap();
     } else if (msg.getMessageType().equals(MessageType.Server.GAME_WORLD)) {
       LoungeBridgeServer.loadWorld();
-    } else if (msg.getMessageType().equals(MessageType.Server.CUSTOM)) {
-      if (((String) msg.getValue()).contains("estimatedPlayers:")) {
-        String[] value = ((String) msg.getValue()).split(":");
-        if (value.length == 2) {
-          try {
-            Integer estimatedPlayers = Integer.valueOf(value[1]);
-            LoungeBridgeServer.setEstimatedPlayers(estimatedPlayers);
-            Loggers.LOUNGE_BRIDGE.info("Estimated Players: " + estimatedPlayers);
-          } catch (NumberFormatException ignored) {
+    } else if (msg.getMessageType().equals(MessageType.Server.GAME_PLAYERS)) {
+      Integer number = (Integer) msg.getValue();
 
-          }
-        }
+      if (number == null) {
+        Loggers.LOUNGE_BRIDGE.warning("Estimated players value is null");
+        return;
       }
+
+      Loggers.LOUNGE_BRIDGE.info("Estimated layers: " + number);
+      LoungeBridgeServer.setEstimatedPlayers(number);
+      LoungeBridgeServer.onGamePlayerNumber(number);
     }
   }
 

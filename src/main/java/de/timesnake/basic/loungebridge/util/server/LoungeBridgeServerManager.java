@@ -471,10 +471,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
             .append(Component.text(msg)));
   }
 
+  public void broadcastLoungeBridgeTDMessage(String msg) {
+    Server.broadcastTDMessage(this.getGamePlugin(), msg);
+  }
+
   public void broadcastLoungeBridgeMessage(Component msg) {
-    Server.broadcastMessage(
-        de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
-            .append(msg));
+    Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()).append(msg));
   }
 
   public void broadcastGameMessage(Component msg) {
@@ -490,7 +492,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   }
 
   public Collection<Team> getNotEmptyInGameTeams() {
-    return this.getGame().getTeams().stream().filter((team -> team.getInGameUsers().size() > 0))
+    return this.getGame().getTeams().stream()
+        .filter((team -> !team.getInGameUsers().isEmpty()))
         .collect(Collectors.toList());
   }
 
