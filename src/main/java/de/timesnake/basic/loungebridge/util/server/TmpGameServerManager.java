@@ -12,9 +12,10 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
+import org.bukkit.entity.Player;
+
 import java.util.HashSet;
 import java.util.Set;
-import org.bukkit.entity.Player;
 
 public interface TmpGameServerManager {
 
@@ -45,7 +46,16 @@ public interface TmpGameServerManager {
   }
 
   /**
+   * Called by channel players message from lounge
+   */
+  default void onGamePlayerNumber(int number) {
+
+  }
+
+  /**
    * Countdown 7s, during user join
+   *
+   * @deprecated in favour of {@link #onWorldLoad()} and {@link #onMapLoad()}
    */
   @Deprecated
   default void onGamePrepare() {

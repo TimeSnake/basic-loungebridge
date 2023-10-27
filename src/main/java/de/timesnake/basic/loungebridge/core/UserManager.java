@@ -8,31 +8,19 @@ import com.destroystokyo.paper.event.player.PlayerStopSpectatingEntityEvent;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.UserDamageByUserEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserDamageEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserDeathEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserDropItemEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserJoinEvent;
-import de.timesnake.basic.bukkit.util.user.event.UserQuitEvent;
+import de.timesnake.basic.bukkit.util.user.event.*;
 import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.game.util.user.TeamUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserDeathListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserJoinListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.GameUserRespawnListener;
-import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserQuitListener;
+import de.timesnake.basic.loungebridge.util.tool.listener.*;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
-import java.util.HashMap;
-import java.util.UUID;
-import java.util.concurrent.atomic.AtomicReference;
 import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -50,15 +38,14 @@ import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
-import org.bukkit.event.player.PlayerAttemptPickupItemEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.event.player.PlayerPickupArrowEvent;
-import org.bukkit.event.player.PlayerRespawnEvent;
-import org.bukkit.event.player.PlayerSwapHandItemsEvent;
+import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.HashMap;
+import java.util.UUID;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class UserManager implements Listener {
 
@@ -81,8 +68,7 @@ public class UserManager implements Listener {
       this.offlineUserRemoveTaskByUniqueId.remove(user.getUniqueId()).cancel();
       offlineUser.loadInto(user);
       LoungeBridgeServer.onGameUserRejoin(user);
-      LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class,
-          t -> t.onGameUserJoin(user));
+      LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class, t -> t.onGameUserJoin(user));
     } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
         && user.hasStatus(Status.User.PRE_GAME)) {
 
@@ -100,8 +86,7 @@ public class UserManager implements Listener {
 
       user.updateTeam();
 
-      if (user.getTeam() != null && user.getTeam().hasPrivateChat()
-          && LoungeBridgeServer.getServerTeamAmount() > 0) {
+      if (user.getTeam() != null && user.getTeam().hasPrivateChat() && LoungeBridgeServer.getServerTeamAmount() > 0) {
         Chat teamChat = Server.getChat(user.getTeam().getName());
         if (teamChat != null) {
           teamChat.addWriter(user);
@@ -112,11 +97,11 @@ public class UserManager implements Listener {
 
       user.setSideboard(GameServer.getGameSideboard());
 
-      LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class,
-          t -> t.onGameUserJoin(user));
 
       user.joinGame();
       user.applyKit();
+
+      LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class, t -> t.onGameUserJoin(user));
 
       for (User otherUser : Server.getUsers()) {
         if (otherUser.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {

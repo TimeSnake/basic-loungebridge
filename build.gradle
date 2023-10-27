@@ -7,7 +7,7 @@ plugins {
 }
 
 group = project.group
-version = '.2'
+version = '1.3'
 archivesBaseName = 'basic-loungebridge'
 var projectId = 50
 
