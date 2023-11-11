@@ -30,12 +30,11 @@ public class GameScheduler {
         this.gameCountdown += TEXTURE_PACK_OFFSET;
       }
 
-      this.gameCountdownTask = Server.runTaskTimerAsynchrony(() -> {
+      this.gameCountdownTask = Server.runTaskTimerSynchrony(() -> {
         switch (gameCountdown) {
           case 7 -> {
             Loggers.LOUNGE_BRIDGE.info("Preparing game ...");
-            Server.runTaskSynchrony(LoungeBridgeServer::prepareGame,
-                BasicLoungeBridge.getPlugin());
+            LoungeBridgeServer.prepareGame();
           }
           case 5, 4, 3, 2, 1 -> {
             Server.broadcastTDTitle("§w" + gameCountdown, "", Duration.ofSeconds(1));
