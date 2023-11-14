@@ -247,6 +247,10 @@ public abstract class LoungeBridgeServer extends GameServer {
     server.resetGame();
   }
 
+  public static void stopGame() {
+    server.stopGame();
+  }
+
   public static Set<StatType<?>> getStats() {
     return server.getStats();
   }
