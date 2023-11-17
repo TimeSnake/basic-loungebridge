@@ -109,9 +109,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     CoinsManager coinsManager = new CoinsManager();
-    if (coinsManager != null) {
-      this.toolManager.add(coinsManager);
-    }
+    this.toolManager.add(coinsManager);
 
     this.mapsEnabled = ((DbTmpGameServer) this.getDatabase()).areMapsEnabled();
     Integer serverTeamAmount = ((DbTmpGameServer) this.getDatabase()).getTeamAmount();
@@ -230,7 +228,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
     DbGame game = this.getGame().getDatabase();
     for (Kit kit : this.getGame().getKitManager().getKits()) {
-      if (game.getKit(kit.getId()).exists()) {
+      if (game.getKit(kit.getId()) != null) {
         game.removeKitSynchronized(kit.getId());
       }
       try {
@@ -239,11 +237,10 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         Loggers.LOUNGE_BRIDGE.info("Loaded kit " + kit.getName() + " into the database");
       } catch (UnsupportedStringException e) {
         Loggers.LOUNGE_BRIDGE.warning(
-            "Can not load kit " + kit.getName() + " into database " +
-                "(UnsupportedStringException: " + e.getMessage() + ")");
+            "Can not load kit " + kit.getName() + " into database (UnsupportedStringException: " + e.getMessage() +
+                ")");
       } catch (Exception e) {
-        Loggers.LOUNGE_BRIDGE.warning(
-            "Can not load kit " + kit.getName() + " into database ");
+        Loggers.LOUNGE_BRIDGE.warning("Can not load kit " + kit.getName() + " into database ");
       }
     }
   }
