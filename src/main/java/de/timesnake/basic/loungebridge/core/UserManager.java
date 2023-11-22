@@ -9,6 +9,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.event.*;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.game.util.user.TeamUser;
@@ -170,38 +171,36 @@ public class UserManager implements Listener {
   public void onPlayerDeath(UserDeathEvent e) {
     User user = e.getUser();
 
-    if (user == null) {
-      return;
-    }
-
     if (user.isInGame()) {
       ((GameUser) user).addDeath();
     }
 
     LoungeBridgeServer.getToolManager().applyOnTools(GameUserDeathListener.class,
         t -> t.onGameUserDeath(e, ((GameUser) user)));
+    ((GameUser) user).onGameDeath();
 
     e.setAutoRespawn(true);
   }
 
 
   @EventHandler
-  public void onPlayerRespawn(PlayerRespawnEvent e) {
-    User user = Server.getUser(e.getPlayer());
-
-    if (user == null) {
-      return;
-    }
+  public void onPlayerRespawn(UserRespawnEvent e) {
+    GameUser user = (GameUser) e.getUser();
 
     AtomicReference<Location> respawnLoc = new AtomicReference<>();
 
     LoungeBridgeServer.getToolManager().applyOnTools(GameUserRespawnListener.class,
         t -> {
-          Location loc = t.onGameUserRespawn(((GameUser) user));
+          Location loc = t.onGameUserRespawn(user);
           if (loc != null) {
             respawnLoc.set(loc);
           }
         });
+
+    ExLocation loc = user.onGameRespawn();
+    if (loc != null) {
+      respawnLoc.set(loc);
+    }
 
     if (respawnLoc.get() != null) {
       e.setRespawnLocation(respawnLoc.get());

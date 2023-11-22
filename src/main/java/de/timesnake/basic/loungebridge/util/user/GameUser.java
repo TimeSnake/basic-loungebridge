@@ -8,6 +8,7 @@ import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
+import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.user.StatUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
@@ -15,10 +16,12 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
 import de.timesnake.library.chat.ExTextColor;
-import java.time.Duration;
 import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
+import org.jetbrains.annotations.Nullable;
+
+import java.time.Duration;
 
 public abstract class GameUser extends StatUser {
 
@@ -353,7 +356,12 @@ public abstract class GameUser extends StatUser {
 
   }
 
-  public void onGameRespawn() {
+  public void onGameDeath() {
 
+  }
+
+  @Nullable
+  public ExLocation onGameRespawn() {
+    return null;
   }
 }
