@@ -143,11 +143,8 @@ public class UserManager implements Listener {
               20 * REJOIN_TIME_SEC, BasicLoungeBridge.getPlugin()));
     }
 
-    if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus()
-        .equals(Status.User.PRE_GAME)) {
-      if (!LoungeBridgeServer.isGameRunning()) {
-        LoungeBridgeServerManager.getInstance().onGameUserQuitBeforeStart((GameUser) user);
-      } else {
+    if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus().equals(Status.User.PRE_GAME)) {
+      if (LoungeBridgeServer.isGameRunning()) {
         LoungeBridgeServerManager.getInstance().onGameUserQuit((GameUser) user);
       }
 
