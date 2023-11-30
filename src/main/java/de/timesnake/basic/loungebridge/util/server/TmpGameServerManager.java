@@ -48,7 +48,7 @@ public interface TmpGameServerManager {
   /**
    * Called by channel players message from lounge
    */
-  default void onGamePlayerNumber(int number) {
+  default void onEstimatedGamePlayerNumber(int number) {
 
   }
 
@@ -79,14 +79,11 @@ public interface TmpGameServerManager {
    *
    * @param user The {@link User} who left
    */
-  void onGameUserQuit(GameUser user);
-
-  /**
-   * Ingame user quits before the game started.
-   *
-   * @param user The {@link User} who left
-   */
-  void onGameUserQuitBeforeStart(GameUser user);
+  default void onGameUserQuit(GameUser user) {
+    if (this.checkGameEnd()) {
+      LoungeBridgeServer.stopGame();
+    }
+  }
 
   /**
    * Allows users to rejoin the game
@@ -94,6 +91,10 @@ public interface TmpGameServerManager {
    * @return true if it is allowed
    */
   boolean isRejoiningAllowed();
+
+  default boolean checkGameEnd() {
+    return false;
+  }
 
   /**
    * Allows users with status outgame to rejoin with status outgame

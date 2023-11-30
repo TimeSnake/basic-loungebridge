@@ -105,7 +105,7 @@ public class TablistManager {
       if (map != null) {
         StringBuilder authors = new StringBuilder();
         for (String author : map.getAuthors(18)) {
-          if (authors.length() != 0) {
+          if (!authors.isEmpty()) {
             authors.append("\n");
           }
           authors.append(author);
