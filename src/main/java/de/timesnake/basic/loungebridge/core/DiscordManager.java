@@ -6,15 +6,15 @@ package de.timesnake.basic.loungebridge.core;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
-import de.timesnake.basic.bukkit.util.user.event.AsyncUserJoinEvent;
 import de.timesnake.basic.bukkit.util.user.event.AsyncUserMoveEvent;
-import de.timesnake.basic.bukkit.util.user.event.AsyncUserQuitEvent;
 import de.timesnake.basic.bukkit.util.user.event.UserTeleportEvent;
 import de.timesnake.basic.game.util.user.SpectatorUser;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+import de.timesnake.basic.loungebridge.util.tool.listener.UserJoinQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
+import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.channel.util.listener.ChannelHandler;
 import de.timesnake.channel.util.listener.ChannelListener;
 import de.timesnake.channel.util.listener.ListenerType;
@@ -33,7 +33,7 @@ import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
-public class DiscordManager implements Listener, PreStopableTool, StartableTool, ChannelListener {
+public class DiscordManager implements Listener, PreStopableTool, StartableTool, UserJoinQuitListener, ChannelListener {
 
   public static final String DISCORD_SPECTATOR = "Spectator";
   public static final String DISCORD_LOUNGE = "Lounge";
@@ -52,8 +52,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   private boolean isLoaded = false;
 
   public DiscordManager() {
-    Server.getChannel().addListener(this,
-        () -> List.of(LoungeBridgeServer.getTwinServer().getName()));
+    Server.getChannel().addListener(this, () -> List.of(LoungeBridgeServer.getTwinServer().getName()));
   }
 
   @ChannelHandler(type = ListenerType.SERVER_DISCORD, filtered = true)
@@ -64,8 +63,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   public void update() {
     if (this.isEnabled()) {
       if (LoungeBridgeServer.getGame().getDiscordType() == null
-          || LoungeBridgeServer.getGame().getDiscordType()
-          .equals(Type.Discord.FORBIDDEN)) {
+          || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
         return;
       }
 
@@ -84,11 +82,9 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
 
   @Override
   public void start() {
-    if (this.isEnabled() && LoungeBridgeServer.getGame().getDiscordType()
-        .equals(Type.Discord.DISTANCE)) {
-      Server.getChannel().sendMessage(
-          new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.HIDE_CHANNELS,
-              true));
+    if (this.isEnabled() && LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
+      Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.HIDE_CHANNELS
+          , true));
 
       for (User user : Server.getInGameUsers()) {
         // create channel for each user
@@ -110,11 +106,11 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
       Server.runTaskLaterSynchrony(() -> {
         // move all users to lounge channel
         LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
-        uuidsByTeam.put(DISCORD_LOUNGE, Server.getUsers().stream().map(User::getUniqueId)
-            .collect(Collectors.toList()));
+
+        uuidsByTeam.put(DISCORD_LOUNGE, Server.getUsers().stream().map(User::getUniqueId).collect(Collectors.toList()));
+
         Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
-            MessageType.Discord.MOVE_MEMBERS,
-            new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+            MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
 
         // clean up distance channels
         if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
@@ -123,10 +119,8 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
           }
 
           Server.runTaskLaterSynchrony(() -> {
-            Server.getChannel()
-                .sendMessage(new ChannelDiscordMessage<>(Server.getName(),
-                    MessageType.Discord.DESTROY_CHANNELS,
-                    new LinkedList<>(this.channelByName.keySet())));
+            Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+                MessageType.Discord.DESTROY_CHANNELS, new LinkedList<>(this.channelByName.keySet())));
             this.channelByName.values().forEach(DistanceChannel::clear);
             this.channelByName.clear();
             this.channelByUuid.clear();
@@ -136,23 +130,6 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
       }, 20 * 2, BasicLoungeBridge.getPlugin());
     }
 
-  }
-
-  public void onUserJoinSpectator(SpectatorUser user) {
-    if (this.isEnabled()) {
-      LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
-      uuidsByTeam.put(DISCORD_SPECTATOR, List.of(user.getUniqueId()));
-      Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
-          MessageType.Discord.MOVE_MEMBERS,
-          new ChannelDiscordMessage.Allocation(uuidsByTeam)));
-    }
-  }
-
-  @EventHandler
-  public void onUserJoin(AsyncUserJoinEvent e) {
-    if (e.getUser().isInGame()) {
-      this.actionsByUuid.put(e.getUser().getUniqueId(), Action.ADD);
-    }
   }
 
   @EventHandler
@@ -166,13 +143,6 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   public void onUserTeleport(UserTeleportEvent e) {
     if (e.getUser().isInGame()) {
       this.actionsByUuid.put(e.getUser().getUniqueId(), Action.MOVE);
-    }
-  }
-
-  @EventHandler
-  public void onUserQuit(AsyncUserQuitEvent e) {
-    if (e.getUser().isInGame()) {
-      this.actionsByUuid.put(e.getUser().getUniqueId(), Action.REMOVE);
     }
   }
 
@@ -250,9 +220,8 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   }
 
   private void removeUuid(UUID uuid) {
-    Server.getChannel().sendMessage(
-        new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.DISCONNECT_MEMBER,
-            uuid));
+    Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+        MessageType.Discord.DISCONNECT_MEMBER, uuid));
   }
 
   private UUID canJoinTo(UUID uuid, Collection<UUID> uuids) {
@@ -283,12 +252,12 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
       return false;
     }
 
-    if (Math.pow(userLocation.getX() - memberLocation.getX(), 2) + Math.pow(
-        userLocation.getZ() - memberLocation.getZ(), 2)
-        <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
-      if (Math.abs(userLocation.getY() - memberLocation.getY()) <= VERTICAL_DISTANCE) {
-        return true;
-      }
+    double xDiff = userLocation.getX() - memberLocation.getX();
+    double yDiff = userLocation.getY() - memberLocation.getY();
+    double zDiff = userLocation.getZ() - memberLocation.getZ();
+
+    if (xDiff * xDiff + zDiff * zDiff <= HORIZONTAL_DISTANCE * HORIZONTAL_DISTANCE) {
+      return Math.abs(yDiff) <= VERTICAL_DISTANCE;
     }
 
     return false;
@@ -301,6 +270,35 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
 
   public boolean isEnabled() {
     return enabled;
+  }
+
+  @Override
+  public void onGameUserJoin(GameUser user) {
+    if (user.isInGame()) {
+      this.actionsByUuid.put(user.getUniqueId(), Action.ADD);
+    }
+  }
+
+  @Override
+  public void onGameUserQuit(GameUser user) {
+    if (user.isInGame()) {
+      this.actionsByUuid.put(user.getUniqueId(), Action.REMOVE);
+    }
+  }
+
+  @Override
+  public void onSpectatorUserJoin(SpectatorUser user) {
+    if (this.isEnabled()) {
+      LinkedHashMap<String, List<UUID>> uuidsByTeam = new LinkedHashMap<>();
+      uuidsByTeam.put(DISCORD_SPECTATOR, List.of(user.getUniqueId()));
+      Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(),
+          MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
+    }
+  }
+
+  @Override
+  public void onSpectatorUserQuit(SpectatorUser user) {
+
   }
 
   enum Action {
