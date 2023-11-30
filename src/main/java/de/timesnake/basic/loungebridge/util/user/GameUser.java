@@ -15,8 +15,6 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
-import de.timesnake.library.chat.ExTextColor;
-import net.kyori.adventure.text.Component;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -162,9 +160,7 @@ public abstract class GameUser extends StatUser {
   }
 
   public void broadcastKillStreak() {
-    LoungeBridgeServer.broadcastGameMessage(this.getChatNameComponent()
-        .append(Component.text(" has a kill-streak of ", ExTextColor.PUBLIC))
-        .append(Component.text(this.killStreak, ExTextColor.VALUE)));
+    LoungeBridgeServer.broadcastGameTDMessage(this.getTDChatName() + "§p has a kill-streak of §v" + this.killStreak);
   }
 
   public Integer getDeaths() {
@@ -196,8 +192,7 @@ public abstract class GameUser extends StatUser {
 
       if (this.getLastDamager().getDamageType().equals(UserDamage.DamageType.PLAYER_BOW)) {
         int distance =
-            (int) this.getLastDamager().getUserLocation()
-                .distance(this.getLastDamager().getDamagerLocation());
+            (int) this.getLastDamager().getUserLocation().distance(this.getLastDamager().getDamagerLocation());
         damager.checkLongestShot(distance);
       }
 
@@ -287,7 +282,7 @@ public abstract class GameUser extends StatUser {
     return longestShot;
   }
 
-  public Component getHealthDisplay() {
+  public String getHealthDisplay() {
     double health = this.getHealth() / 2;
     if (health - ((int) health) >= 0.25 && health - ((int) health) < 0.75) {
       health = ((int) health) + 0.5;
@@ -299,7 +294,7 @@ public abstract class GameUser extends StatUser {
       health = 0.5;
     }
 
-    return Component.text(health + "❤", ExTextColor.WARNING);
+    return health + "❤";
   }
 
   @Override

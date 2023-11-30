@@ -6,16 +6,14 @@ package de.timesnake.basic.loungebridge.util.server;
 
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.chat.ExTextColor;
-import de.timesnake.library.extension.util.chat.Chat;
+import net.kyori.adventure.text.Component;
+
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.TextComponent;
 
 public interface HighScoreCalculator {
 
@@ -65,31 +63,23 @@ public interface HighScoreCalculator {
     return highestUsers;
   }
 
-  default void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
-      Predicate<GameUser> predicateToBroadcast,
-      Function<GameUser, ? extends Comparable> keyExtractor) {
-    Set<GameUser> highestUsers = this.getHighScore(users, number,
-        Comparator.comparing(keyExtractor));
-    if (highestUsers.size() == 0 || !predicateToBroadcast.test(
-        highestUsers.stream().findFirst().get())) {
-      return;
+  default String getHighscoreMessage(String name, Collection<? extends GameUser> users, int number,
+                                     Predicate<GameUser> predicateToBroadcast, Function<GameUser, ?
+      extends Comparable> keyExtractor) {
+    Set<GameUser> highestUsers = this.getHighScore(users, number, Comparator.comparing(keyExtractor));
+
+    if (highestUsers.isEmpty() || !predicateToBroadcast.test(highestUsers.stream().findFirst().get())) {
+      return null;
     }
 
-    TextComponent.Builder builder = Component.text();
-
-    builder.append(Component.text(name + ": ", ExTextColor.WHITE)).append(Component.text(
-            "" + keyExtractor.apply(highestUsers.stream().findFirst().get()), ExTextColor.GOLD))
-        .append(Component.text(" by ").color(ExTextColor.WHITE));
-
-    builder.append(Chat.listToComponent(
-        highestUsers.stream().map(User::getChatNameComponent).toList()));
-
-    this.broadcastGameMessage(builder.build());
+    return "§p" + name + ": " +
+        "§h" + keyExtractor.apply(highestUsers.stream().findFirst().get()) +
+        " §pby " + String.join(", ", highestUsers.stream().map(User::getTDChatName).toList());
   }
 
-  default void broadcastHighscore(String name, Collection<? extends GameUser> users, int number,
-      Function<GameUser, ? extends Comparable> keyExtractor) {
-    this.broadcastHighscore(name, users, number, (u) -> true, keyExtractor);
+  default String getHighscoreMessage(String name, Collection<? extends GameUser> users, int number,
+                                     Function<GameUser, ? extends Comparable> keyExtractor) {
+    return this.getHighscoreMessage(name, users, number, (u) -> true, keyExtractor);
   }
 
   void broadcastGameMessage(Component msg);

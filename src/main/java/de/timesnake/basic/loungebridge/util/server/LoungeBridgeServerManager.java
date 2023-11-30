@@ -65,7 +65,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   protected boolean mapsEnabled;
   protected Integer serverTeamAmount;
   protected Integer maxPlayersPerTeam;
-  protected boolean teamMateDamage = true;
+  protected boolean allowTeamMateDamage = true;
   protected Integer estimatedPlayers;
   protected Integer startPlayers;
   protected ToolManager toolManager;
@@ -149,7 +149,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.setMap(this.getGame().getMap(database.getMapName()));
 
     // silent join quit
-    Server.getChat().broadcastJoinQuit(false);
+    Server.getChat().setBroadcastJoinQuit(false);
 
     this.loadChats();
 
@@ -270,6 +270,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
     this.running = true;
 
+    if (this.checkGameEnd()) {
+      Loggers.LOUNGE_BRIDGE.info("Stopped game, due to fulfilled end condition");
+      this.stopGame();
+      return;
+    }
+
     for (User user : Server.getPreGameUsers()) {
       user.setStatus(Status.User.IN_GAME);
       ((GameUser) user).playedGame();
@@ -279,7 +285,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     this.toolManager.runTools(StartableTool.class);
 
-    Server.getChat().broadcastJoinQuit(true);
+    Server.getChat().setBroadcastJoinQuit(true);
 
     this.onGameStart();
   }
@@ -290,6 +296,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     this.running = false;
+
+    Loggers.LOUNGE_BRIDGE.info("Game stopped");
 
     this.toolManager.runTools(PreStopableTool.class);
 
@@ -347,7 +355,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   }
 
   public final void closeGame10() {
-    Server.getChat().broadcastJoinQuit(false);
+    Server.getChat().setBroadcastJoinQuit(false);
     for (User user : Server.getUsers()) {
       if (!user.isAirMode() && !user.isService()) {
         user.getDatabase().setKit(null);
@@ -369,6 +377,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.estimatedPlayers = null;
     this.startPlayers = null;
 
+    Loggers.LOUNGE_BRIDGE.info("Starting game reset");
+
     this.toolManager.runTools(ResetableTool.class);
 
     if (this.getMap() != null && this.getMap() instanceof ResetableMap) {
@@ -377,6 +387,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     this.onGameReset();
     LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
+
+    Loggers.LOUNGE_BRIDGE.info("Finished game reset");
   }
 
   public void loadTools() {
@@ -400,12 +412,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.getSpectatorManager().updateSpectatorTools();
   }
 
-  public boolean isTeamMateDamage() {
-    return teamMateDamage;
+  public boolean allowTeamMateDamage() {
+    return allowTeamMateDamage;
   }
 
-  public void setTeamMateDamage(boolean teamMateDamage) {
-    this.teamMateDamage = teamMateDamage;
+  public void setTeamMateDamage(boolean allowTeaMateDamage) {
+    this.allowTeamMateDamage = allowTeaMateDamage;
   }
 
   public TablistTeam getTablistGameTeam() {

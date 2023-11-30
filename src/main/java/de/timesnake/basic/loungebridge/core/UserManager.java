@@ -21,8 +21,6 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
-import de.timesnake.library.chat.ExTextColor;
-import net.kyori.adventure.text.Component;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -309,11 +307,9 @@ public class UserManager implements Listener {
     GameUser clickedUser = (GameUser) e.getUser();
     GameUser user = (GameUser) e.getUserDamager();
 
-    if (!LoungeBridgeServer.isTeamMateDamage()) {
+    if (!LoungeBridgeServer.allowTeamMateDamage()) {
       if (clickedUser.isTeamMate(user)) {
-        user.sendPluginMessage(LoungeBridgeServer.getGamePlugin(),
-            Component.text("You can't damage "
-                + "your teammate", ExTextColor.PERSONAL));
+        user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(), "§sYou can't damage your teammate");
         e.setCancelled(true);
         return;
       }

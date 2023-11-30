@@ -20,6 +20,7 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.database.util.server.DbLoungeServer;
+import de.timesnake.library.basic.util.TimeCoins;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.extension.util.chat.Plugin;
 import net.kyori.adventure.text.Component;
@@ -31,6 +32,8 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 
 public abstract class LoungeBridgeServer extends GameServer {
+
+  public static final float WIN_COINS = 10 * TimeCoins.MULTIPLIER;
 
   public static TmpGame getGame() {
     return server.getGame();
@@ -102,7 +105,7 @@ public abstract class LoungeBridgeServer extends GameServer {
   }
 
   public static void onGamePlayerNumber(int number) {
-    server.onGamePlayerNumber(number);
+    server.onEstimatedGamePlayerNumber(number);
   }
 
   public static ExWorld getGameWorld() {
@@ -137,8 +140,8 @@ public abstract class LoungeBridgeServer extends GameServer {
     return server.getGamePlugin();
   }
 
-  public static boolean isTeamMateDamage() {
-    return server.isTeamMateDamage();
+  public static boolean allowTeamMateDamage() {
+    return server.allowTeamMateDamage();
   }
 
   public static void setTeamMateDamage(boolean teamMateDamage) {
@@ -169,8 +172,7 @@ public abstract class LoungeBridgeServer extends GameServer {
     return server.getMostKills(users, number);
   }
 
-  public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users,
-      int number) {
+  public static <U extends GameUser> Set<U> getHighestKillstreak(Collection<U> users, int number) {
     return server.getHighestKillStreak(users, number);
   }
 
@@ -186,20 +188,19 @@ public abstract class LoungeBridgeServer extends GameServer {
     return server.getLongestShot(users, number);
   }
 
-  public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number,
-      Comparator<U> comparator) {
+  public static <U extends GameUser> Set<U> getHighscore(Collection<U> user, int number, Comparator<U> comparator) {
     return server.getHighScore(user, number, comparator);
   }
 
-  public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
-      int number, Predicate<GameUser> predicateToBroadcast,
-      Function<GameUser, ? extends Comparable> keyExtractor) {
-    server.broadcastHighscore(name, users, number, predicateToBroadcast, keyExtractor);
+  public static String getHighscoreMessage(String name, Collection<? extends GameUser> users,
+                                           int number, Predicate<GameUser> predicateToBroadcast,
+                                           Function<GameUser, ? extends Comparable<?>> keyExtractor) {
+    return server.getHighscoreMessage(name, users, number, predicateToBroadcast, keyExtractor);
   }
 
-  public static void broadcastHighscore(String name, Collection<? extends GameUser> users,
-      int number, Function<GameUser, ? extends Comparable> keyExtractor) {
-    server.broadcastHighscore(name, users, number, keyExtractor);
+  public static String getHighscoreMessage(String name, Collection<? extends GameUser> users,
+                                           int number, Function<GameUser, ? extends Comparable<?>> keyExtractor) {
+    return server.getHighscoreMessage(name, users, number, keyExtractor);
   }
 
   public static Collection<Team> getNotEmptyGameTeams() {
