@@ -15,6 +15,7 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
+import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
@@ -22,8 +23,6 @@ import org.jetbrains.annotations.Nullable;
 import java.time.Duration;
 
 public abstract class GameUser extends StatUser {
-
-  protected boolean isLeaving;
 
   protected Kit kit;
 
@@ -55,16 +54,14 @@ public abstract class GameUser extends StatUser {
         this.kit = LoungeBridgeServer.getGame().getKitManager().getKit(kitId).orElse(null);
       }
     }
-    this.isLeaving = false;
 
     if (LoungeBridgeServer.getGame().hasTexturePack()) {
       this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
     }
-  }
 
-  protected void loadGameSettings() {
-    this.setFlying(false);
-    this.setAllowFlight(false);
+    for (Statistic stat : Statistic.values()) {
+      this.setStatistic(stat, 0);
+    }
   }
 
   @Override
@@ -79,21 +76,8 @@ public abstract class GameUser extends StatUser {
   public void joinSpectator() {
     super.joinSpectator();
 
-    LoungeBridgeServer.getToolManager().applyOnTools(GameUserQuitListener.class,
-        t -> t.onGameUserQuit(this));
-
-    LoungeBridgeServer.getToolManager().applyOnTools(SpectatorUserJoinListener.class,
-        t -> t.onSpectatorUserJoin(this));
-
-    LoungeBridgeServer.getDiscordManager().onUserJoinSpectator(this);
-  }
-
-  public boolean isLeaving() {
-    return isLeaving;
-  }
-
-  public void setLeaving(boolean isLeaving) {
-    this.isLeaving = isLeaving;
+    LoungeBridgeServer.getToolManager().applyOnTools(GameUserQuitListener.class, t -> t.onGameUserQuit(this));
+    LoungeBridgeServer.getToolManager().applyOnTools(SpectatorUserJoinListener.class, t -> t.onSpectatorUserJoin(this));
   }
 
   public void playedGame() {

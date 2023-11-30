@@ -84,16 +84,29 @@ public class EndMessage {
 
   public EndMessage addStat(String name, Collection<? extends User> users, int maxUsers, Function<GameUser, ?
       extends Comparable<?>> keyExtractor) {
-    this.stats.add(LoungeBridgeServer.getHighscoreMessage(name, (Collection<? extends GameUser>) users, maxUsers,
-        keyExtractor));
+
+    String msg = LoungeBridgeServer.getHighscoreMessage(name, (Collection<? extends GameUser>) users, maxUsers,
+        keyExtractor);
+
+    if (msg == null) {
+      return this;
+    }
+
+    this.stats.add(msg);
     return this;
   }
 
   public EndMessage addStat(String name, Collection<? extends User> users, int maxUsers,
                             Predicate<GameUser> predicateToBroadcast,
                             Function<GameUser, ? extends Comparable<?>> keyExtractor) {
-    this.stats.add(LoungeBridgeServer.getHighscoreMessage(name, (Collection<? extends GameUser>) users, maxUsers,
-        predicateToBroadcast, keyExtractor));
+    String msg = LoungeBridgeServer.getHighscoreMessage(name, (Collection<? extends GameUser>) users, maxUsers,
+        predicateToBroadcast, keyExtractor);
+
+    if (msg == null) {
+      return this;
+    }
+
+    this.stats.add(msg);
     return this;
   }
 
