@@ -15,12 +15,13 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
-import org.bukkit.Statistic;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;
+import java.util.List;
 
 public abstract class GameUser extends StatUser {
 
@@ -58,10 +59,6 @@ public abstract class GameUser extends StatUser {
     if (LoungeBridgeServer.getGame().hasTexturePack()) {
       this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
     }
-
-    for (Statistic stat : Statistic.values()) {
-      this.setStatistic(stat, 0);
-    }
   }
 
   @Override
@@ -96,6 +93,13 @@ public abstract class GameUser extends StatUser {
     this.kit = kit;
   }
 
+  /**
+   * Applies kit to user.
+   * <p>
+   * This method can only be invoked once. To reuse it, set {@link #kitLoaded} to false.
+   *
+   * @return true if kit was applied, else false.
+   */
   public boolean applyKit() {
     if (this.kitLoaded) {
       return false;
@@ -266,6 +270,11 @@ public abstract class GameUser extends StatUser {
     return longestShot;
   }
 
+  /**
+   * Gets health with heart symbol
+   *
+   * @return
+   */
   public String getHealthDisplay() {
     double health = this.getHealth() / 2;
     if (health - ((int) health) >= 0.25 && health - ((int) health) < 0.75) {
@@ -287,6 +296,11 @@ public abstract class GameUser extends StatUser {
     this.gameCoins += coins;
   }
 
+  /**
+   * Gets amount of gained coins during game
+   *
+   * @return the amount of coins
+   */
   public float getGameCoins() {
     return gameCoins;
   }
@@ -302,10 +316,19 @@ public abstract class GameUser extends StatUser {
     this.onGameStop();
   }
 
+  /**
+   * Invoked after user respawns.
+   */
   public final void respawn() {
     this.onGameRespawn();
   }
 
+  /**
+   * Respawn user after given time.
+   * It is recommended to call this method by overriding {@link #respawn()}.
+   *
+   * @param seconds to respawn
+   */
   public final void respawnDelayed(int seconds) {
     this.lockLocation();
     this.lockInventory();
@@ -323,24 +346,52 @@ public abstract class GameUser extends StatUser {
     }, seconds, true, 20, 0, BasicLoungeBridge.getPlugin());
   }
 
+  /**
+   * Invoked while user joins the game
+   */
   public void onGameJoin() {
 
   }
 
+  /**
+   * Invoked at game start.
+   */
   public void onGameStart() {
 
   }
 
+  /**
+   * Invoked at game stop.
+   */
   public void onGameStop() {
 
   }
 
-  public void onGameDeath() {
+  /**
+   * Invoked on user death.
+   * <p>
+   * Do not set items and other player stuff here. Use {@link #onGameRespawn()} instead.
+   *
+   * @return the list of items to drop and null to keep unchanged.
+   */
+  public List<ItemStack> onGameDeath() {
+    return null;
+  }
+
+  /**
+   * Invoked after user respawns.
+   */
+  public void onGameRespawn() {
 
   }
 
+  /**
+   * Determines respawn location of user
+   *
+   * @return the respawn location
+   */
   @Nullable
-  public ExLocation onGameRespawn() {
+  public ExLocation getRespawnLocation() {
     return null;
   }
 }
