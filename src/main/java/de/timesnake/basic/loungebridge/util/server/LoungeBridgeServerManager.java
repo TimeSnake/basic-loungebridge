@@ -268,7 +268,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public final void startGame() {
     LoungeBridgeServer.setState(LoungeBridgeServer.State.RUNNING);
+
     this.running = true;
+
+    for (User user : Server.getPreGameUsers()) {
+      user.setStatus(Status.User.IN_GAME);
+    }
 
     if (this.checkGameEnd()) {
       Loggers.LOUNGE_BRIDGE.info("Stopped game, due to fulfilled end condition");
@@ -276,10 +281,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       return;
     }
 
-    for (User user : Server.getPreGameUsers()) {
-      user.setStatus(Status.User.IN_GAME);
-      ((GameUser) user).playedGame();
-    }
+    Server.getInGameUsers().forEach(u -> ((GameUser) u).playedGame());
 
     this.startPlayers = Server.getInGameUsers().size();
 

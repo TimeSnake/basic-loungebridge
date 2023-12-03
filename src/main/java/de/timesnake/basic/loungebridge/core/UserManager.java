@@ -40,9 +40,11 @@ import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -170,9 +172,13 @@ public class UserManager implements Listener {
       ((GameUser) user).addDeath();
     }
 
-    LoungeBridgeServer.getToolManager().applyOnTools(GameUserDeathListener.class,
-        t -> t.onGameUserDeath(e, ((GameUser) user)));
-    ((GameUser) user).onGameDeath();
+    LoungeBridgeServer.getToolManager().applyOnTools(GameUserDeathListener.class, t -> t.onGameUserDeath(e,
+        ((GameUser) user)));
+    List<ItemStack> drops = ((GameUser) user).onGameDeath();
+
+    if (drops != null) {
+      e.setDrops(drops);
+    }
 
     e.setAutoRespawn(true);
   }
@@ -192,7 +198,7 @@ public class UserManager implements Listener {
           }
         });
 
-    ExLocation loc = user.onGameRespawn();
+    ExLocation loc = user.getRespawnLocation();
     if (loc != null) {
       respawnLoc.set(loc);
     }
@@ -200,6 +206,8 @@ public class UserManager implements Listener {
     if (respawnLoc.get() != null) {
       e.setRespawnLocation(respawnLoc.get());
     }
+
+    user.respawn();
   }
 
 

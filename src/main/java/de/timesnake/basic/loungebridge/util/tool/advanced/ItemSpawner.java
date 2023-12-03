@@ -2,19 +2,21 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.loungebridge.util.game;
+package de.timesnake.basic.loungebridge.util.tool.advanced;
 
 import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.server.TimeUnit;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
-import java.util.List;
-import java.util.Random;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.List;
+import java.util.Random;
 
 public class ItemSpawner implements GameTool, StartableTool, StopableTool {
 
@@ -23,25 +25,16 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
   private final Integer locationIndex;
   private final List<? extends ItemStack> items;
   private final Random random = new Random();
-  private boolean inTicks = false;
+  private final TimeUnit unit;
   private BukkitTask task;
   private int delay;
 
-  public ItemSpawner(Integer locationIndex, int delay, int delayRange,
-      List<? extends ItemStack> items) {
+  public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, List<? extends ItemStack> items) {
     this.locationIndex = locationIndex;
     this.items = items;
     this.delayBase = delay;
     this.delayRange = delayRange;
-  }
-
-  public ItemSpawner(Integer locationIndex, int delay, int delayRange, boolean inTicks,
-      List<? extends ItemStack> items) {
-    this.locationIndex = locationIndex;
-    this.items = items;
-    this.delayBase = delay;
-    this.delayRange = delayRange;
-    this.inTicks = true;
+    this.unit = unit;
   }
 
   @Override
@@ -62,7 +55,7 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
             .dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
         this.delay = this.random.nextInt(delayRange) + delayBase;
       }
-    }, this.inTicks ? 1 : 20, this.inTicks ? 1 : 20, BasicLoungeBridge.getPlugin());
+    }, 0, this.unit.getTicks(), BasicLoungeBridge.getPlugin());
   }
 
   @Override
