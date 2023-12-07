@@ -51,6 +51,10 @@ public abstract class LoungeBridgeServer extends GameServer {
     server.closeGame10();
   }
 
+  public static boolean checkGameEnd() {
+    return server.checkGameEnd();
+  }
+
   public static DbLoungeServer getTwinServer() {
     return server.getTwinServer();
   }

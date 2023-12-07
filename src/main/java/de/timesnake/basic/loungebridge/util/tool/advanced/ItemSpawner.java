@@ -12,6 +12,7 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
+import de.timesnake.library.basic.util.Loggers;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -29,6 +30,10 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
   private BukkitTask task;
   private int delay;
 
+  public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, List<? extends ItemStack> items) {
+    this(locationIndex, unit, delay, 0, items);
+  }
+
   public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, List<? extends ItemStack> items) {
     this.locationIndex = locationIndex;
     this.items = items;
@@ -37,23 +42,24 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
     this.unit = unit;
   }
 
+
   @Override
   public void start() {
     ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
 
     if (location == null) {
+      Loggers.GAME.warning("Item spawn location with index '" + this.locationIndex + "' not found");
       return;
     }
 
-    this.delay = this.random.nextInt(delayRange) + delayBase;
+    this.delay = (this.delayRange > 0 ? this.random.nextInt(delayRange) : 0) + delayBase;
 
     this.task = Server.runTaskTimerSynchrony(() -> {
       delay--;
 
       if (delay <= 0) {
-        location.getWorld()
-            .dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
-        this.delay = this.random.nextInt(delayRange) + delayBase;
+        location.getWorld().dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
+        this.delay = (this.delayRange > 0 ? this.random.nextInt(delayRange) : 0) + delayBase;
       }
     }, 0, this.unit.getTicks(), BasicLoungeBridge.getPlugin());
   }
