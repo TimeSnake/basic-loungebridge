@@ -17,15 +17,14 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
 import java.util.List;
-import java.util.Random;
+import java.util.function.Supplier;
 
 public class ItemSpawner implements GameTool, StartableTool, StopableTool {
 
   private final int delayBase;
   private final int delayRange;
   private final Integer locationIndex;
-  private final List<? extends ItemStack> items;
-  private final Random random = new Random();
+  private final Supplier<List<? extends ItemStack>> itemSupplier;
   private final TimeUnit unit;
   private BukkitTask task;
   private int delay;
@@ -35,13 +34,17 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
   }
 
   public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, List<? extends ItemStack> items) {
+    this(locationIndex, unit, delay, delayRange, () -> List.of(items.get(Server.getRandom().nextInt(items.size()))));
+  }
+
+  public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, Supplier<List<?
+      extends ItemStack>> itemSupplier) {
     this.locationIndex = locationIndex;
-    this.items = items;
+    this.itemSupplier = itemSupplier;
     this.delayBase = delay;
     this.delayRange = delayRange;
     this.unit = unit;
   }
-
 
   @Override
   public void start() {
@@ -52,14 +55,14 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
       return;
     }
 
-    this.delay = (this.delayRange > 0 ? this.random.nextInt(delayRange) : 0) + delayBase;
+    this.delay = (this.delayRange > 0 ? Server.getRandom().nextInt(delayRange) : 0) + delayBase;
 
     this.task = Server.runTaskTimerSynchrony(() -> {
       delay--;
 
       if (delay <= 0) {
-        location.getWorld().dropItem(location, this.items.get(this.random.nextInt(this.items.size())));
-        this.delay = (this.delayRange > 0 ? this.random.nextInt(delayRange) : 0) + delayBase;
+        this.itemSupplier.get().forEach(i -> location.getWorld().dropItem(location, i));
+        this.delay = (this.delayRange > 0 ? Server.getRandom().nextInt(delayRange) : 0) + delayBase;
       }
     }, 0, this.unit.getTicks(), BasicLoungeBridge.getPlugin());
   }

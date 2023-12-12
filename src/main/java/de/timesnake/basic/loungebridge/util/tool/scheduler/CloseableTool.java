@@ -5,10 +5,9 @@
 package de.timesnake.basic.loungebridge.util.tool.scheduler;
 
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
-import de.timesnake.basic.loungebridge.util.tool.MapDependable;
 
 @FunctionalInterface
-public interface CloseableTool extends GameTool, MapDependable {
+public interface CloseableTool extends GameTool {
 
   void close();
 }
