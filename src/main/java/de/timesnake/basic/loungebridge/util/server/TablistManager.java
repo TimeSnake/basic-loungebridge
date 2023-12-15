@@ -10,6 +10,7 @@ import de.timesnake.basic.bukkit.util.group.DisplayGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.*;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.library.basic.util.Status;
 
@@ -18,7 +19,7 @@ import java.util.List;
 
 import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.*;
 
-public class TablistManager {
+public class TablistManager implements MapLoadableTool {
 
   protected TeamTablist gameTablist;
 
@@ -29,8 +30,7 @@ public class TablistManager {
     this.spectatorTeam = new TablistTeam("0", SPECTATOR_NAME, SPECTATOR_TABLIST_PREFIX,
         SPECTATOR_TABLIST_CHAT_COLOR, SPECTATOR_TABLIST_PREFIX_CHAT_COLOR) {
       @Override
-      public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player,
-                                                  TablistableGroup otherGroup) {
+      public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player, TablistableGroup otherGroup) {
         if (otherGroup.equals(this)) {
           return NameTagVisibility.ALWAYS;
         }
@@ -49,10 +49,8 @@ public class TablistManager {
         .remainTeam(this.spectatorTeam)
         .userJoin((e, tablist) -> {
           if (e.getUser().getTask() != null
-              && e.getUser().getTask()
-              .equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
-              && (e.getUser().getStatus().equals(Status.User.PRE_GAME)
-              || e.getUser().getStatus().equals(Status.User.IN_GAME))) {
+              && e.getUser().getTask().equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
+              && (e.getUser().getStatus().equals(Status.User.PRE_GAME) || e.getUser().getStatus().equals(Status.User.IN_GAME))) {
             tablist.addEntry(e.getUser());
           } else {
             ((TeamTablist) tablist).addRemainEntry(e.getUser());
@@ -60,8 +58,7 @@ public class TablistManager {
         })
         .userQuit((e, tablist) -> tablist.removeEntry(e.getUser()));
 
-    if (LoungeBridgeServer.getServerTeamAmount() > 0 && !LoungeBridgeServer.getGame()
-        .hideTeams()) {
+    if (LoungeBridgeServer.getServerTeamAmount() > 0 && !LoungeBridgeServer.getGame().hideTeams()) {
       if (LoungeBridgeServer.getMaxPlayersPerTeam() == null) {
         this.gameTablist = Server.getScoreboardManager().registerTagTeamTablist(builder
             .colorType(TeamTablist.ColorType.TEAM)
@@ -74,10 +71,8 @@ public class TablistManager {
               team.getTablistChatColor() + "§l" + team.getTablistName());
         }
       } else {
-        LinkedList<TablistGroupType> gameTeamTypes = new LinkedList<>(
-            DisplayGroup.MAIN_TABLIST_GROUPS);
-        gameTeamTypes.addFirst(
-            de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM);
+        LinkedList<TablistGroupType> gameTeamTypes = new LinkedList<>(DisplayGroup.MAIN_TABLIST_GROUPS);
+        gameTeamTypes.addFirst(de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM);
         this.tablistGameTeam = this.loadGameTeam();
 
         this.gameTablist = Server.getScoreboardManager().registerTagTeamTablist(builder
@@ -96,31 +91,20 @@ public class TablistManager {
     }
 
     this.gameTablist.setHeader("§6" + LoungeBridgeServer.getGame().getDisplayName());
-    this.gameTablist.setFooter(
-        "§7Server: " + Server.getName() + "\n§cSupport: /ticket or \nsupport@timesnake.de");
+    this.gameTablist.setFooter("§7Server: " + Server.getName() + "\n§cSupport: /ticket or \nsupport@timesnake.de");
   }
 
-  public void updateMapFooter(Map map) {
+  @Override
+  public void onMapLoad() {
     if (this.gameTablist != null) {
+      Map map = LoungeBridgeServer.getMap();
       if (map != null) {
-        StringBuilder authors = new StringBuilder();
-        for (String author : map.getAuthors(18)) {
-          if (!authors.isEmpty()) {
-            authors.append("\n");
-          }
-          authors.append(author);
-
-        }
-
-        this.gameTablist.setHeader(
-            ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName()
-                + ChatColor.GRAY + ": " +
-                ChatColor.DARK_GREEN + map.getDisplayName() +
-                (!authors.isEmpty() ? "\n" + ChatColor.GRAY + " by "
-                    + ChatColor.BLUE + authors : ""));
+        this.gameTablist.setHeader(ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName()
+            + ChatColor.GRAY + ": " + ChatColor.DARK_GREEN + map.getDisplayName() +
+            (!map.getAuthors().isEmpty() ? "\n" + ChatColor.GRAY + " by "
+                + ChatColor.BLUE + String.join("\n", map.getAuthors()) : ""));
       } else {
-        this.gameTablist.setHeader(
-            ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName());
+        this.gameTablist.setHeader(ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName());
       }
     }
   }

@@ -1,0 +1,30 @@
+@startuml
+
+participant Lounge
+participant GameScheduler
+participant LoungeServerManager
+participant GameServerManager
+participant ToolManager
+
+note over Lounge: on user join
+Lounge -> LoungeServerManager ++: checkGameStart()
+note over LoungeServerManager: wait for all users, at most 5 s
+LoungeServerManager -> LoungeServerManager: startGameCountDown()
+LoungeServerManager -> GameScheduler --++: startGameCountDown()
+note over GameScheduler: countdown runs
+GameScheduler -> LoungeServerManager --++: startGame()
+note over LoungeServerManager: state = running
+note over LoungeServerManager: user status = in_game
+
+alt checkGameEnd()
+LoungeServerManager -> LoungeServerManager: stopGame()
+
+else
+
+LoungeServerManager -> ToolManager: runTools(StartableTool)
+LoungeServerManager -> GameServerManager: onGameStart()
+
+
+end
+
+@enduml
