@@ -146,7 +146,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     // set map from database
-    this.setMap(this.getGame().getMap(database.getMapName()));
+    this.map = this.getGame().getMap(database.getMapName());
 
     // silent join quit
     Server.getChat().setBroadcastJoinQuit(false);
@@ -247,7 +247,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public final void loadMap() {
     Map map = this.getGame().getMap(((DbTmpGameServer) Server.getDatabase()).getMapName());
-    this.setMap(map);
+    this.map = map;
 
     this.onMapLoad();
     this.toolManager.runTools(MapLoadableTool.class);
@@ -259,11 +259,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.onWorldLoad();
 
     this.toolManager.runTools(WorldLoadableTool.class);
-  }
 
-  @Deprecated
-  public final void prepareGame() {
-    this.onGamePrepare();
+    Loggers.LOUNGE_BRIDGE.info("Loaded world");
   }
 
   public final void startGame() {
@@ -289,6 +286,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     Server.getChat().setBroadcastJoinQuit(true);
 
+    Loggers.LOUNGE_BRIDGE.info("Game started");
     this.onGameStart();
   }
 
@@ -365,8 +363,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       }
 
       if (LoungeBridgeServer.getGame().hasTexturePack()) {
-        user.setTexturePack(Server.getNetwork().getVariables()
-            .getValue(NetworkVariables.DEFAULT_TEXTURE_PACK_LINK));
+        user.setTexturePack(Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_TEXTURE_PACK_LINK));
       }
 
       user.switchToServer(LoungeBridgeServer.getTwinServer());
@@ -456,11 +453,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public Map getMap() {
     return map;
-  }
-
-  public void setMap(Map map) {
-    this.map = map;
-    this.tablistManager.updateMapFooter(map);
   }
 
   public Integer getServerTeamAmount() {

@@ -239,11 +239,6 @@ public abstract class LoungeBridgeServer extends GameServer {
     return server.loadOfflineUser(user);
   }
 
-  @Deprecated
-  public static void prepareGame() {
-    server.prepareGame();
-  }
-
   public static void startGame() {
     server.startGame();
   }

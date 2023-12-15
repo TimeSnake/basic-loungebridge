@@ -7,7 +7,6 @@ package de.timesnake.basic.loungebridge.core;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.library.basic.util.Loggers;
 import org.bukkit.Instrument;
 import org.bukkit.Note;
 import org.bukkit.scheduler.BukkitTask;
@@ -32,10 +31,6 @@ public class GameScheduler {
 
       this.gameCountdownTask = Server.runTaskTimerSynchrony(() -> {
         switch (gameCountdown) {
-          case 7 -> {
-            Loggers.LOUNGE_BRIDGE.info("Preparing game ...");
-            LoungeBridgeServer.prepareGame();
-          }
           case 5, 4, 3, 2, 1 -> {
             Server.broadcastTDTitle("§w" + gameCountdown, "", Duration.ofSeconds(1));
             LoungeBridgeServer.broadcastLoungeBridgeTDMessage("§pGame starts in §v" + gameCountdown + " §ps");

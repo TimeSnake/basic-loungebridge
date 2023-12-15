@@ -1,0 +1,25 @@
+@startuml
+
+participant ChannelListener
+participant LoungeServerManager
+participant GameServerManager
+participant ToolManager
+
+== Map (only for map based games) ==
+
+[--> ChannelListener: SERVER_GAME_MAP
+ChannelListener -> LoungeServerManager ++: loadMap()
+note over LoungeServerManager: update map attribute
+LoungeServerManager -> GameServerManager: onMapLoad()
+LoungeServerManager -> ToolManager: runTools(MapLoadableTool)
+deactivate
+
+== World (only for world based games) ==
+
+[--> ChannelListener: SERVER_GAME_WORLD
+ChannelListener -> LoungeServerManager ++: loadWorld()
+LoungeServerManager -> GameServerManager: onWorldLoad()
+LoungeServerManager -> ToolManager: runTools(WorldLoadableTool)
+deactivate
+
+@enduml

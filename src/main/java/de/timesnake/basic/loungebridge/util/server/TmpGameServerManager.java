@@ -53,16 +53,6 @@ public interface TmpGameServerManager {
   }
 
   /**
-   * Countdown 7s, during user join
-   *
-   * @deprecated in favour of {@link #onWorldLoad()} and {@link #onMapLoad()}
-   */
-  @Deprecated
-  default void onGamePrepare() {
-
-  }
-
-  /**
    * Countdown 0s
    */
   void onGameStart();
