@@ -6,13 +6,16 @@ package de.timesnake.basic.loungebridge.util.tool.advanced;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
+import de.timesnake.basic.bukkit.util.world.ExBlock;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.entity.PacketPlayer;
 import de.timesnake.library.basic.util.Tuple;
 import de.timesnake.library.entities.entity.PlayerBuilder;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.Pose;
 import net.minecraft.world.entity.player.Player;
 import org.bukkit.Location;
+import org.bukkit.util.Vector;
 
 import java.util.Objects;
 
@@ -28,7 +31,7 @@ public class DeadPlayer {
     this.user = user;
     this.name = user.getName();
     this.textures = user.asPlayerBuilder().getTextures();
-    this.location = location;
+    this.location = this.calcEntityLocation(location);
   }
 
   public User getUser() {
@@ -48,22 +51,44 @@ public class DeadPlayer {
   }
 
   public void spawn() {
+
     Player deadBody = PlayerBuilder.ofName(this.name, this.textures.getA(), this.textures.getB())
         .applyOnEntity(e -> {
           e.setLevel(this.location.getExWorld().getHandle());
           e.setPos(this.location.getX(), this.location.getY() + 0.2, this.location.getZ());
-          e.setRot(120, 0);
+          e.setRot(this.location.getYaw(), this.location.getPitch());
           e.setNoGravity(true);
-          e.setCustomName(net.minecraft.network.chat.Component.literal(this.name + " (dead)"));
+          e.setCustomName(Component.literal(this.name + " (dead)"));
           e.setCustomNameVisible(true);
           e.setPose(Pose.SLEEPING);
         })
         .apply(this::onEntityBuild)
         .build();
 
-    this.bodyEntity = new PacketPlayer(deadBody, location);
+    this.bodyEntity = new PacketPlayer(deadBody, this.location);
 
     Server.getEntityManager().registerEntity(this.bodyEntity);
+  }
+
+  protected ExLocation calcEntityLocation(ExLocation location) {
+    for (Vector vector : ExBlock.NEAR_BLOCKS) {
+      if (vector.getY() != 0) {
+        continue;
+      }
+
+      if (location.clone().add(vector).getBlock().isEmpty()) {
+        if (vector.getZ() == -1) {
+          location.setYaw(180);
+        } else if (vector.getX() == 1) {
+          location.setYaw(90);
+        } else if (vector.getX() == -1) {
+          location.setYaw(-90);
+        }
+        break;
+      }
+    }
+
+    return location;
   }
 
   protected void onEntityBuild(PlayerBuilder<?, ?> builder) {
