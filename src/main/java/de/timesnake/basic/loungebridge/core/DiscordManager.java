@@ -21,7 +21,7 @@ import de.timesnake.channel.util.listener.ListenerType;
 import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
-import de.timesnake.database.util.object.Type;
+import de.timesnake.library.basic.util.DiscordChannelType;
 import de.timesnake.library.basic.util.Loggers;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
@@ -63,17 +63,17 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   public void update() {
     if (this.isEnabled()) {
       if (LoungeBridgeServer.getGame().getDiscordType() == null
-          || LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.FORBIDDEN)) {
+          || LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.FORBIDDEN)) {
         return;
       }
 
-      if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
+      if (LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.DISTANCE)) {
         if (!this.isLoaded) {
           Server.registerListener(this, BasicLoungeBridge.getPlugin());
         }
 
         Loggers.LOUNGE_BRIDGE.info("Loaded discord manager with distance channels");
-      } else if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.TEAMS)) {
+      } else if (LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.TEAMS)) {
         Loggers.LOUNGE_BRIDGE.info("Loaded discord manager with team channels");
       }
       this.isLoaded = true;
@@ -82,7 +82,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
 
   @Override
   public void start() {
-    if (this.isEnabled() && LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
+    if (this.isEnabled() && LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.DISTANCE)) {
       Server.getChannel().sendMessage(new ChannelDiscordMessage<>(Server.getName(), MessageType.Discord.HIDE_CHANNELS
           , true));
 
@@ -113,7 +113,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
             MessageType.Discord.MOVE_MEMBERS, new ChannelDiscordMessage.Allocation(uuidsByTeam)));
 
         // clean up distance channels
-        if (LoungeBridgeServer.getGame().getDiscordType().equals(Type.Discord.DISTANCE)) {
+        if (LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.DISTANCE)) {
           if (this.updateTask != null) {
             this.updateTask.cancel();
           }
