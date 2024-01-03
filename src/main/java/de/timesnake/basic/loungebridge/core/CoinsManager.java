@@ -5,9 +5,10 @@
 package de.timesnake.basic.loungebridge.core;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Argument;
-import de.timesnake.basic.bukkit.util.chat.CommandListener;
-import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
+import de.timesnake.basic.bukkit.util.chat.cmd.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.cmd.Completion;
+import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
@@ -18,10 +19,9 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.commands.PluginCommand;
+import de.timesnake.library.commands.simple.Arguments;
 import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.cmd.Arguments;
-import de.timesnake.library.extension.util.cmd.ExCommand;
-import java.util.List;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 
@@ -96,29 +96,23 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
 
   public class CoinsDiscardCmd implements CommandListener {
 
-    private Code coinsDiscardPerm;
+    private final Code perm = Plugin.GAME.createPermssionCode("game.coins.discard");
 
     @Override
-    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
-        Arguments<Argument> args) {
-      if (!sender.hasPermission(this.coinsDiscardPerm)) {
-        return;
-      }
-
+    public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
+      sender.hasPermissionElseExit(this.perm);
       CoinsManager.this.saveCoins = false;
-      sender.sendPluginMessage(
-          Component.text("All coins will be discarded", ExTextColor.PERSONAL));
+      sender.sendPluginTDMessage("§cAll coins will be discarded");
     }
 
     @Override
-    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
-        Arguments<Argument> args) {
-      return List.of();
+    public Completion getTabCompletion() {
+      return new Completion(this.perm);
     }
 
     @Override
-    public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-      this.coinsDiscardPerm = plugin.createPermssionCode("game.coins.discard");
+    public String getPermission() {
+      return this.perm.getPermission();
     }
   }
 }
