@@ -5,9 +5,10 @@
 package de.timesnake.basic.loungebridge.core;
 
 import de.timesnake.basic.bukkit.util.Server;
-import de.timesnake.basic.bukkit.util.chat.Argument;
-import de.timesnake.basic.bukkit.util.chat.CommandListener;
-import de.timesnake.basic.bukkit.util.chat.Sender;
+import de.timesnake.basic.bukkit.util.chat.cmd.Argument;
+import de.timesnake.basic.bukkit.util.chat.cmd.CommandListener;
+import de.timesnake.basic.bukkit.util.chat.cmd.Completion;
+import de.timesnake.basic.bukkit.util.chat.cmd.Sender;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.user.Plugin;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
@@ -24,13 +25,13 @@ import de.timesnake.database.util.game.DbGame;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.statistics.StatType;
 import de.timesnake.library.chat.ExTextColor;
+import de.timesnake.library.commands.PluginCommand;
+import de.timesnake.library.commands.simple.Arguments;
 import de.timesnake.library.extension.util.chat.Code;
-import de.timesnake.library.extension.util.cmd.Arguments;
-import de.timesnake.library.extension.util.cmd.ExCommand;
-import java.util.List;
-import java.util.Set;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+
+import java.util.Set;
 
 public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, StopableTool {
 
@@ -131,29 +132,23 @@ public class StatsManager implements GameTool, ResetableTool, PreCloseableTool, 
 
   public class StatsDiscardCmd implements CommandListener {
 
-    private Code statsDiscardPerm;
+    private final Code perm = Plugin.GAME.createPermssionCode("game.stats.discard");
 
     @Override
-    public void onCommand(Sender sender, ExCommand<Sender, Argument> cmd,
-        Arguments<Argument> args) {
-      if (!sender.hasPermission(this.statsDiscardPerm)) {
-        return;
-      }
-
+    public void onCommand(Sender sender, PluginCommand cmd, Arguments<Argument> args) {
+      sender.hasPermissionElseExit(this.perm);
       StatsManager.this.saveStats = false;
-      sender.sendPluginMessage(
-          Component.text("All stats will be discarded", ExTextColor.PERSONAL));
+      sender.sendPluginTDMessage("§sAll stats will be discarded");
     }
 
     @Override
-    public List<String> getTabCompletion(ExCommand<Sender, Argument> cmd,
-        Arguments<Argument> args) {
-      return List.of();
+    public Completion getTabCompletion() {
+      return new Completion(this.perm);
     }
 
     @Override
-    public void loadCodes(de.timesnake.library.extension.util.chat.Plugin plugin) {
-      this.statsDiscardPerm = plugin.createPermssionCode("game.stats.discard");
+    public String getPermission() {
+      return this.perm.getPermission();
     }
   }
 }
