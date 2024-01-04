@@ -18,10 +18,10 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.library.basic.util.Loggers;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
-import de.timesnake.library.extension.util.chat.Code;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 

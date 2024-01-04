@@ -11,12 +11,13 @@ import de.timesnake.basic.loungebridge.util.tool.ToolWatcher;
 import de.timesnake.basic.loungebridge.util.tool.WatchableTool;
 import de.timesnake.basic.loungebridge.util.tool.listener.UserJoinQuitListener;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.extension.util.chat.Chat;
-import de.timesnake.library.extension.util.player.UserSet;
-import java.util.function.Supplier;
+import de.timesnake.library.basic.util.UserSet;
+import de.timesnake.library.chat.Chat;
 import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
+
+import java.util.function.Supplier;
 
 public abstract class BossBarTimerTool extends TimerTool implements WatchableTool,
     UserJoinQuitListener {

@@ -9,7 +9,7 @@ import de.timesnake.basic.bukkit.util.chat.MessageBlockBuilder;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.extension.util.chat.Chat;
+import de.timesnake.library.chat.Chat;
 import org.jetbrains.annotations.Nullable;
 
 import java.time.Duration;

@@ -9,12 +9,13 @@ import de.timesnake.basic.bukkit.util.user.event.AsyncUserMoveEvent;
 import de.timesnake.basic.bukkit.util.user.inventory.ExInventory;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
-import de.timesnake.library.extension.util.player.UserMap;
-import java.util.Collection;
-import java.util.Optional;
+import de.timesnake.library.basic.util.UserMap;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.scheduler.BukkitTask;
+
+import java.util.Collection;
+import java.util.Optional;
 
 public abstract class KitManager<K extends Kit> implements Listener {
 

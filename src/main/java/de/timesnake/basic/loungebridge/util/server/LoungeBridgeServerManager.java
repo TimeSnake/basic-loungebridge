@@ -32,7 +32,7 @@ import de.timesnake.database.util.server.DbTmpGameServer;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
-import de.timesnake.library.extension.util.NetworkVariables;
+import de.timesnake.library.network.NetworkVariables;
 import net.kyori.adventure.text.Component;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
@@ -470,7 +470,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   @Deprecated
   public void broadcastLoungeBridgeMessage(String msg) {
     Server.broadcastMessage(
-        de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin())
+        de.timesnake.library.chat.Chat.getSenderPlugin(this.getGamePlugin())
             .append(Component.text(msg)));
   }
 
@@ -479,7 +479,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   }
 
   public void broadcastLoungeBridgeMessage(Component msg) {
-    Server.broadcastMessage(de.timesnake.library.extension.util.chat.Chat.getSenderPlugin(this.getGamePlugin()).append(msg));
+    Server.broadcastMessage(de.timesnake.library.chat.Chat.getSenderPlugin(this.getGamePlugin()).append(msg));
   }
 
   public void broadcastGameMessage(Component msg) {

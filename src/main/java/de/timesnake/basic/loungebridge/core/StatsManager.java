@@ -24,10 +24,10 @@ import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.database.util.game.DbGame;
 import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
-import de.timesnake.library.extension.util.chat.Code;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
 
