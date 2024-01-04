@@ -12,6 +12,7 @@ import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
 import de.timesnake.library.basic.util.statistics.IntegerStat;
 import de.timesnake.library.basic.util.statistics.StatType;
+import de.timesnake.library.chat.Plugin;
 import org.bukkit.entity.Player;
 
 import java.util.HashSet;
@@ -29,7 +30,7 @@ public interface TmpGameServerManager {
    *
    * @return Return the plugin
    */
-  de.timesnake.library.extension.util.chat.Plugin getGamePlugin();
+  Plugin getGamePlugin();
 
   /**
    * Called by channel map load message from lounge (map-voting).

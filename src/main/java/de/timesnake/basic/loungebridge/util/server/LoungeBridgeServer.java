@@ -22,7 +22,7 @@ import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.library.basic.util.TimeCoins;
 import de.timesnake.library.basic.util.statistics.StatType;
-import de.timesnake.library.extension.util.chat.Plugin;
+import de.timesnake.library.chat.Plugin;
 import net.kyori.adventure.text.Component;
 
 import java.util.Collection;
