@@ -319,7 +319,7 @@ public abstract class GameUser extends StatUser {
   /**
    * Invoked after user respawns.
    */
-  public final void respawn() {
+  public void respawn() {
     this.onGameRespawn();
   }
 
