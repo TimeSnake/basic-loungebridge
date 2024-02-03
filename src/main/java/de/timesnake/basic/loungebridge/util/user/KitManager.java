@@ -50,8 +50,7 @@ public abstract class KitManager<K extends Kit> implements Listener {
       this.changeInventory.addItem(kit.createDisplayItem(event -> {
         GameUser user = ((GameUser) event.getUser());
         user.changeKitTo(kit);
-        user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(),
-            "§sChanged kit to §v" + kit.getName());
+        user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(), "§sChanged kit to §v" + kit.getName());
         user.closeInventory();
       }));
     }
@@ -67,22 +66,19 @@ public abstract class KitManager<K extends Kit> implements Listener {
 
     if (this.isInChangeArea(user)) {
       if (user.isSneaking()) {
-        Server.runTaskSynchrony(() -> user.openInventory(this.changeInventory),
-            BasicLoungeBridge.getPlugin());
+        Server.runTaskSynchrony(() -> user.openInventory(this.changeInventory), BasicLoungeBridge.getPlugin());
       } else {
         Server.runTaskSynchrony(() -> {
           if (!this.informedUsers.containsKey(user)) {
             this.informedUsers.put(user, null);
-            user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(),
-                "§sSneak to open kit selection");
+            user.sendPluginTDMessage(LoungeBridgeServer.getGamePlugin(), "§sSneak to open kit selection");
           }
         }, BasicLoungeBridge.getPlugin());
       }
     } else {
       Server.runTaskSynchrony(() -> {
         if (this.informedUsers.get(user) == null) {
-          Server.runTaskLaterAsynchrony(() -> this.informedUsers.remove(user), 20,
-              BasicLoungeBridge.getPlugin());
+          Server.runTaskLaterAsynchrony(() -> this.informedUsers.remove(user), 20, BasicLoungeBridge.getPlugin());
         }
       }, BasicLoungeBridge.getPlugin());
     }
