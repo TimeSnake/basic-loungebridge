@@ -12,13 +12,12 @@ import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.Loggers;
 
-import java.util.List;
+import java.util.Set;
 
 public class ChannelListener implements de.timesnake.channel.util.listener.ChannelListener {
 
   public ChannelListener() {
-    Server.getChannel().addListener(this, () -> List.of(Server.getName(),
-        LoungeBridgeServer.getTwinServer().getName()));
+    Server.getChannel().addListener(this, Set.of(Server.getName(), LoungeBridgeServer.getTwinServer().getName()));
   }
 
   @ChannelHandler(type = {ListenerType.SERVER_GAME_MAP, ListenerType.SERVER_GAME_WORLD,
