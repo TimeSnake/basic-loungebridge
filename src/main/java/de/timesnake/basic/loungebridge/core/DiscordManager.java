@@ -52,7 +52,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   private boolean isLoaded = false;
 
   public DiscordManager() {
-    Server.getChannel().addListener(this, () -> List.of(LoungeBridgeServer.getTwinServer().getName()));
+    Server.getChannel().addListener(this, Set.of(LoungeBridgeServer.getTwinServer().getName()));
   }
 
   @ChannelHandler(type = ListenerType.SERVER_DISCORD, filtered = true)
