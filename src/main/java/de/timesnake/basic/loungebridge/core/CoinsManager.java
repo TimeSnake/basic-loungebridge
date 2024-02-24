@@ -17,15 +17,18 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.PreCloseableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.ResetableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.chat.Code;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.commands.PluginCommand;
 import de.timesnake.library.commands.simple.Arguments;
 import net.kyori.adventure.text.Component;
 import net.kyori.adventure.text.event.ClickEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTool {
+
+  private final Logger logger = LogManager.getLogger("lounge-bridge.coins");
 
   private boolean saveCoins;
 
@@ -74,20 +77,18 @@ public class CoinsManager implements ResetableTool, PreCloseableTool, StopableTo
 
   public void saveGameCoins() {
     if (this.isSaveCoins()) {
-      Loggers.LOUNGE_BRIDGE.info("Saved game coins");
+      this.logger.info("Saved game coins");
       for (User user : LoungeBridgeServer.getGameUsers()) {
         if (user.hasPermission("game.coins.info")) {
-          user.sendPluginMessage(Plugin.GAME,
-              Component.text("Saved all coins", ExTextColor.WARNING));
+          user.sendPluginTDMessage(Plugin.GAME, "§wSaved all coins");
         }
       }
     } else {
-      Loggers.LOUNGE_BRIDGE.info("Discarded game coins");
+      this.logger.info("Discarded game coins");
       for (User user : LoungeBridgeServer.getGameUsers()) {
         user.removeCoins(((GameUser) user).getGameCoins(), false);
         if (user.hasPermission("game.coins.info")) {
-          user.sendPluginMessage(Plugin.GAME,
-              Component.text("Discarded all coins", ExTextColor.WARNING));
+          user.sendPluginTDMessage(Plugin.GAME, "Discarded all coins");
         }
       }
     }

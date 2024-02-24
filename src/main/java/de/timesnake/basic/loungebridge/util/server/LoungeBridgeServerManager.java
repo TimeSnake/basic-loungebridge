@@ -29,11 +29,12 @@ import de.timesnake.database.util.game.DbGame;
 import de.timesnake.database.util.object.UnsupportedStringException;
 import de.timesnake.database.util.server.DbLoungeServer;
 import de.timesnake.database.util.server.DbTmpGameServer;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.network.NetworkVariables;
 import net.kyori.adventure.text.Component;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -56,6 +57,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   public static LoungeBridgeServerManager<?> getInstance() {
     return (LoungeBridgeServerManager<?>) ServerManager.getInstance();
   }
+
+  private Logger logger = LogManager.getLogger("lounge-bridge.server");
 
   protected DbLoungeServer twinServer;
 
@@ -94,7 +97,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     DbTmpGameServer database = ((DbTmpGameServer) Server.getDatabase());
     this.twinServer = database.getTwinServer();
     if (twinServer == null) {
-      Loggers.LOUNGE_BRIDGE.warning("No twin server found in database");
+      this.logger.error("No twin server found in database");
       Bukkit.shutdown();
       return;
     }
@@ -154,7 +157,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.loadChats();
 
     // mark as ready
-    Loggers.LOUNGE_BRIDGE.info("Server loaded");
+    this.logger.info("Server loaded");
     this.setState(LoungeBridgeServer.State.WAITING);
 
     this.loadTools();
@@ -234,13 +237,12 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       try {
         game.addKit(kit.getId(), kit.getName(), kit.getMaterial().toString(),
             kit.getDescription());
-        Loggers.LOUNGE_BRIDGE.info("Loaded kit " + kit.getName() + " into the database");
+        this.logger.info("Loaded kit '{}' into the database", kit.getName());
       } catch (UnsupportedStringException e) {
-        Loggers.LOUNGE_BRIDGE.warning(
-            "Can not load kit " + kit.getName() + " into database (UnsupportedStringException: " + e.getMessage() +
-                ")");
+        this.logger.warn("Can not load kit '{}' into database (UnsupportedStringException: {})", kit.getName(),
+            e.getMessage());
       } catch (Exception e) {
-        Loggers.LOUNGE_BRIDGE.warning("Can not load kit " + kit.getName() + " into database ");
+        this.logger.warn("Can not load kit '{}' into database: {}", kit.getName(), e.getMessage());
       }
     }
   }
@@ -252,7 +254,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.onMapLoad();
     this.toolManager.runTools(MapLoadableTool.class);
 
-    Loggers.LOUNGE_BRIDGE.info("Loaded map " + map.getName());
+    this.logger.info("Loaded map '{}'", map.getName());
   }
 
   public final void loadWorld() {
@@ -260,7 +262,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     this.toolManager.runTools(WorldLoadableTool.class);
 
-    Loggers.LOUNGE_BRIDGE.info("Loaded world");
+    this.logger.info("Loaded world");
   }
 
   public final void startGame() {
@@ -273,7 +275,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     }
 
     if (this.checkGameEnd()) {
-      Loggers.LOUNGE_BRIDGE.info("Stopped game, due to fulfilled end condition");
+      this.logger.info("Stopped game, due to fulfilled end condition");
       this.stopGame();
       return;
     }
@@ -286,7 +288,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     Server.getChat().setBroadcastJoinQuit(true);
 
-    Loggers.LOUNGE_BRIDGE.info("Game started");
+    this.logger.info("Game started");
     this.onGameStart();
   }
 
@@ -297,7 +299,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
     this.running = false;
 
-    Loggers.LOUNGE_BRIDGE.info("Game stopped");
+    this.logger.info("Game stopped");
 
     this.toolManager.runTools(PreStopableTool.class);
 
@@ -376,7 +378,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.estimatedPlayers = null;
     this.startPlayers = null;
 
-    Loggers.LOUNGE_BRIDGE.info("Starting game reset");
+    this.logger.info("Starting game reset");
 
     this.toolManager.runTools(ResetableTool.class);
 
@@ -387,7 +389,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     this.onGameReset();
     LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
 
-    Loggers.LOUNGE_BRIDGE.info("Finished game reset");
+    this.logger.info("Finished game reset");
   }
 
   public void loadTools() {
@@ -506,6 +508,13 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public void setEstimatedPlayers(Integer amount) {
     this.estimatedPlayers = amount;
+
+    if (amount == null) {
+      this.logger.warn("Estimated players value is null");
+      return;
+    }
+
+    this.logger.info("Estimated players: {}", amount);
   }
 
   public LoungeBridgeServer.State getState() {
@@ -523,7 +532,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
         Server.getChannel().sendMessage(
             new ChannelServerMessage<>(Server.getName(), MessageType.Server.STATE
                 , ChannelServerMessage.State.READY));
-        Loggers.LOUNGE_BRIDGE.info("Send lounge ready state");
+        this.logger.info("Send lounge ready state");
       }
     }
   }

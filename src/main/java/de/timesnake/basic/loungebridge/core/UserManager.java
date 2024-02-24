@@ -19,8 +19,9 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager;
 import de.timesnake.basic.loungebridge.util.tool.listener.*;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import de.timesnake.basic.loungebridge.util.user.OfflineUser;
-import de.timesnake.library.basic.util.Loggers;
 import de.timesnake.library.basic.util.Status;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.block.Block;
@@ -51,6 +52,8 @@ import java.util.concurrent.atomic.AtomicReference;
 public class UserManager implements Listener {
 
   private static final int REJOIN_TIME_SEC = 180;
+
+  private final Logger logger = LogManager.getLogger("lounge-bridge.user.manager");
 
   private final HashMap<UUID, OfflineUser> offlineUsersByUniqueId = new HashMap<>();
   private final HashMap<UUID, BukkitTask> offlineUserRemoveTaskByUniqueId = new HashMap<>();
@@ -133,12 +136,11 @@ public class UserManager implements Listener {
 
     if (LoungeBridgeServer.isRejoiningAllowed()
         && (user.hasStatus(Status.User.IN_GAME)
-        || (LoungeBridgeServer.isOutGameRejoiningAllowed()
-        && user.hasStatus(Status.User.OUT_GAME)))
+        || (LoungeBridgeServer.isOutGameRejoiningAllowed() && user.hasStatus(Status.User.OUT_GAME)))
         && LoungeBridgeServer.isGameRunning()) {
       OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
       this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
-      Loggers.LOUNGE_BRIDGE.info("Saved user " + user.getChatName());
+      this.logger.info("Saved user '{}'", user.getName());
       this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(),
           Server.runTaskLaterSynchrony(
               () -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),
