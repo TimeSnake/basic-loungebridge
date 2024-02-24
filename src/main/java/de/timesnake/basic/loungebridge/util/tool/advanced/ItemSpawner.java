@@ -12,7 +12,8 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.GameTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StartableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.StopableTool;
-import de.timesnake.library.basic.util.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 
@@ -20,6 +21,8 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class ItemSpawner implements GameTool, StartableTool, StopableTool {
+
+  private final Logger logger = LogManager.getLogger("game.item-spawner");
 
   private final int delayBase;
   private final int delayRange;
@@ -48,10 +51,12 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
 
   @Override
   public void start() {
+    this.logger.info("Starting item spawner '{}", this.locationIndex);
+
     ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
 
     if (location == null) {
-      Loggers.GAME.warning("Item spawn location with index '" + this.locationIndex + "' not found");
+      this.logger.warn("Item spawn location with index '{}' not found", this.locationIndex);
       return;
     }
 
@@ -72,6 +77,8 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
     if (this.task != null) {
       this.task.cancel();
     }
+
+    this.logger.info("Stopping item spawner '{}'", this.locationIndex);
   }
 
 }

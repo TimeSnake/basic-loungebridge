@@ -6,18 +6,18 @@ package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.user.inventory.ExItemStack;
 import de.timesnake.database.util.game.DbKit;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffectType;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.function.Consumer;
-import org.bukkit.Material;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffectType;
 
 public class Kit extends de.timesnake.basic.game.util.game.Kit {
 
   private final List<Consumer<GameUser>> applier;
 
-  public Kit(Builder builder) {
+  public Kit(Builder<?> builder) {
     super(builder);
     this.applier = builder.applier;
   }
@@ -31,36 +31,16 @@ public class Kit extends de.timesnake.basic.game.util.game.Kit {
     return applier;
   }
 
-  public static class Builder extends de.timesnake.basic.game.util.game.Kit.Builder {
+  public static class Builder<B extends Builder<B>> extends de.timesnake.basic.game.util.game.Kit.Builder<B> {
 
     private final List<Consumer<GameUser>> applier = new LinkedList<>();
 
-    @Override
-    public Builder id(int id) {
-      return (Builder) super.id(id);
-    }
-
-    @Override
-    public Builder name(String name) {
-      return (Builder) super.name(name);
-    }
-
-    @Override
-    public Builder addDescription(String... lines) {
-      return (Builder) super.addDescription(lines);
-    }
-
-    @Override
-    public Builder material(Material material) {
-      return (Builder) super.material(material);
-    }
-
-    public Builder addApplier(Consumer<GameUser> applier) {
+    public B addApplier(Consumer<GameUser> applier) {
       this.applier.add(applier);
-      return this;
+      return (B) this;
     }
 
-    public Builder addItems(ItemStack... items) {
+    public B addItems(ItemStack... items) {
       this.addApplier(u -> {
         for (ItemStack item : items) {
           if (item instanceof ExItemStack exItem) {
@@ -70,12 +50,12 @@ public class Kit extends de.timesnake.basic.game.util.game.Kit {
           }
         }
       });
-      return this;
+      return (B) this;
     }
 
-    public Builder addEffect(PotionEffectType effectType, int amplifier) {
+    public B addEffect(PotionEffectType effectType, int amplifier) {
       this.addApplier(u -> u.addPotionEffect(effectType, amplifier));
-      return this;
+      return (B) this;
     }
 
     @Override

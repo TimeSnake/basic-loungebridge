@@ -10,7 +10,6 @@ import de.timesnake.channel.util.listener.ChannelHandler;
 import de.timesnake.channel.util.listener.ListenerType;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
-import de.timesnake.library.basic.util.Loggers;
 
 import java.util.Set;
 
@@ -30,14 +29,11 @@ public class ChannelListener implements de.timesnake.channel.util.listener.Chann
     } else if (msg.getMessageType().equals(MessageType.Server.GAME_PLAYERS)) {
       Integer number = (Integer) msg.getValue();
 
-      if (number == null) {
-        Loggers.LOUNGE_BRIDGE.warning("Estimated players value is null");
-        return;
-      }
-
-      Loggers.LOUNGE_BRIDGE.info("Estimated layers: " + number);
       LoungeBridgeServer.setEstimatedPlayers(number);
-      LoungeBridgeServer.onGamePlayerNumber(number);
+
+      if (number != null) {
+        LoungeBridgeServer.onGamePlayerNumber(number);
+      }
     }
   }
 

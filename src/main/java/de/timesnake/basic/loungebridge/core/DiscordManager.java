@@ -22,7 +22,8 @@ import de.timesnake.channel.util.message.ChannelDiscordMessage;
 import de.timesnake.channel.util.message.ChannelServerMessage;
 import de.timesnake.channel.util.message.MessageType;
 import de.timesnake.library.basic.util.DiscordChannelType;
-import de.timesnake.library.basic.util.Loggers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.bukkit.Location;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -42,6 +43,9 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
   public static final double VERTICAL_DISTANCE = 10;
 
   public static final int DELAY = 10;
+
+  private final Logger logger = LogManager.getLogger("lounge-bridge.discord");
+
   private final Map<String, DistanceChannel> channelByName = new ConcurrentHashMap<>();
   private final Map<UUID, DistanceChannel> channelByUuid = new ConcurrentHashMap<>();
   private final Map<UUID, Action> actionsByUuid = new ConcurrentHashMap<>();
@@ -72,9 +76,9 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
           Server.registerListener(this, BasicLoungeBridge.getPlugin());
         }
 
-        Loggers.LOUNGE_BRIDGE.info("Loaded discord manager with distance channels");
+        this.logger.info("Loaded discord manager with distance channels");
       } else if (LoungeBridgeServer.getGame().getDiscordType().equals(DiscordChannelType.TEAMS)) {
-        Loggers.LOUNGE_BRIDGE.info("Loaded discord manager with team channels");
+        this.logger.info("Loaded discord manager with team channels");
       }
       this.isLoaded = true;
     }
@@ -96,7 +100,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
       }
       this.updateTask = Server.runTaskTimerAsynchrony(this::updateDistanceChannels, 0, DELAY,
           BasicLoungeBridge.getPlugin());
-      Loggers.LOUNGE_BRIDGE.info("Started discord distance channel updater");
+      this.logger.info("Started discord distance channel updater");
     }
   }
 
@@ -265,7 +269,7 @@ public class DiscordManager implements Listener, PreStopableTool, StartableTool,
 
   public void setEnabled(boolean enabled) {
     this.enabled = enabled;
-    Loggers.GAME.info((enabled ? "Enabled" : "Disabled") + " discord voice channels");
+    this.logger.info((enabled ? "Enabled" : "Disabled") + " discord voice channels");
   }
 
   public boolean isEnabled() {
