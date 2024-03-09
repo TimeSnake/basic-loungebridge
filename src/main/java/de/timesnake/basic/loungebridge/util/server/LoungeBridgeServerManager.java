@@ -4,12 +4,12 @@
 
 package de.timesnake.basic.loungebridge.util.server;
 
+import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist2;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.ServerManager;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.server.GameServerManager;
@@ -49,8 +49,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
   public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
   public static final String SPECTATOR_TABLIST_PREFIX = "";
   public static final ExTextColor SPECTATOR_CHAT_COLOR = ExTextColor.GRAY;
-  public static final org.bukkit.ChatColor SPECTATOR_TABLIST_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
-  public static final org.bukkit.ChatColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = org.bukkit.ChatColor.GRAY;
+  public static final ExTextColor SPECTATOR_TABLIST_CHAT_COLOR = ExTextColor.GRAY;
+  public static final ExTextColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = ExTextColor.GRAY;
 
   public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
@@ -425,10 +425,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     return this.tablistManager.getTablistGameTeam();
   }
 
-  public TablistTeam getTablistSpectatorTeam() {
-    return this.tablistManager.getSpectatorTeam();
-  }
-
   public boolean areKitsEnabled() {
     return kitsEnabled;
   }
@@ -492,7 +488,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     Server.broadcastTDMessage(this.getGamePlugin(), msg);
   }
 
-  public TeamTablist getGameTablist() {
+  public Tablist2 getGameTablist() {
     return this.tablistManager.getGameTablist();
   }
 

@@ -30,6 +30,7 @@ import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventHandler;
+import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
@@ -62,7 +63,7 @@ public class UserManager implements Listener {
     Server.registerListener(this, BasicLoungeBridge.getPlugin());
   }
 
-  @EventHandler
+  @EventHandler(priority = EventPriority.HIGH)
   public void onUserJoin(UserJoinEvent e) {
     GameUser user = (GameUser) e.getUser();
     String task = user.getTask();
@@ -101,21 +102,10 @@ public class UserManager implements Listener {
 
       user.setSideboard(GameServer.getGameSideboard());
 
-
       user.joinGame();
       user.applyKit();
 
       LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class, t -> t.onGameUserJoin(user));
-
-      for (User otherUser : Server.getUsers()) {
-        if (otherUser.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
-          otherUser.showUser(user);
-          user.hideUser(otherUser);
-        } else {
-          user.showUser(otherUser);
-          otherUser.showUser(user);
-        }
-      }
 
       LoungeBridgeServer.checkGameStart();
 

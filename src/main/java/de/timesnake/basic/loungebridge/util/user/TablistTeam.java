@@ -4,24 +4,22 @@
 
 package de.timesnake.basic.loungebridge.util.user;
 
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.*;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.game.util.game.Team;
-import org.bukkit.ChatColor;
+import de.timesnake.library.chat.ExTextColor;
 
 /**
  * Only for default team and spectator team. For all real teams, the {@link Team} class is used.
  */
-public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTeam {
+public class TablistTeam implements TablistGroup {
 
-  private final String rank;
+  private final int rank;
   private final String name;
   private final String prefix;
-  private final ChatColor prefixChatColor;
-  private final ChatColor chatColor;
+  private final ExTextColor prefixChatColor;
+  private final ExTextColor chatColor;
 
-  public TablistTeam(String rank, String name, String prefix, ChatColor prefixChatColor,
-                     ChatColor chatColor) {
+  public TablistTeam(int rank, String name, String prefix, ExTextColor prefixChatColor, ExTextColor chatColor) {
     this.rank = rank;
     this.name = name;
     this.prefix = prefix;
@@ -29,12 +27,8 @@ public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTea
     this.chatColor = chatColor;
   }
 
-  public TablistGroupType getTeamType() {
-    return de.timesnake.basic.loungebridge.util.user.TablistGroupType.GAME;
-  }
-
   @Override
-  public String getTablistRank() {
+  public int getTablistRank() {
     return this.rank;
   }
 
@@ -49,23 +43,13 @@ public class TablistTeam implements TagTablistableGroup, TagTablistableRemainTea
   }
 
   @Override
-  public ChatColor getTablistPrefixChatColor() {
+  public ExTextColor getTablistPrefixChatColor() {
     return this.prefixChatColor;
   }
 
   @Override
-  public ChatColor getTablistChatColor() {
+  public ExTextColor getTablistChatColor() {
     return this.chatColor;
   }
 
-  @Override
-  public NameTagVisibility isNameTagVisibleBy(TablistablePlayer player,
-                                              TablistableGroup otherGroup) {
-    return NameTagVisibility.ALWAYS;
-  }
-
-  @Override
-  public NameTagVisibility isNameTagVisible(TablistablePlayer player) {
-    return NameTagVisibility.ALWAYS;
-  }
 }

@@ -6,8 +6,8 @@ package de.timesnake.basic.loungebridge.util.user;
 
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.UserDamage;
+import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroupType;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TablistableGroup;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.game.util.user.StatUser;
@@ -15,6 +15,7 @@ import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
+import de.timesnake.library.basic.util.Status;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
@@ -62,9 +63,10 @@ public abstract class GameUser extends StatUser {
   }
 
   @Override
-  public TablistableGroup getTablistGroup(TablistGroupType type) {
-    if (type.equals(de.timesnake.basic.loungebridge.util.user.TablistGroupType.GAME)) {
-      return LoungeBridgeServer.getTablistGameTeam();
+  public TablistGroup getTablistGroup(TablistGroupType type) {
+    if (de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM.equals(type)
+        && LoungeBridgeServer.getServerTeamAmount() == 0) {
+      return this.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME) ? null : LoungeBridgeServer.getTablistGameTeam();
     }
     return super.getTablistGroup(type);
   }
