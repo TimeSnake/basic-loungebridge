@@ -4,9 +4,9 @@
 
 package de.timesnake.basic.loungebridge.util.server;
 
+import de.timesnake.basic.bukkit.core.user.scoreboard.tablist.Tablist2;
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;
-import de.timesnake.basic.bukkit.util.user.scoreboard.TeamTablist;
 import de.timesnake.basic.bukkit.util.world.ExLocation;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.game.util.game.Map;
@@ -84,7 +84,7 @@ public abstract class LoungeBridgeServer extends GameServer {
     server.setState(state);
   }
 
-  public static TeamTablist getGameTablist() {
+  public static Tablist2 getGameTablist() {
     return server.getGameTablist();
   }
 
@@ -126,10 +126,6 @@ public abstract class LoungeBridgeServer extends GameServer {
 
   public static Sideboard getSpectatorSideboard() {
     return server.getSpectatorSideboard();
-  }
-
-  public static TablistTeam getTablistSpectatorTeam() {
-    return server.getTablistSpectatorTeam();
   }
 
   public static void broadcastGameMessage(Component message) {
