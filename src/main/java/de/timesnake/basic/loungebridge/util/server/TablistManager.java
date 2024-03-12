@@ -42,13 +42,13 @@ public class TablistManager implements MapLoadableTool {
     Tablist2.Builder builder = new Tablist2.Builder("game")
         .type(type)
         .groupTypes(types)
+        .colorGroupType(TablistGroupType.GAME_TEAM)
         .addDefaultGroup(TablistGroupType.GAME_TEAM, this.spectatorGroup)
         .setGroupGap(null, 2);
 
     if (LoungeBridgeServer.getServerTeamAmount() > 0 && !LoungeBridgeServer.getGame().hideTeams()) {
       if (LoungeBridgeServer.getMaxPlayersPerTeam() == null) {
         this.gameTablist = Server.getScoreboardManager().registerTablist(builder
-            .colorGroupType(TablistGroupType.GAME_TEAM)
             .addGroupDecoration(TablistGroupType.GAME_TEAM, e -> {
                   if (!e.getGroup().equals(this.spectatorGroup)) {
                     e.addHeader(new TablistTextEntry("0",
