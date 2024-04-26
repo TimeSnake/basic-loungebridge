@@ -24,7 +24,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
 import org.bukkit.block.data.type.Chest;
 import org.bukkit.entity.Player;
@@ -570,12 +569,6 @@ public class UserManager implements Listener {
     if (!LoungeBridgeServer.isGameRunning()) {
       e.setUseInteractedBlock(Event.Result.DENY);
       e.setCancelled(true);
-
-      Block block = e.getClickedBlock();
-      if (block != null) {
-        block.setType(block.getType(), true);
-        block.setBlockData(block.getBlockData());
-      }
     }
 
     Status.User status = user.getStatus();

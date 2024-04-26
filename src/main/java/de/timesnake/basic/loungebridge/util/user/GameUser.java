@@ -64,9 +64,13 @@ public abstract class GameUser extends StatUser {
 
   @Override
   public TablistGroup getTablistGroup(TablistGroupType type) {
-    if (de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM.equals(type)
-        && LoungeBridgeServer.getServerTeamAmount() == 0) {
-      return this.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME) ? null : LoungeBridgeServer.getTablistGameTeam();
+    if (de.timesnake.basic.game.util.game.TablistGroupType.GAME_TEAM.equals(type)) {
+      if (this.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
+        return null;
+      }
+      if (LoungeBridgeServer.getServerTeamAmount() == 0 || LoungeBridgeServer.getGame().hideTeams()) {
+        return LoungeBridgeServer.getTablistGameTeam();
+      }
     }
     return super.getTablistGroup(type);
   }
