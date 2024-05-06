@@ -7,6 +7,7 @@ package de.timesnake.basic.loungebridge.util.user;
 import de.timesnake.basic.bukkit.util.user.scoreboard.TablistGroup;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.library.chat.ExTextColor;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Only for default team and spectator team. For all real teams, the {@link Team} class is used.
@@ -33,7 +34,7 @@ public class TablistTeam implements TablistGroup {
   }
 
   @Override
-  public String getTablistName() {
+  public @NotNull String getTablistName() {
     return this.name;
   }
 
@@ -43,12 +44,12 @@ public class TablistTeam implements TablistGroup {
   }
 
   @Override
-  public ExTextColor getTablistPrefixChatColor() {
+  public ExTextColor getTablistPrefixColor() {
     return this.prefixChatColor;
   }
 
   @Override
-  public ExTextColor getTablistChatColor() {
+  public ExTextColor getTablistColor() {
     return this.chatColor;
   }
 
