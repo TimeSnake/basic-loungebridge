@@ -63,11 +63,6 @@ public abstract class LoungeBridgeServer extends GameServer {
     return server.getGameCountdown();
   }
 
-  @Deprecated
-  public static void broadcastLoungeBridgeMessage(String msg) {
-    server.broadcastLoungeBridgeMessage(msg);
-  }
-
   public static void broadcastLoungeBridgeTDMessage(String msg) {
     server.broadcastLoungeBridgeTDMessage(msg);
   }

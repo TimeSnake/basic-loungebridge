@@ -47,10 +47,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public static final String SPECTATOR_NAME = "spectator";
   public static final String SPECTATOR_CHAT_DISPLAY_NAME = "Spec";
-  public static final String SPECTATOR_TABLIST_PREFIX = "";
   public static final ExTextColor SPECTATOR_CHAT_COLOR = ExTextColor.GRAY;
   public static final ExTextColor SPECTATOR_TABLIST_CHAT_COLOR = ExTextColor.GRAY;
-  public static final ExTextColor SPECTATOR_TABLIST_PREFIX_CHAT_COLOR = ExTextColor.GRAY;
 
   public static final Integer MAX_START_DELAY = 5 * 20; // max start delay after first join
 
@@ -463,13 +461,6 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   public int getGameCountdown() {
     return this.gameScheduler.getGameCountdown();
-  }
-
-  @Deprecated
-  public void broadcastLoungeBridgeMessage(String msg) {
-    Server.broadcastMessage(
-        de.timesnake.library.chat.Chat.getSenderPlugin(this.getGamePlugin())
-            .append(Component.text(msg)));
   }
 
   public void broadcastLoungeBridgeTDMessage(String msg) {

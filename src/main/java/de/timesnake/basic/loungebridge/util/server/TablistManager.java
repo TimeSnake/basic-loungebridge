@@ -18,11 +18,13 @@ import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
 import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.packets.util.packet.TablistHead;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.*;
+import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_NAME;
+import static de.timesnake.basic.loungebridge.util.server.LoungeBridgeServerManager.SPECTATOR_TABLIST_CHAT_COLOR;
 
 public class TablistManager implements MapLoadableTool {
 
@@ -52,7 +54,8 @@ public class TablistManager implements MapLoadableTool {
             .addGroupDecoration(TablistGroupType.GAME_TEAM, e -> {
                   if (!e.getGroup().equals(this.spectatorGroup)) {
                     e.addHeader(new TablistTextEntry("0",
-                        e.getGroup().getTablistChatColor() + "§l" + e.getGroup().getTablistName(), TablistHead.BLANK));
+                        "§" + e.getGroup().getTablistColor().getLegacyToken() + "§l" + e.getGroup().getTablistName(),
+                        TablistHead.BLANK));
                   }
                 }
             ));
@@ -94,23 +97,13 @@ public class TablistManager implements MapLoadableTool {
       }
 
       @Override
-      public String getTablistName() {
+      public @NotNull String getTablistName() {
         return SPECTATOR_NAME;
       }
 
       @Override
-      public String getTablistPrefix() {
-        return SPECTATOR_TABLIST_PREFIX;
-      }
-
-      @Override
-      public ExTextColor getTablistPrefixChatColor() {
+      public ExTextColor getTablistPrefixColor() {
         return SPECTATOR_TABLIST_CHAT_COLOR;
-      }
-
-      @Override
-      public ExTextColor getTablistChatColor() {
-        return SPECTATOR_TABLIST_PREFIX_CHAT_COLOR;
       }
     };
   }
