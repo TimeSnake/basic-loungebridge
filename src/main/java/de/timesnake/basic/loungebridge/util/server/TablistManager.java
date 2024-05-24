@@ -19,6 +19,7 @@ import de.timesnake.basic.loungebridge.util.user.TablistTeam;
 import de.timesnake.library.chat.ExTextColor;
 import de.timesnake.library.packets.util.packet.TablistHead;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,22 +51,18 @@ public class TablistManager implements MapLoadableTool {
 
     if (LoungeBridgeServer.getServerTeamAmount() > 0 && !LoungeBridgeServer.getGame().hideTeams()) {
       if (LoungeBridgeServer.getMaxPlayersPerTeam() == null) {
-        this.gameTablist = Server.getScoreboardManager().registerTablist(builder
-            .addGroupDecoration(TablistGroupType.GAME_TEAM, e -> {
-                  if (!e.getGroup().equals(this.spectatorGroup)) {
-                    e.addHeader(new TablistTextEntry("0",
-                        "§" + e.getGroup().getTablistColor().getLegacyToken() + "§l" + e.getGroup().getTablistName(),
-                        TablistHead.BLANK));
-                  }
-                }
-            ));
-      } else {
-        this.gameTablist = Server.getScoreboardManager().registerTablist(builder);
+        builder.addGroupDecoration(TablistGroupType.GAME_TEAM, e -> {
+              if (!e.getGroup().equals(this.spectatorGroup)) {
+                e.addHeader(new TablistTextEntry(e.getGroup().getTablistName(),
+                    "§" + e.getGroup().getTablistColor().getLegacyToken() + "§l" + e.getGroup().getTablistName(),
+                    TablistHead.BLANK));
+              }
+            }
+        );
       }
-    } else {
-      this.gameTablist = Server.getScoreboardManager().registerTablist(builder);
     }
 
+    this.gameTablist = Server.getScoreboardManager().registerTablist(builder);
     this.gameTablist.setHeader("§6" + LoungeBridgeServer.getGame().getDisplayName());
     this.gameTablist.setFooter(ScoreboardManager.getDefaultFooter());
   }
@@ -76,9 +73,10 @@ public class TablistManager implements MapLoadableTool {
       Map map = LoungeBridgeServer.getMap();
       if (map != null) {
         this.gameTablist.setHeader(ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName()
-            + ChatColor.GRAY + ": " + ChatColor.DARK_GREEN + map.getDisplayName() +
-            (!map.getAuthors().isEmpty() ? "\n" + ChatColor.GRAY + " by "
-                + ChatColor.BLUE + String.join("\n", map.getAuthors()) : ""));
+                                   + ChatColor.GRAY + ": " + ChatColor.DARK_GREEN + map.getDisplayName() +
+                                   (!map.getAuthors().isEmpty() ? "\n" + ChatColor.GRAY + " by "
+                                                                  + ChatColor.BLUE + String.join("\n",
+                                       map.getAuthors()) : ""));
       } else {
         this.gameTablist.setHeader(ChatColor.GOLD + LoungeBridgeServer.getGame().getDisplayName());
       }
@@ -101,8 +99,9 @@ public class TablistManager implements MapLoadableTool {
         return SPECTATOR_NAME;
       }
 
+      @Nullable
       @Override
-      public ExTextColor getTablistPrefixColor() {
+      public ExTextColor getTablistColor() {
         return SPECTATOR_TABLIST_CHAT_COLOR;
       }
     };
