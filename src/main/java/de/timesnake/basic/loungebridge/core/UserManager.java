@@ -32,13 +32,13 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.EntityShootBowEvent;
 import org.bukkit.event.entity.FoodLevelChangeEvent;
 import org.bukkit.event.entity.ProjectileHitEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryOpenEvent;
 import org.bukkit.event.player.*;
+import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
@@ -136,7 +136,7 @@ public class UserManager implements Listener {
               20 * REJOIN_TIME_SEC, BasicLoungeBridge.getPlugin()));
     }
 
-    if (user.getStatus().equals(Status.User.IN_GAME) || user.getStatus().equals(Status.User.PRE_GAME)) {
+    if (user.hasStatus(Status.User.IN_GAME, Status.User.PRE_GAME)) {
       if (LoungeBridgeServer.isGameRunning()) {
         LoungeBridgeServerManager.getInstance().onGameUserQuit((GameUser) user);
       }
@@ -250,9 +250,7 @@ public class UserManager implements Listener {
       e.setCancelled(true);
     }
 
-    Status.User status = user.getStatus();
-
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -270,26 +268,24 @@ public class UserManager implements Listener {
       e.setCancelDamage(true);
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
 
   @EventHandler
-  public void onEntityDamage(EntityDamageByEntityEvent e) {
-    if (e.getDamager() instanceof Player) {
-      User user = Server.getUser(((Player) e.getDamager()));
+  public void onEntityDamage(VehicleDamageEvent e) {
+    if (e.getAttacker() instanceof Player player) {
+      User user = Server.getUser(player);
       if (user == null) {
         return;
       }
-      Status.User status = user.getStatus();
 
       if (user.isService()) {
         return;
       }
 
-      if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+      if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
         e.setCancelled(true);
         user.getPlayer().setFireTicks(0);
       }
@@ -297,8 +293,22 @@ public class UserManager implements Listener {
   }
 
   @EventHandler
+  public void onEntity(EntityDamageByUserEvent e) {
+    User user = e.getUser();
+
+    if (user.isService()) {
+      return;
+    }
+
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
+      e.setCancelled(true);
+      user.getPlayer().setFireTicks(0);
+    }
+  }
+
+  @EventHandler
   public void onUserDamageByUser(UserDamageByUserEvent e) {
-    Status.User status = e.getUserDamager().getStatus();
+
 
     GameUser clickedUser = (GameUser) e.getUser();
     GameUser user = (GameUser) e.getUserDamager();
@@ -311,7 +321,7 @@ public class UserManager implements Listener {
       }
     }
 
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       if (!user.isService()) {
         e.setCancelled(true);
         e.setCancelDamage(true);
@@ -327,7 +337,6 @@ public class UserManager implements Listener {
   @EventHandler
   public void onEntityInteract(PlayerInteractEntityEvent e) {
     SpectatorUser user = (SpectatorUser) Server.getUser(e.getPlayer());
-    Status.User status = user.getStatus();
 
     if (!(e.getRightClicked() instanceof Player)) {
       return;
@@ -335,7 +344,7 @@ public class UserManager implements Listener {
 
     GameUser clickedUser = (GameUser) Server.getUser(((Player) e.getRightClicked()));
 
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       if (!user.isService()) {
         e.setCancelled(true);
       }
@@ -373,8 +382,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -396,8 +404,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -419,8 +426,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -443,8 +449,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -466,8 +471,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -493,8 +497,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -521,10 +524,8 @@ public class UserManager implements Listener {
       return;
     }
 
-    if (e.getInventory().getHolder() instanceof Chest || e.getInventory()
-        .getHolder() instanceof ShulkerBox) {
-      Status.User status = user.getStatus();
-      if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (e.getInventory().getHolder() instanceof Chest || e.getInventory().getHolder() instanceof ShulkerBox) {
+      if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
         e.setCancelled(true);
         Inventory inv = e.getInventory();
         user.openInventory(inv);
@@ -548,8 +549,7 @@ public class UserManager implements Listener {
       return;
     }
 
-    Status.User status = user.getStatus();
-    if (status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME)) {
+    if (user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       e.setCancelled(true);
     }
   }
@@ -571,8 +571,7 @@ public class UserManager implements Listener {
       e.setCancelled(true);
     }
 
-    Status.User status = user.getStatus();
-    if (!(status.equals(Status.User.SPECTATOR) || status.equals(Status.User.OUT_GAME))) {
+    if (!user.hasStatus(Status.User.SPECTATOR, Status.User.OUT_GAME)) {
       return;
     }
 
