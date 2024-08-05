@@ -7,6 +7,7 @@ package de.timesnake.basic.loungebridge.util.tool.advanced;
 import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.user.SpectatorUser;
+import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.ToolWatcher;
 import de.timesnake.basic.loungebridge.util.tool.WatchableTool;
 import de.timesnake.basic.loungebridge.util.tool.listener.UserJoinQuitListener;
@@ -59,6 +60,13 @@ public abstract class BossBarMapTimerTool extends MapTimerTool implements Watcha
         this.bar.setColor(BarColor.YELLOW);
       }
     }
+
+    if (this.time % 60 == 0 || this.time == 30 || this.time == 10 || this.time == 5) {
+      String msg = this.getChatMessage(Chat.getTimeString(this.time));
+      if (msg != null) {
+        LoungeBridgeServer.broadcastGameTDMessage(msg);
+      }
+    }
   }
 
   @Override
@@ -109,5 +117,9 @@ public abstract class BossBarMapTimerTool extends MapTimerTool implements Watcha
   }
 
   public abstract String getTitle(String time);
+
+  public String getChatMessage(String time) {
+    return null;
+  }
 
 }

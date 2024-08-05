@@ -183,7 +183,7 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
 
   @Override
   protected SpectatorManager initSpectatorManager() {
-    return new de.timesnake.basic.loungebridge.core.main.SpectatorManager();
+    return new de.timesnake.basic.loungebridge.SpectatorManager();
   }
 
   public void loadChats() {
@@ -399,8 +399,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     });
   }
 
-  public de.timesnake.basic.loungebridge.core.main.SpectatorManager getSpectatorManager() {
-    return (de.timesnake.basic.loungebridge.core.main.SpectatorManager) super.getSpectatorManager();
+  public de.timesnake.basic.loungebridge.SpectatorManager getSpectatorManager() {
+    return (de.timesnake.basic.loungebridge.SpectatorManager) super.getSpectatorManager();
   }
 
   public Chat getSpectatorChat() {
