@@ -6,6 +6,7 @@ package de.timesnake.basic.loungebridge.util.tool;
 
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
+
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -17,6 +18,10 @@ public class ToolManager {
 
   protected LinkedList<GameTool> gameTools = new LinkedList<>();
   protected HashMap<Map, Collection<GameTool>> gameToolsByMap = new HashMap<>();
+
+  public ToolManager() {
+
+  }
 
   public void add(GameTool gameTool) {
     this.gameTools.add(gameTool);

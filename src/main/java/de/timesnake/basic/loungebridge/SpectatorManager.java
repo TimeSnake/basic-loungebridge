@@ -2,7 +2,7 @@
  * Copyright (C) 2023 timesnake
  */
 
-package de.timesnake.basic.loungebridge.core.main;
+package de.timesnake.basic.loungebridge;
 
 import de.timesnake.basic.bukkit.util.chat.Chat;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Sideboard;

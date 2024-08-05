@@ -4,25 +4,35 @@
 
 package de.timesnake.basic.loungebridge.util.tool.advanced;
 
+import de.timesnake.basic.bukkit.util.Server;
+import de.timesnake.basic.bukkit.util.server.ExTime;
 import de.timesnake.basic.bukkit.util.world.ExWorld;
 import de.timesnake.basic.bukkit.util.world.ExWorldBorder;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.user.SpectatorUser;
+import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserJoinListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.MapLoadableTool;
+import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.WorldLoadableTool;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
 import org.bukkit.Location;
+import org.bukkit.scheduler.BukkitTask;
 
-public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableTool,
+public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableTool, PreStopableTool,
     GameUserJoinListener, GameUserQuitListener,
     SpectatorUserJoinListener, SpectatorUserQuitListener {
 
   private ExWorldBorder border;
+  private BukkitTask shrinkStartTask;
+
+  public WorldBorderTool() {
+
+  }
 
   @Override
   public void onMapLoad() {
@@ -46,6 +56,16 @@ public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableT
     this.loadBorder(world);
   }
 
+  @Override
+  public void preStop() {
+    if (this.border != null) {
+      this.border.stopShrink();
+    }
+    if (this.shrinkStartTask != null) {
+      this.shrinkStartTask.cancel();
+    }
+  }
+
   private void loadBorder(ExWorld world) {
     Location center = this.getBorderCenter();
     double size = this.getBorderSize();
@@ -64,6 +84,19 @@ public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableT
         .damagePerSec(damage)
         .sound(true)
         .build();
+  }
+
+  public void shrinkBorder(double size, ExTime time) {
+    this.border.setSize(size, time, true);
+    if (this.shrinkStartTask != null) {
+      this.shrinkStartTask.cancel();
+    }
+    this.onShrink();
+  }
+
+  public void shrinkBorder(double size, ExTime time, ExTime delay) {
+    this.shrinkStartTask = Server.runTaskLaterSynchrony(() -> this.shrinkBorder(size, time), delay.toTicks(),
+        BasicLoungeBridge.getPlugin());
   }
 
   @Override
@@ -95,4 +128,8 @@ public abstract class WorldBorderTool implements MapLoadableTool, WorldLoadableT
   public abstract double getBorderSize();
 
   public abstract double getBorderDamagePerSec();
+
+  public void onShrink() {
+
+  }
 }

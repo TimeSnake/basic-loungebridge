@@ -58,7 +58,9 @@ public abstract class GameUser extends StatUser {
     }
 
     if (LoungeBridgeServer.getGame().hasTexturePack()) {
-      this.setTexturePack(LoungeBridgeServer.getGame().getTexturePackLink());
+      System.out.println("texture");
+      this.setResourcePack(LoungeBridgeServer.getGame().getTexturePackLink(),
+          "9655101d8985ebe366b7cfe82c6e5dc3b8b5e4be", true);
     }
   }
 
