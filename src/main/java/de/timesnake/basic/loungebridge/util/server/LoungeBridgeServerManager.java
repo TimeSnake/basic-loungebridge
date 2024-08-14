@@ -363,7 +363,8 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
       }
 
       if (LoungeBridgeServer.getGame().hasTexturePack()) {
-        user.setTexturePack(Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_TEXTURE_PACK_LINK));
+        user.setResourcePack(Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_RESOURCE_PACK_LINK),
+            Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_RESOURCE_PACK_HASH), true);
       }
 
       user.switchToServer(LoungeBridgeServer.getTwinServer());

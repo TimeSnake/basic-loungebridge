@@ -16,6 +16,7 @@ import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.listener.GameUserQuitListener;
 import de.timesnake.basic.loungebridge.util.tool.listener.SpectatorUserJoinListener;
 import de.timesnake.library.basic.util.Status;
+import de.timesnake.library.network.NetworkVariables;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
@@ -56,11 +57,14 @@ public abstract class GameUser extends StatUser {
         this.kit = LoungeBridgeServer.getGame().getKitManager().getKit(kitId).orElse(null);
       }
     }
+  }
 
+  @Override
+  public void onQuit() {
+    super.onQuit();
     if (LoungeBridgeServer.getGame().hasTexturePack()) {
-      System.out.println("texture");
-      this.setResourcePack(LoungeBridgeServer.getGame().getTexturePackLink(),
-          "9655101d8985ebe366b7cfe82c6e5dc3b8b5e4be", true);
+      this.setResourcePack(Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_RESOURCE_PACK_LINK),
+          Server.getNetwork().getVariables().getValue(NetworkVariables.DEFAULT_RESOURCE_PACK_HASH), true);
     }
   }
 
