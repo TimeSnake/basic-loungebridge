@@ -4,9 +4,9 @@
 
 package de.timesnake.basic.loungebridge.util.tool;
 
-import de.timesnake.basic.bukkit.util.world.ExPolygon;
+import de.timesnake.basic.bukkit.util.world.BlockPolygon;
 
 public interface BoundedMap {
 
-  ExPolygon getBounds();
+  BlockPolygon getBounds();
 }

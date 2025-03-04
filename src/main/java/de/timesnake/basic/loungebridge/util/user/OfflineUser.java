@@ -4,10 +4,15 @@
 
 package de.timesnake.basic.loungebridge.util.user;
 
+import de.timesnake.basic.bukkit.util.Server;
 import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
+import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.library.basic.util.Status;
-import java.util.UUID;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitTask;
+
+import java.util.UUID;
 
 public class OfflineUser {
 
@@ -21,6 +26,8 @@ public class OfflineUser {
   private final Kit kit;
 
   private final Status.User status;
+
+  private BukkitTask destroyTask;
 
   public OfflineUser(GameUser user) {
     this.uuid = user.getUniqueId();
@@ -54,6 +61,17 @@ public class OfflineUser {
 
   public Kit getKit() {
     return kit;
+  }
+
+  public void runDestroyTask(Runnable destroyAction) {
+    this.destroyTask = Server.runTaskLaterSynchrony(destroyAction,
+        20 * LoungeBridgeServer.REJOIN_TIME_SEC, BasicLoungeBridge.getPlugin());
+  }
+
+  public void cancelDeleteTask() {
+    if (this.destroyTask != null) {
+      this.destroyTask.cancel();
+    }
   }
 
   public void loadInto(GameUser user) {

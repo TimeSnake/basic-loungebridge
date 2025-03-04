@@ -5,8 +5,8 @@
 package de.timesnake.basic.loungebridge.util.tool;
 
 import de.timesnake.basic.bukkit.util.server.ExTime;
+import de.timesnake.basic.bukkit.util.world.BlockPolygon;
 import de.timesnake.basic.bukkit.util.world.ExBlock;
-import de.timesnake.basic.bukkit.util.world.ExPolygon;
 import de.timesnake.basic.loungebridge.core.main.BasicLoungeBridge;
 import de.timesnake.basic.loungebridge.util.server.LoungeBridgeServer;
 import de.timesnake.basic.loungebridge.util.tool.scheduler.PreStopableTool;
@@ -18,7 +18,7 @@ import java.util.List;
 
 public class WorldDestroyer implements PreStopableTool {
 
-  private ExPolygon polygon;
+  private BlockPolygon polygon;
   private int blocksToDestroyPerPeriod;
   private BukkitTask task;
 

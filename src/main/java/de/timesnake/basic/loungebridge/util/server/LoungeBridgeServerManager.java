@@ -12,6 +12,7 @@ import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.bukkit.util.user.scoreboard.Tablist;
 import de.timesnake.basic.game.util.game.Map;
 import de.timesnake.basic.game.util.game.Team;
+import de.timesnake.basic.game.util.server.GameServer;
 import de.timesnake.basic.game.util.server.GameServerManager;
 import de.timesnake.basic.game.util.user.SpectatorManager;
 import de.timesnake.basic.loungebridge.core.*;
@@ -409,6 +410,11 @@ public abstract class LoungeBridgeServerManager<Game extends TmpGame> extends
     LoungeBridgeServer.setState(LoungeBridgeServer.State.WAITING);
 
     this.logger.info("Finished game reset");
+  }
+
+  public void handleGameUserRejoin(GameUser user) {
+    GameServer.getGameTablist().reloadEntry(user, true);
+    this.onGameUserRejoin(user);
   }
 
   public void loadTools() {

@@ -36,6 +36,7 @@ import java.util.function.Predicate;
 public abstract class LoungeBridgeServer extends GameServer {
 
   public static final float WIN_COINS = 10 * TimeCoins.MULTIPLIER;
+  public static final int REJOIN_TIME_SEC = 180;
 
   public static TmpGame getGame() {
     return server.getGame();
@@ -277,6 +278,10 @@ public abstract class LoungeBridgeServer extends GameServer {
   }
 
   private static final LoungeBridgeServerManager<?> server = LoungeBridgeServerManager.getInstance();
+
+  public static void handleGameUserRejoin(GameUser user) {
+    server.handleGameUserRejoin(user);
+  }
 
   public enum State {
     STARTING, RUNNING, STOPPED, CLOSING, RESETTING, WAITING

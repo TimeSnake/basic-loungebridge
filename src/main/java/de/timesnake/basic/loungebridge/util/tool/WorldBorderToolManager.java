@@ -34,8 +34,8 @@ public class WorldBorderToolManager implements CommandListener {
   @Override
   public Completion getTabCompletion() {
     return new Completion(this.perm)
-        .addArgument(new Completion("<size>", "16", "32")
-            .addArgument(new Completion("<time>", "30", "60", "120")));
+        .addArgument(new Completion("<size>", "16", "32").allowAny()
+            .addArgument(new Completion("<time>", "30", "60", "120").allowAny()));
   }
 
   @Override

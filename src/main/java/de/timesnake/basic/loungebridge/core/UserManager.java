@@ -40,7 +40,6 @@ import org.bukkit.event.vehicle.VehicleDamageEvent;
 import org.bukkit.event.vehicle.VehicleEnterEvent;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitTask;
 
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +48,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 public class UserManager implements Listener {
 
-  private static final int REJOIN_TIME_SEC = 180;
-
   private final Logger logger = LogManager.getLogger("lounge-bridge.user.manager");
 
   private final HashMap<UUID, OfflineUser> offlineUsersByUniqueId = new HashMap<>();
-  private final HashMap<UUID, BukkitTask> offlineUserRemoveTaskByUniqueId = new HashMap<>();
 
   public UserManager() {
     Server.registerListener(this, BasicLoungeBridge.getPlugin());
@@ -67,9 +63,9 @@ public class UserManager implements Listener {
 
     if (this.offlineUsersByUniqueId.containsKey(user.getUniqueId())) {
       OfflineUser offlineUser = this.offlineUsersByUniqueId.remove(user.getUniqueId());
-      this.offlineUserRemoveTaskByUniqueId.remove(user.getUniqueId()).cancel();
+      offlineUser.cancelDeleteTask();
       offlineUser.loadInto(user);
-      LoungeBridgeServer.onGameUserRejoin(user);
+      LoungeBridgeServer.handleGameUserRejoin(user);
       LoungeBridgeServer.getToolManager().applyOnTools(GameUserJoinListener.class, t -> t.onGameUserJoin(user));
     } else if (task != null && task.equalsIgnoreCase(LoungeBridgeServer.getGame().getName())
                && user.hasStatus(Status.User.PRE_GAME)) {
@@ -97,12 +93,9 @@ public class UserManager implements Listener {
         || (LoungeBridgeServer.isOutGameRejoiningAllowed() && user.hasStatus(Status.User.OUT_GAME)))
         && LoungeBridgeServer.isGameRunning()) {
       OfflineUser offlineUser = LoungeBridgeServer.loadOfflineUser(((GameUser) user));
+      offlineUser.runDestroyTask(() -> this.offlineUsersByUniqueId.remove(user.getUniqueId()));
       this.offlineUsersByUniqueId.put(user.getUniqueId(), offlineUser);
       this.logger.info("Saved user '{}'", user.getName());
-      this.offlineUserRemoveTaskByUniqueId.put(user.getUniqueId(),
-          Server.runTaskLaterSynchrony(
-              () -> this.offlineUsersByUniqueId.remove(user.getUniqueId()),
-              20 * REJOIN_TIME_SEC, BasicLoungeBridge.getPlugin()));
     }
 
     if (user.hasStatus(Status.User.IN_GAME, Status.User.PRE_GAME)) {
@@ -120,8 +113,6 @@ public class UserManager implements Listener {
     }
 
     ((TeamUser) user).setTeam(null);
-
-
   }
 
   @EventHandler
