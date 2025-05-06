@@ -20,17 +20,11 @@ import org.bukkit.scheduler.BukkitTask;
 import java.util.List;
 import java.util.function.Supplier;
 
-public class ItemSpawner implements GameTool, StartableTool, StopableTool {
+public class ItemSpawner extends LocationItemSpawner {
 
   private final Logger logger = LogManager.getLogger("game.item-spawner");
-
-  private final int delayBase;
-  private final int delayRange;
   private final Integer locationIndex;
-  private final Supplier<List<? extends ItemStack>> itemSupplier;
-  private final TimeUnit unit;
-  private BukkitTask task;
-  private int delay;
+
 
   public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, List<? extends ItemStack> items) {
     this(locationIndex, unit, delay, 0, items);
@@ -40,45 +34,19 @@ public class ItemSpawner implements GameTool, StartableTool, StopableTool {
     this(locationIndex, unit, delay, delayRange, () -> List.of(items.get(Server.getRandom().nextInt(items.size()))));
   }
 
-  public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, Supplier<List<?
-      extends ItemStack>> itemSupplier) {
+  public ItemSpawner(Integer locationIndex, TimeUnit unit, int delay, int delayRange, Supplier<List<? extends ItemStack>> itemSupplier) {
+    super(null, unit, delay, delayRange, itemSupplier);
     this.locationIndex = locationIndex;
-    this.itemSupplier = itemSupplier;
-    this.delayBase = delay;
-    this.delayRange = delayRange;
-    this.unit = unit;
   }
 
   @Override
   public void start() {
-    this.logger.info("Starting item spawner '{}", this.locationIndex);
+    this.location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
 
-    ExLocation location = LoungeBridgeServer.getMap().getLocation(this.locationIndex);
-
-    if (location == null) {
+    if (this.location == null) {
       this.logger.warn("Item spawn location with index '{}' not found", this.locationIndex);
       return;
     }
-
-    this.delay = (this.delayRange > 0 ? Server.getRandom().nextInt(delayRange) : 0) + delayBase;
-
-    this.task = Server.runTaskTimerSynchrony(() -> {
-      delay--;
-
-      if (delay <= 0) {
-        this.itemSupplier.get().forEach(i -> location.getWorld().dropItem(location, i));
-        this.delay = (this.delayRange > 0 ? Server.getRandom().nextInt(delayRange) : 0) + delayBase;
-      }
-    }, 0, this.unit.getTicks(), BasicLoungeBridge.getPlugin());
+    super.start();
   }
-
-  @Override
-  public void stop() {
-    if (this.task != null) {
-      this.task.cancel();
-    }
-
-    this.logger.info("Stopping item spawner '{}'", this.locationIndex);
-  }
-
 }
