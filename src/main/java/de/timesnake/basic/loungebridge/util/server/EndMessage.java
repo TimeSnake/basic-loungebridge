@@ -9,6 +9,7 @@ import de.timesnake.basic.bukkit.util.chat.MessageBlockBuilder;
 import de.timesnake.basic.bukkit.util.user.User;
 import de.timesnake.basic.game.util.game.Team;
 import de.timesnake.basic.loungebridge.util.user.GameUser;
+import de.timesnake.library.basic.util.UserSet;
 import de.timesnake.library.chat.Chat;
 import org.jetbrains.annotations.Nullable;
 
@@ -28,7 +29,7 @@ public class EndMessage {
   private final List<String> stats = new LinkedList<>();
   private final List<String> extras = new LinkedList<>();
 
-  private final Collection<User> winnerUsers = new LinkedList<>();
+  private final UserSet<User> winnerUsers = new UserSet<>();
   private float winCoins = LoungeBridgeServer.WIN_COINS;
 
   private boolean showTitle = true;

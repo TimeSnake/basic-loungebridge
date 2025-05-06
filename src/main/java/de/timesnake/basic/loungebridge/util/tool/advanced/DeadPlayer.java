@@ -68,7 +68,7 @@ public class DeadPlayer {
   }
 
   protected ExLocation calcEntityLocation(ExLocation location) {
-    for (Vector vector : ExBlock.NEAR_BLOCKS) {
+    for (Vector vector : ExBlock.ADJACENT_BLOCKS) {
       if (vector.getY() != 0) {
         continue;
       }
